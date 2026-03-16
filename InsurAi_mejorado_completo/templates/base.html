@@ -18,7 +18,8 @@
             <a href="{% url 'dashboard' %}">
                 <img src="{% static 'imagenes/inzur.svg' %}" alt="Zynapxe" class="logo-img">
             </a>
-        </div>
+            </div>
+        <div class="sidebar-red-line"></div>
         <div class="sidebar-red-line"></div>
         
         <!-- Accordion menus: Cartera (open) y Soporte y Documentacion -->
@@ -28,7 +29,7 @@
                 <div class="acc-body">
                     <ul class="acc-list">
                         <li><a href="{% url 'perfiles' %}" class="acc-link">Perfiles</a><i class="bi bi-people-fill"></i></li>
-                        <li><a href="{% url 'crear_perfiles' %}" class="acc-link">Usuarios</a><i class="bi bi-people-fill"></i></li>
+                        <li><a href="{% url 'usuarios' %}" class="acc-link">Usuarios</a><i class="bi bi-people-fill"></i></li>
                         <li><a href="#" class="acc-link">Accesos</a><i class="bi bi-shield-lock-fill"></i></li>
                         <li><a href="#" class="acc-link">Auditoria</a><i class="bi bi-journal-text"></i></li>
                     </ul>
@@ -123,7 +124,7 @@
             <div class="red-line"></div>
             <div class="avatar-wrap avatar-trigger-wrap">
                 <button type="button" class="avatar-btn" aria-label="Menú de usuario" id="avatarMenuBtn">
-                    <img src="{% static 'imagenes/ia.png' %}" alt="Avatar" class="avatar-img">
+                    <img src="{% static 'imagenes/IA.png' %}" alt="Avatar" class="avatar-img">
                 </button>
                 <div class="avatar-dropdown" id="avatarDropdown">
     <form action="{% url 'logout' %}" method="post" style="margin: 0; padding: 0;">

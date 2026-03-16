@@ -10,7 +10,7 @@
     <div class="container">
         <div class="top-bar-content">
             <h1 class="main-title">
-                {% if usuario %}Editar Perfil{% else %}Crear Perfil{% endif %}
+                {% if usuario %}Editar Usuario{% else %}Crear Usuario{% endif %}
             </h1>
         </div>
 
@@ -31,25 +31,35 @@
         <main class="content-grid" id="main-container">
             <div class="col">
                 <section>
-                    <h2>Información del Perfil</h2>
+                    <h2>Información del Usuario</h2>
                     
                     <input type="hidden" id="u-id" value="{{ usuario.id|default:'' }}">
 
                     <div class="row">
-                        <div class="label">Perfil</div>
+                        <div class="label">Usuario</div>
                         <div class="value">
                             <input type="text" id="u-nombre" 
                                    value="{{ usuario.nombre|default:'' }}" 
-                                   placeholder="Ej: Administrador"
+                                   placeholder="Ej: Jose"
                                    {% if usuario %}readonly{% endif %}>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="label">Descripción</div>
+                        <div class="label">Apellido</div>
                         <div class="value">
                             <input type="text" id="u-apellido" 
                                    value="{{ usuario.descripcion|default:'' }}" 
-                                   placeholder="Ej: Acceso total al sistema"
+                                   placeholder="Ej: Perez"
+                                   {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Correo Electrónico</div>
+                        <div class="value">
+                            <input type="email" id="u-email" 
+                                   value="{{ usuario.email|default:'' }}" 
+                                   placeholder="Ej: correo@zynapxe.com"
                                    {% if usuario %}readonly{% endif %}>
                         </div>
                     </div>

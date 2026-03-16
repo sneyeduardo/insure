@@ -4,6 +4,12 @@ from .models import Polizas, Clientes, Siniestros
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import PerfilUsuario
+import json
+from django.shortcuts import render
+
 
 @login_required
 def dashboard_view(request):
@@ -22,7 +28,7 @@ def dashboard_view(request):
 @login_required
 def crear_perfiles_view(request):
     # Esta vista solo muestra el formulario de perfiles
-    return render(request, 'crear_perfiles.html')
+    return render(request, 'usuarios.html')
 @login_required
 def perfil_nuevo_view(request):
     # Esta vista carga tu nuevo archivo perfil_nuevo.html
@@ -49,4 +55,50 @@ def login_view(request):
             messages.error(request, 'La información de inicio de sesión que ingresaste es incorrecta.')
 
     # 5. Carga la página vacía la primera vez, o la recarga si hubo un error
-   
+def guardar_perfil(request):
+    if request.method == 'POST':
+        try:
+            # 1. Leemos los datos que envía tu fetch (HTML)
+            data = json.loads(request.body)
+            
+            # 2. Traducimos el estado de texto a Booleano para MySQL
+            estado_texto = data.get('estado')
+            es_activo = True if estado_texto == 'activo' else False
+
+            # 3. Guardamos usando los nombres exactos de TU modelo
+            nuevo_perfil = PerfilUsuario.objects.create(
+                nombre_perfil=data.get('nombre'),     # Frontend manda 'nombre', BD recibe 'nombre_perfil'
+                descripcion=data.get('descripcion'),  # Este coincide perfecto
+                estatus=es_activo                     # Le pasamos el True o False
+            )
+            
+            return JsonResponse({'status': 'success', 'mensaje': 'Perfil guardado con éxito'})
+            
+        except Exception as e:
+            # Si MySQL rechaza algo (ej. nombre_perfil duplicado), le avisamos al frontend
+            return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=400)
+            
+    return JsonResponse({'status': 'invalid method'}, status=405)
+def __str__(self):
+        return self.nombre_perfil # <--- Corregido aquí
+
+# 2. Vista para obtener los perfiles y mostrarlos en la tabla
+def listar_perfiles(request):
+    perfiles = PerfilUsuario.objects.all()
+    datos = []
+    for p in perfiles:
+        datos.append({
+            'id': p.id,
+            'nombre': p.nombre,
+            'descripcion': p.descripcion,
+            # Formateamos las fechas a DD/MM/YYYY para que coincida con tu diseño
+            'fecha_creacion': p.fecha_creacion.strftime("%d/%m/%Y"),
+            'fecha_actualizacion': p.fecha_actualizacion.strftime("%d/%m/%Y"),
+            'estado': p.estado.upper()
+        })
+        
+    return JsonResponse({'perfiles': datos})
+def crear_usuario_view(request):
+    # Simplemente renderizamos el HTML
+    return render(request, 'crear_usuarios.html')
+

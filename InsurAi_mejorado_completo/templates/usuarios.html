@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{% static 'perfiles.css' %}">
     {% endblock %}
     {% block content %}
-        <div class="container-fluid p-0 d-flex">
+    <div class="container-fluid p-0 d-flex">
         
         <!-- MAIN CONTENT - DASHBOARD -->
         <main class="main-content-wrapper">
@@ -16,7 +16,7 @@
                         <div class="btn-action back" onclick="window.history.back()" title="Volver atrás">
         <i class="bi bi-arrow-left"></i>
     </div>
-                        <a href="{% url 'perfil_nuevo' %}" class="btn-action plus" style="text-decoration: none;">
+                        <a href="{% url 'crear_usuario' %}" class="btn-action plus" style="text-decoration: none;">
     +
 </a>
                         
@@ -38,7 +38,7 @@
 
                 <div class="main-content">
                     <div class="page-header">
-                        <h1 id="pageTitle">Administracion de Perfiles</h1>
+                        <h1 id="pageTitle">Buscar personas</h1>
                         <div class="filter-text" id="filterIndicator">
                             <span>Filtro</span> | Todos los registros
                         </div>
@@ -53,23 +53,21 @@
 
                         <div class="filters-container" id="filtersContainer">
                             <div class="filters-grid">
-    <div class="filter-item">
-        <label>Perfil</label>
-        <input type="text" id="filterPerson" placeholder="Buscar por perfil..." onkeyup="aplicarFiltros()">
-    </div>
-    <div class="filter-item">
-        <label>Fecha de creacion</label>
-        <input type="date" id="filteremail" onchange="aplicarFiltros()" onkeyup="aplicarFiltros()">
-    </div>
-
-                            
                                 <div class="filter-item">
-                                    <label>Estatus</label>
+                                    <label>Persona</label>
+                                    <input type="text" id="filterPerson" placeholder="Cualquier..." onkeyup="aplicarFiltros()">
+                                </div>
+                                <div class="filter-item">
+                                    <label>Email</label>
+                                    <input type="text" id="filterEmail" placeholder="Cualquier..." onkeyup="aplicarFiltros()">
+                                </div>
+                                <div class="filter-item">
+                                    <label>Organización</label>
                                     <select id="filterOrganization" onchange="aplicarFiltros()">
                                         <option value="">Cualquier</option>
-                                        <option value="Démó">Activo</option>
-                                        <option value="IT Department">Inactivo</option>
-                                        <option value="Corretaje Central">Creado</option>
+                                        <option value="Démó">Démó</option>
+                                        <option value="IT Department">IT Department</option>
+                                        <option value="Corretaje Central">Corretaje Central</option>
                                     </select>
                                 </div>
                             </div>
@@ -81,7 +79,7 @@
                     <!-- Tabla con botones -->
                     <div class="table-container" id="tableContainer">
     <div class="table-actions-header" style="display: flex; align-items: center; gap: 15px;">
-        <a href="{% url 'perfil_nuevo' %}" style="color: inherit; text-decoration: none;">
+        <a href="{% url 'crear_usuario' %}" style="color: inherit; text-decoration: none;">
     <i class="bi bi-plus-lg action-icon" title="Agregar"></i>
 </a>
         <i class="bi bi-arrow-clockwise action-icon" onclick="aplicarFiltros()" title="Refrescar"></i>
@@ -109,10 +107,10 @@
                         <table class="crud-table" id="personasTable">
                             <thead>
                                 <tr>
-                                    <th>Perfil</th>
-                                    <th>Descripcion</th>
-                                    <th>Fecha de creacion</th>
-                                    <th>Fecha de actualizacion</th>
+                                    <th>Persona</th>
+                                    <th>Apellido</th>
+                                    <th>Ultimo login</th>
+                                    <th>Email</th>
                                     <th>Estatus</th>
                                 </tr>
                             </thead>
@@ -134,41 +132,22 @@
             </div>
         </main>
     </div>
-    {% endblock %}
-    {% block extra_js %}
+{% endblock %}  
+{% block extra_js %}
     <!-- SCRIPTS -->
     <script>
-        // Dejamos los arreglos vacíos para llenarlos desde la base de datos
-        let personas = [];
-        let personasFiltradas = [];
+        // DATOS
+        let personas = [
+            { id: 1, nombre: 'Agathe', apellido: 'Chiriac', organizacion: '10/03/2026', estado: 'ACTIVO', email: 'agathe.chiriac@demo.com' },
+            { id: 2, nombre: 'Anna', apellido: 'Gavaldà', organizacion: '10/03/2026', estado: 'ACTIVO', email: 'annav@gavalda.it.com' },
+            { id: 3, nombre: 'Bence', apellido: 'Varga', organizacion: '10/03/2026', estado: 'CREADO', email: 'varga.bencev@gmail.com' },
+            { id: 4, nombre: 'Borca', apellido: 'Sáez', organizacion: '01/03/2026', estado: 'ACTIVO', email: 'borca.saez@unipd.it' },
+            { id: 5, nombre: 'Charles', apellido: 'Armour', organizacion: '05/03/2026', estado: 'ACTIVO', email: 'charles.armour@it.com' },
+            { id: 6, nombre: 'Charles', apellido: 'Patton', organizacion: '05/03/2026', estado: 'INACTIVO', email: 'charles.patton@it.com' },
+            { id: 7, nombre: 'Claude', apellido: 'Monnet', organizacion: '09/03/2026', estado: 'ACTIVO', email: 'claude.monnet@democons' }
+        ];
 
-        // Ejecutamos la búsqueda a la base de datos apenas cargue la página
-        document.addEventListener("DOMContentLoaded", function() {
-            cargarPerfilesDesdeDB();
-        });
-
-        function cargarPerfilesDesdeDB() {
-            fetch('/api/listar-perfiles/') // Asegúrate de que esta URL coincida con tu urls.py
-                .then(response => response.json())
-                .then(data => {
-                    if (data.perfiles) {
-                        // Adaptamos los datos de la base de datos a los nombres de variables que ya usas
-                        personas = data.perfiles.map(p => ({
-                            id: p.id,
-                            nombre: p.nombre,
-                            apellido: p.descripcion, 
-                            email: p.fecha_creacion, 
-                            organizacion: p.fecha_actualizacion, 
-                            estado: p.estado
-                        }));
-                        
-                        personasFiltradas = [...personas];
-                        // Renderizamos la tabla una vez tengamos los datos
-                        renderizarTabla(); 
-                    }
-                })
-                .catch(error => console.error('Error cargando perfiles:', error));
-        }
+        let personasFiltradas = [...personas];
         let personaEditandoId = null;
         let paginaActual = 1;
         const itemsPorPagina = 5;
@@ -194,42 +173,6 @@
         const navPersonas = document.getElementById('navPersonas');
         const navPerfiles = document.getElementById('navPerfiles');
         const navConfiguracion = document.getElementById('navConfiguracion');
-        function aplicarFiltros() {
-    // 1. Capturamos los elementos del DOM de forma segura
-    const inputPerfilElement = document.getElementById('filterPerson');
-    const inputFechaElement = document.getElementById('filterOrganization');
-
-    // Si por alguna razón no existen, detenemos la función para que no colapse
-    if (!inputPerfilElement || !inputFechaElement) return;
-
-    // 2. Obtenemos los valores
-    const textoPerfil = inputPerfilElement.value.toLowerCase();
-    const textoFecha = inputFechaElement.value; // El input date retorna YYYY-MM-DD
-
-    // 3. Convertimos la fecha (YYYY-MM-DD) al formato de tu tabla (DD/MM/YYYY)
-    let fechaFormateada = "";
-    if (textoFecha) {
-        const partes = textoFecha.split('-'); 
-        if (partes.length === 3) {
-            fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
-        }
-    }
-
-    // 4. Filtramos el arreglo
-    personasFiltradas = personas.filter(persona => {
-        const nombreCompleto = `${persona.nombre} ${persona.apellido}`.toLowerCase();
-        
-        const cumplePerfil = !textoPerfil || nombreCompleto.includes(textoPerfil);
-        // Recuerda que en tu arreglo de datos, la fecha está guardada en la variable 'organizacion'
-        const cumpleFecha = !fechaFormateada || persona.organizacion === fechaFormateada;
-
-        return cumplePerfil && cumpleFecha;
-    });
-
-    // 5. Reiniciamos a la página 1 y dibujamos la tabla
-    paginaActual = 1;
-    renderizarTabla();
-}
 
         // FUNCIONES DEL DASHBOARD
         function cambiarSeccion(seccion) {
@@ -274,7 +217,9 @@
 
         function crearNuevoUsuario() {
             personaEditandoId = null;
-            
+            document.getElementById('modalTitle').textContent = 'Create Molkobain Ticket';
+            document.getElementById('displayNombre').textContent = 'Create Molkobain Ticket';
+
             document.getElementById('editNombre').value = '';
             document.getElementById('editApellido').value = '';
             document.getElementById('editEmail').value = '';
@@ -304,68 +249,50 @@
         }
 
         function renderizarTabla() {
-    const inicio = (paginaActual - 1) * itemsPorPagina;
-    const fin = inicio + itemsPorPagina;
-    const personasPaginadas = personasFiltradas.slice(inicio, fin);
+            const inicio = (paginaActual - 1) * itemsPorPagina;
+            const fin = inicio + itemsPorPagina;
+            const personasPaginadas = personasFiltradas.slice(inicio, fin);
 
-    tableBody.innerHTML = '';
+            tableBody.innerHTML = '';
 
-    // NUEVO: Validar si la búsqueda no arrojó resultados
-    if (personasFiltradas.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 30px; color: #6c757d;">
-                    <i class="bi bi-search" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
-                    No se encontró ningún perfil con esa búsqueda
-                </td>
-            </tr>
-        `;
+            personasPaginadas.forEach(persona => {
+                const estadoClass = persona.estado === 'CREADO' ? 'creado' :
+                                   persona.estado === 'ACTIVO' ? 'activo' : 'inactivo';
+
+                const row = document.createElement('tr');
+                row.onclick = () => editarPersona(persona.id);
+                row.innerHTML = `
+                    <td><span class="person-name">${persona.nombre} ${persona.apellido}</span></td>
+                    <td>${persona.apellido}</td>
+                    <td><span class="organization-name">${persona.organizacion}</span></td>
+                    <td><span class="email-address">${persona.email}</span></td>
+                    <td>
+                        <div class="status-container">
+    <span class="status-dot ${estadoClass}"></span>
+    
+    <select class="status-select-clean ${estadoClass}" onchange="cambiarEstado(${persona.id}, this.value); mostrarBotonGuardar()" onclick="event.stopPropagation()">
         
-        // Actualizamos los contadores a cero
-        totalObjects.textContent = `Total: 0 personas`;
-        totalItems.textContent = `0 items`;
-        pageInfo.textContent = `Página 1 de 1`;
-        btnPrev.disabled = true;
-        btnNext.disabled = true;
+        <option value="CREADO" ${persona.estado === 'CREADO' ? 'selected' : ''}>CREADO</option>
+        <option value="ACTIVO" ${persona.estado === 'ACTIVO' ? 'selected' : ''}>ACTIVO</option>
+        <option value="INACTIVO" ${persona.estado === 'INACTIVO' ? 'selected' : ''}>INACTIVO</option>
         
-        return; // Detenemos la función aquí para que no intente dibujar filas vacías
-    }
+    </select>
+</div>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
 
-    // Si hay resultados, dibujamos las filas normalmente
-    personasPaginadas.forEach(persona => {
-        const estadoClass = persona.estado === 'CREADO' ? 'creado' :
-                           persona.estado === 'ACTIVO' ? 'activo' : 'inactivo';
+            totalObjects.textContent = `Total: ${personasFiltradas.length} personas`;
+            totalItems.textContent = `${personasFiltradas.length} items`;
 
-        const row = document.createElement('tr');
-        row.onclick = () => editarPersona(persona.id);
-        row.innerHTML = `
-            <td><span class="person-name">${persona.nombre} ${persona.apellido}</span></td>
-            <td>${persona.apellido}</td>
-            <td><span class="organization-name">${persona.organizacion}</span></td>
-            <td><span class="email-address">${persona.email}</span></td>
-            <td>
-                <div class="status-container">
-                    <span class="status-dot ${estadoClass}"></span>
-                    <select class="status-select-clean ${estadoClass}" onchange="cambiarEstado(${persona.id}, this.value); mostrarBotonGuardar()" onclick="event.stopPropagation()">
-                        <option value="CREADO" ${persona.estado === 'CREADO' ? 'selected' : ''}>CREADO</option>
-                        <option value="ACTIVO" ${persona.estado === 'ACTIVO' ? 'selected' : ''}>ACTIVO</option>
-                        <option value="INACTIVO" ${persona.estado === 'INACTIVO' ? 'selected' : ''}>INACTIVO</option>
-                    </select>
-                </div>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
+            const totalPaginas = Math.ceil(personasFiltradas.length / itemsPorPagina);
+            pageInfo.textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
 
-    totalObjects.textContent = `Total: ${personasFiltradas.length} personas`;
-    totalItems.textContent = `${personasFiltradas.length} items`;
-
-    const totalPaginas = Math.ceil(personasFiltradas.length / itemsPorPagina);
-    pageInfo.textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
-
-    btnPrev.disabled = paginaActual === 1;
-    btnNext.disabled = paginaActual === totalPaginas || totalPaginas === 0;
-}
+            btnPrev.disabled = paginaActual === 1;
+            btnNext.disabled = paginaActual === totalPaginas || totalPaginas === 0;
+        }
 
         function aplicarFiltros() {
             const filterPerson = document.getElementById('filterPerson').value.toLowerCase();
@@ -464,52 +391,7 @@
 
         // Inicialización
         renderizarTabla();
-// 1. Variable para guardar los cambios temporalmente
-        let estadosPendientes = {};
 
-        // 2. REEMPLAZA tu función cambiarEstado por esta:
-        function cambiarEstado(idPersona, nuevoEstado) {
-            // Guardamos el cambio en memoria, pero NO recargamos la tabla aún
-            estadosPendientes[idPersona] = nuevoEstado;
-        }
-
-        // 3. AGREGA estas dos funciones para manejar el botón:
-        function mostrarBotonGuardar() {
-            const boton = document.getElementById('btn-guardar-estado');
-            if (boton) {
-                boton.style.display = 'inline-flex';
-                boton.classList.add('animacion-aparecer');
-            }
-        }
-
-        function confirmarCambio() {
-            const boton = document.getElementById('btn-guardar-estado');
-            
-            // Aplicamos los cambios guardados a tu arreglo 'personas'
-            for (let id in estadosPendientes) {
-                let index = personas.findIndex(p => p.id == id);
-                if (index !== -1) {
-                    personas[index].estado = estadosPendientes[id];
-                }
-            }
-
-            // Efecto visual de guardado exitoso
-            boton.innerHTML = '<i class="bi bi-check2-all"></i> ¡Guardado!';
-            boton.style.backgroundColor = '#20c997'; 
-            
-            // Ocultamos el botón y refrescamos la tabla después de 1.5 segundos
-            setTimeout(() => {
-                boton.style.display = 'none';
-                boton.classList.remove('animacion-aparecer');
-                boton.innerHTML = '<i class="bi bi-check2-circle"></i> Guardar'; 
-                boton.style.backgroundColor = '#28a745'; // Color verde original
-                
-                estadosPendientes = {}; // Vaciamos el almacén temporal
-                
-                // Refrescamos la tabla usando tu función existente
-                aplicarFiltros(); 
-            }, 1500);
-        }
         // 1. Muestra u oculta el menú al dar clic en los 3 puntitos
         function toggleMenuOpciones(event) {
             event.stopPropagation(); // Evita que el clic cierre el menú al instante
@@ -536,4 +418,4 @@
             alert("Has hecho clic en: " + nombreAccion + "\n(Esta función se conectará pronto)");
         }
     </script>
-    {% endblock %}
+{% endblock %}

@@ -6,8 +6,11 @@ from . import views
 
 urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('perfiles/crear/', views.crear_perfiles_view, name='crear_perfiles'),
-    path('perfiles/crear/', views.crear_perfiles_view, name='crear_perfiles'), # La tabla/lista
+    path('perfiles/usuarios/', views.crear_perfiles_view, name='usuarios'),
+    path('perfiles/usuarios/', views.crear_perfiles_view, name='usuarios'), # La tabla/lista
     path('perfiles/nuevo/', views.perfil_nuevo_view, name='perfil_nuevo'),
-    path('administracion/perfiles/', views.perfiles_view, name='perfiles'),
+    path('administracion/perfiles/', views.perfiles_view, name='perfiles'), 
+    path('api/guardar-perfil/', views.guardar_perfil, name='api_guardar_perfil'),
+    path('api/listar-perfiles/', views.listar_perfiles, name='api_listar_perfiles'),
+    path('crear-usuario/', views.crear_usuario_view, name='crear_usuario'),
 ]

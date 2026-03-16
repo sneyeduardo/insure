@@ -25,7 +25,7 @@
                 <div class="acc-body">
                     <ul class="acc-list">
                         <li><a href="{% url 'perfiles' %}" class="acc-link">Perfiles</a><i class="bi bi-people-fill"></i></li>
-                        <li><a href="{% url 'crear_perfiles' %}" class="acc-link">Usuarios</a><i class="bi bi-people-fill"></i></li>
+                        <li><a href="{% url 'usuarios' %}" class="acc-link">Usuarios</a><i class="bi bi-people-fill"></i></li>
                         <li><a href="#" class="acc-link">Accesos</a><i class="bi bi-shield-lock-fill"></i></li>
                         <li><a href="#" class="acc-link">Auditoria</a><i class="bi bi-journal-text"></i></li>
                     </ul>
@@ -120,7 +120,7 @@
             <div class="red-line"></div>
             <div class="avatar-wrap avatar-trigger-wrap">
                 <button type="button" class="avatar-btn" aria-label="Menú de usuario" id="avatarMenuBtn">
-                    <img src="{% static 'imagenes/ia.png' %}" alt="Avatar" class="avatar-img">
+                    <img src="{% static 'imagenes/IA.png' %}" alt="Avatar" class="avatar-img">
                 </button>
                 <div class="avatar-dropdown" id="avatarDropdown">
     <form action="{% url 'logout' %}" method="post" style="margin: 0; padding: 0;">
@@ -253,7 +253,7 @@
             </div>
             <div class="zybanna-chatbot-prompt" onclick="abrirChatZybanna()">
     <div class="zybanna-avatar">
-        <img src="{% static 'imagenes/ia.png' %}" alt="Zybanna AI">
+        <img src="{% static 'imagenes/IA.png' %}" alt="Zybanna AI">
     </div>
     <div class="zybanna-mensaje">
         ¿Te puedo ayudar? Soy <strong>Zybanna</strong>
