@@ -232,8 +232,13 @@ function cambiarSeccion(seccion) {
 function toggleFilters() {
     const container = document.getElementById('filtersContainer');
     const arrow = document.getElementById('searchArrow');
-    container.classList.toggle('collapsed');
-    arrow.classList.toggle('rotated');
+    
+    if (container && arrow) {
+        container.classList.toggle('collapsed');
+        arrow.classList.toggle('rotated');
+    } else {
+        console.error("No se encontraron los elementos 'filtersContainer' o 'searchArrow'");
+    }
 }
 
 function cambiarEstado(id, nuevoEstado) {
