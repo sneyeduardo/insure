@@ -1,0 +1,661 @@
+{% extends 'base.html' %}
+{% load static %}
+
+    {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'perfiles.css' %}">
+    {% endblock %}
+    {% block content %}
+    <div class="container-fluid p-0 d-flex">
+        
+        <!-- MAIN CONTENT - DASHBOARD -->
+        <main class="main-content-wrapper">
+            <!-- DASHBOARD -->
+            <div class="main-dashboard" id="dashboardMain">
+                <div class="top-navbar">
+                    <div class="action-buttons">
+                        <div class="btn-action back" onclick="window.history.back()" title="Volver atrás">
+        <i class="bi bi-chevron-left"></i>
+    </div>
+                        <a href="{% url 'crear_usuario' %}" class="btn-action plus" style="text-decoration: none;">
+    +
+</a>
+                        
+                    </div> 
+                    
+                    <div class="nav-section-label" id="navPersonas">
+                        <i class="bi bi-people-fill"></i>
+                        <span>personas</span>
+                    </div>
+
+                    <div class="user-section">
+                        <span class="user-name" id="userDisplay">Admin</span>
+                        <div class="user-avatar">A</div>
+                    </div>
+                </div>
+
+                <div class="main-content">
+                    <div class="page-header">
+                        <h1 id="pageTitle">Buscar personas</h1>
+                        <div class="filter-text" id="filterIndicator">
+                            <span>Filtro</span> | Todos los registros
+                        </div>
+                    </div>
+
+                     <!-- Search section -->
+                    <div class="search-section" id="searchSection">
+                        <div class="search-header">
+                        <div class="search-title" onclick="toggleFilters()">
+                            Opciones de búsqueda:
+                            <span class="arrow" id="searchArrow">▼</span>
+                        </div>
+
+                        <div class="search-actions">
+                                <div class="dropdown search-dropdown">
+                                    <div class="btn-action plus" onclick="toggleSubmenuBusqueda(event)" style="cursor: pointer;">
+    <i class="bi bi-plus-lg action-icon icon-jefe"></i> </div>
+                                    <ul class="dropdown-menu search-dropdown-menu" id="searchOptionsMenu">
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('persona')">Persona</a></li>
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('username')">Username</a></li>
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('ultimo_login')">Último login</a></li>
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('email')">Email</a></li>
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('estatus')">Estatus</a></li>
+</ul>
+                                </div>
+                                
+                            </div>
+                        </div>
+                            <!-- Contenedor de filtros dinámicos -->
+                        <div class="filters-container" id="filtersContainer">
+                            <div class="filters-grid" id="filtersGrid">
+                                <!-- Los filtros se añadirán aquí dinámicamente -->
+                            </div>
+                        </div>
+                    
+                        <div class="total-objects" id="totalObjects">Total: 7 personas</div>
+                    </div>
+                    <!-- Tabla con botones -->
+                    <div class="table-container" id="tableContainer">
+    <div class="table-actions-header" style="display: flex; align-items: center; gap: 15px;">
+        <a href="{% url 'crear_usuario' %}" style="color: inherit; text-decoration: none;">
+    <i class="bi bi-plus-lg action-icon icon-jefe" title="Agregar"></i>
+</a>
+        <i class="bi bi-arrow-clockwise action-icon icon-jefe" onclick="refrescarDatos()" title="Refrescar" style="transition: transform 0.5s ease; cursor: pointer;"></i>
+        <i class="bi bi-trash action-icon animacion-aparecer" 
+           id="btn-papelera" 
+           onclick="eliminarSeleccionados()" 
+           title="Eliminar seleccionados" 
+           style="display: none; color: #dc3545; font-size: 1.3rem;">
+        </i>
+        
+        <div style="position: relative; display: inline-block;">
+            <i class="bi bi-three-dots-vertical action-icon icon-jefe" onclick="toggleMenuOpciones(event)" title="Más opciones"></i>
+            
+            <div id="menu-tres-puntos" class="menu-desplegable-acciones">
+                <a href="#" class="opcion-menu" onclick="event.preventDefault(); exportarExcel()">
+                    <i class="bi bi-file-earmark-excel" style="color: #198754;"></i> Exportar a Excel
+                </a>
+                <a href="#" class="opcion-menu" onclick="event.preventDefault(); limpiarFiltros()">
+                    <i class="bi bi-eraser" style="color: #6c757d;"></i> Limpiar Filtros
+                </a>
+            </div>
+        </div>
+        
+        <button id="btn-guardar-estado" class="btn-guardar-cambios" style="display: none;" onclick="confirmarCambio()">
+            <i class="bi bi-check2-circle"></i> Guardar
+        </button>
+    </div>
+
+                        <table class="crud-table" id="personasTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px; text-align: center;">✔</th>
+                                    <th>Persona</th>
+                                    <th>Username</th>
+                                    <th>Ultimo login</th>
+                                    <th>Email</th>
+                                    <th>Estatus</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+
+                        <div class="pagination-container">
+                            <div class="pagination-buttons">
+                                <button class="btn-pagination" onclick="paginaAnterior()" id="btnPrev" disabled>Anterior</button>
+                                <button class="btn-pagination" onclick="paginaSiguiente()" id="btnNext">Siguiente</button>
+                            </div>
+                            <div class="per-page">
+                                <span id="pageInfo">Página 1 de 2</span>
+                                <span class="items-total" id="totalItems">7 items</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}  
+{% block extra_js %}
+    <!-- SCRIPTS -->
+    <script>
+     // ==========================================
+// 1. VARIABLES Y CARGA INICIAL
+// ==========================================
+let personas = [];
+let personasFiltradas = [];
+let paginaActual = 1;
+const itemsPorPagina = 5;
+let estadosPendientes = {};
+var filtrosActivos = new Set();
+
+// Ejecutamos la búsqueda a la base de datos apenas cargue la página
+document.addEventListener("DOMContentLoaded", function() {
+    cargarUsuariosDesdeDB();
+});
+
+// ==========================================
+// 2. CONEXIONES A LA BASE DE DATOS (APIs)
+// ==========================================
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function cargarUsuariosDesdeDB() {
+    fetch("/app/api/listar-usuarios/") 
+        .then(response => response.json())
+        .then(data => {
+            if (data.usuarios) {
+                personas = data.usuarios.map(u => ({
+                    id: u.id,
+                    nombre: u.nombre,
+                    username: u.username, // Asegúrate de usar 'username' aquí
+                    ultimo_login: u.ultimo_login, 
+                    email: u.email,
+                    estado: u.estado
+                }));
+                personasFiltradas = [...personas];
+                renderizarTabla(); 
+            }
+        });
+}
+// ==========================================
+// 3. RENDERIZADO DE LA TABLA
+// ==========================================
+function renderizarTabla() {
+    const tableBody = document.getElementById('tableBody');
+    const inicio = (paginaActual - 1) * itemsPorPagina;
+    const fin = inicio + itemsPorPagina;
+    const personasPaginadas = personasFiltradas.slice(inicio, fin);
+
+    tableBody.innerHTML = '';
+
+    if (personasFiltradas.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 30px; color: #6c757d;">
+                    No se encontró ningún usuario
+                </td>
+            </tr>
+        `;
+        return; 
+    }
+
+    personasPaginadas.forEach(persona => {
+        let estadoStr = persona.estado;
+        if (estadoStr === true) estadoStr = 'ACTIVO';
+        if (estadoStr === false) estadoStr = 'INACTIVO';
+
+        const estadoFinal = estadoStr === 'ACTIVO' ? 'ACTIVO' : 'INACTIVO'; 
+        const colorTexto = estadoFinal === 'ACTIVO' ? '#155724' : '#721c24'; 
+        const colorFondo = estadoFinal === 'ACTIVO' ? '#d4edda' : '#f8d7da'; 
+        const colorBorde = estadoFinal === 'ACTIVO' ? '#c3e6cb' : '#f5c6cb';
+
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+            <td style="text-align: center; width: 40px;" onclick="event.stopPropagation();">
+                <input type="checkbox" class="check-usuario" value="${persona.id}" onchange="verificarSeleccion()" 
+                       style="width: 18px !important; height: 18px !important; display: inline-block !important; opacity: 1 !important; visibility: visible !important; appearance: checkbox !important; cursor: pointer;">
+            </td>
+            <td>
+                <a href="/app/usuarios/editar/${persona.id}/" class="person-name" style="color: #fd7e14; font-weight: 600; text-decoration: none; cursor: pointer;">
+                    ${persona.nombre} <i class="bi bi-pencil-square" style="font-size: 0.8rem; margin-left: 5px;"></i>
+                </a>
+            </td>
+            <td>${persona.username}</td>
+            <td style="color: #333; user-select: none; cursor: default;">${persona.ultimo_login}</td>
+            <td style="color: #333; user-select: none; cursor: default;">${persona.email}</td>
+            <td>
+                <div class="status-container" style="display: flex; align-items: center; justify-content: flex-start;">
+                    <select class="status-select-clean" 
+                            onchange="cambiarEstado(${persona.id}, this.value); mostrarBotonGuardar(); 
+                                      this.style.backgroundColor = this.value === 'ACTIVO' ? '#d4edda' : '#f8d7da'; 
+                                      this.style.color = this.value === 'ACTIVO' ? '#155724' : '#721c24'; 
+                                      this.style.borderColor = this.value === 'ACTIVO' ? '#c3e6cb' : '#f5c6cb';" 
+                            onclick="event.stopPropagation()"
+                            style="background-color: ${colorFondo}; color: ${colorTexto}; border: 1px solid ${colorBorde}; 
+                                   border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; font-weight: bold; 
+                                   cursor: pointer; outline: none; text-align: center; width: 145px; appearance: none;">
+                        <option value="ACTIVO" ${estadoFinal === 'ACTIVO' ? 'selected' : ''}>ACTIVO</option>
+                        <option value="INACTIVO" ${estadoFinal === 'INACTIVO' ? 'selected' : ''}>INACTIVO</option>
+                    </select>
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    document.getElementById('totalObjects').textContent = `Total: ${personasFiltradas.length} usuarios`;
+    document.getElementById('totalItems').textContent = `${personasFiltradas.length} items`;
+    
+    const totalPaginas = Math.ceil(personasFiltradas.length / itemsPorPagina);
+    document.getElementById('pageInfo').textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
+    
+    document.getElementById('btnPrev').disabled = paginaActual === 1;
+    document.getElementById('btnNext').disabled = paginaActual === totalPaginas || totalPaginas === 0;
+    
+    verificarSeleccion();
+}
+
+// ==========================================
+// 4. PAGINACIÓN Y FILTROS
+// ==========================================
+function paginaAnterior() {
+    if (paginaActual > 1) { paginaActual--; renderizarTabla(); }
+}
+
+function paginaSiguiente() {
+    const totalPaginas = Math.ceil(personasFiltradas.length / itemsPorPagina);
+    if (paginaActual < totalPaginas) { paginaActual++; renderizarTabla(); }
+}
+
+function toggleFilters() {
+    document.getElementById('filtersContainer').classList.toggle('collapsed');
+    document.getElementById('searchArrow').classList.toggle('rotated');
+}
+
+function toggleSubmenuBusqueda(event) {
+    event.stopPropagation(); 
+    document.getElementById('searchOptionsMenu').classList.toggle('show'); 
+}
+
+function addSearchFilter(tipo) {
+    var e = window.event;
+    if (e) e.preventDefault();
+    document.getElementById('searchOptionsMenu').classList.remove('show');
+
+    if (filtrosActivos.has(tipo)) return;
+    filtrosActivos.add(tipo);
+    
+    const filtersGrid = document.getElementById('filtersGrid');
+    const filterItem = document.createElement('div');
+    filterItem.className = 'filter-item animacion-aparecer';
+    filterItem.id = `filtro-dinamico-${tipo}`;
+
+    let labelText = '';
+    let inputHtml = '';
+
+    switch(tipo) {
+        case 'persona':
+            labelText = 'Persona';
+            inputHtml = `
+                <div class="autocomplete-wrapper" style="position: relative; width: 100%;">
+                    <input type="text" id="val-${tipo}" placeholder="Buscar persona..." 
+                           oninput="mostrarSugerencias(this.value, '${tipo}')" autocomplete="off"
+                           style="width: 100%;">
+                    <div id="sugerencias-${tipo}" class="dropdown-menu search-dropdown-menu" 
+                         style="display: none; position: absolute; top: 100%; left: 0; width: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; margin-top: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+            `;
+            break;
+            
+        case 'username': 
+            labelText = 'Username';
+            inputHtml = `
+                <div class="autocomplete-wrapper" style="position: relative; width: 100%;">
+                    <input type="text" id="val-${tipo}" placeholder="Buscar por @username..." 
+                           oninput="mostrarSugerencias(this.value, '${tipo}')" autocomplete="off"
+                           style="width: 100%;">
+                    <div id="sugerencias-${tipo}" class="dropdown-menu search-dropdown-menu" 
+                         style="display: none; position: absolute; top: 100%; left: 0; width: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; margin-top: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+            `;
+            break;  
+        case 'ultimo_login':
+            labelText = 'Último login';
+            inputHtml = `<input type="text" id="val-${tipo}" placeholder="Seleccionar fecha..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" onchange="aplicarFiltros()">`;
+            break;
+        case 'email':
+            labelText = 'Email';
+            inputHtml = `<input type="text" id="val-${tipo}" placeholder="Buscar email..." onkeyup="aplicarFiltros()">`;
+            break;
+        case 'estatus':
+            labelText = 'Estatus';
+            inputHtml = `
+                <select id="val-${tipo}" onchange="aplicarFiltros()">
+                    <option value="">Todos</option>
+                    <option value="ACTIVO">ACTIVO</option>
+                    <option value="INACTIVO">INACTIVO</option>
+                </select>`;
+            break;
+    }
+
+    filterItem.innerHTML = `
+        <div class="filter-header">
+            <label>${labelText}</label>
+            <i class="bi bi-dash-circle remove-filter" onclick="removeSearchFilter('${tipo}')" title="Quitar filtro" style="cursor:pointer; color:#dc3545; float:right;"></i>
+        </div>
+        ${inputHtml}
+    `;
+    filtersGrid.appendChild(filterItem);
+
+    const container = document.getElementById('filtersContainer');
+    if (container.classList.contains('collapsed')) {
+        container.classList.remove('collapsed');
+        document.getElementById('searchArrow').classList.remove('rotated');
+    }
+}
+
+function removeSearchFilter(tipo) {
+    const filterItem = document.getElementById(`filtro-dinamico-${tipo}`);
+    if (filterItem) {
+        filterItem.remove();
+        filtrosActivos.delete(tipo);
+        aplicarFiltros();
+    }
+}
+
+function aplicarFiltros() {
+    personasFiltradas = [...personas];
+
+    filtrosActivos.forEach(tipo => {
+        const inputElement = document.getElementById(`val-${tipo}`);
+        if (!inputElement) return;
+
+        const valorBuscado = inputElement.value.toLowerCase().trim();
+        if (valorBuscado === "") return; 
+
+        personasFiltradas = personasFiltradas.filter(persona => {
+            switch(tipo) {
+                case 'persona': return persona.nombre && persona.nombre.toLowerCase().includes(valorBuscado);
+                case 'username': 
+                    return persona.username && persona.username.toLowerCase().includes(valorBuscado);
+                case 'email': return persona.email && persona.email.toLowerCase().includes(valorBuscado);
+                case 'estatus':
+                    let estadoActual = persona.estado === true ? 'ACTIVO' : (persona.estado === false ? 'INACTIVO' : persona.estado);
+                    return estadoActual.toLowerCase() === valorBuscado;
+                case 'ultimo_login':
+                    if (persona.ultimo_login) {
+                        const partesFecha = valorBuscado.split('-');
+                        if (partesFecha.length === 3) {
+                            const fechaFormat = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
+                            return persona.ultimo_login.includes(fechaFormat);
+                        }
+                    }
+                    return false;
+                default: return true;
+            }
+        });
+    });
+
+    paginaActual = 1;
+    renderizarTabla();
+}
+
+// ==========================================
+// 5. GUARDAR ESTADOS (PÍLDORAS)
+// ==========================================
+function cambiarEstado(id, nuevoEstado) {
+    estadosPendientes[id] = nuevoEstado;
+}
+
+function mostrarBotonGuardar() {
+    const boton = document.getElementById('btn-guardar-estado');
+    if (boton) {
+        boton.style.display = 'inline-flex';
+        boton.classList.add('animacion-aparecer');
+    }
+}
+
+function confirmarCambio() {
+    const boton = document.getElementById('btn-guardar-estado');
+    boton.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
+    boton.style.backgroundColor = '#ffc107'; 
+
+    fetch("/app/api/actualizar-estados-usuarios/", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ 'cambios': estadosPendientes })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            boton.innerHTML = '<i class="bi bi-check2-all"></i> ¡Guardado!';
+            boton.style.backgroundColor = '#20c997'; 
+            setTimeout(() => {
+                boton.style.display = 'none';
+                boton.innerHTML = '<i class="bi bi-check2-circle"></i> Guardar'; 
+                boton.style.backgroundColor = '#28a745'; 
+                estadosPendientes = {}; 
+                cargarUsuariosDesdeDB(); 
+            }, 1500);
+        } else {
+            alert('Error: ' + data.mensaje);
+            boton.innerHTML = '<i class="bi bi-check2-circle"></i> Guardar';
+            boton.style.backgroundColor = '#28a745';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un error de conexión al guardar.');
+        boton.innerHTML = '<i class="bi bi-check2-circle"></i> Guardar';
+        boton.style.backgroundColor = '#28a745';
+    });
+}
+
+// ==========================================
+// 6. ELIMINAR SELECCIONADOS (PAPELERA)
+// ==========================================
+function verificarSeleccion() {
+    const seleccionados = document.querySelectorAll('.check-usuario:checked');
+    const btnPapelera = document.getElementById('btn-papelera');
+    if (btnPapelera) {
+        btnPapelera.style.display = seleccionados.length > 0 ? 'inline-block' : 'none'; 
+    }
+}
+
+function eliminarSeleccionados() {
+    const seleccionados = document.querySelectorAll('.check-usuario:checked');
+    if (seleccionados.length === 0) return;
+    if (!confirm(`¿Estás seguro de que deseas eliminar ${seleccionados.length} usuario(s)?`)) return;
+
+    const idsParaBorrar = Array.from(seleccionados).map(cb => cb.value);
+
+    fetch("/app/api/eliminar-usuario/", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ 'ids': idsParaBorrar })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById('btn-papelera').style.display = 'none'; 
+            alert(data.mensaje);
+            cargarUsuariosDesdeDB(); 
+        } else {
+            alert('Error: ' + data.mensaje);
+        }
+    })
+    .catch(error => alert('Hubo un error de conexión al eliminar.'));
+}
+
+// ==========================================
+// 7. MENÚ 3 PUNTITOS Y EXPORTAR EXCEL
+// ==========================================
+function toggleMenuOpciones(event) {
+    event.stopPropagation(); 
+    document.getElementById('menu-tres-puntos').classList.toggle('mostrar');
+}
+
+document.addEventListener('click', function(event) {
+    const menuPuntos = document.getElementById('menu-tres-puntos');
+    if (menuPuntos && menuPuntos.classList.contains('mostrar')) {
+        menuPuntos.classList.remove('mostrar');
+    }
+    const menuSearch = document.getElementById('searchOptionsMenu');
+    if (menuSearch && menuSearch.classList.contains('show')) {
+        menuSearch.classList.remove('show');
+    }
+});
+
+function limpiarFiltros() {
+    document.querySelectorAll('.filter-item').forEach(item => item.remove());
+    filtrosActivos.clear();
+    document.getElementById('menu-tres-puntos').classList.remove('mostrar');
+    aplicarFiltros(); 
+}
+
+function refrescarDatos() {
+    const icono = document.querySelector('.bi-arrow-clockwise');
+    if (icono) {
+        icono.style.transform = "rotate(360deg)";
+        setTimeout(() => { icono.style.transform = "rotate(0deg)"; }, 500);
+    }
+    cargarUsuariosDesdeDB();
+}
+
+function exportarExcel() {
+    document.getElementById('menu-tres-puntos').classList.remove('mostrar');
+    if (personasFiltradas.length === 0) {
+        alert("No hay datos para exportar.");
+        return;
+    }
+    let csvContent = "\uFEFF";
+    csvContent += "Persona,Apellido,Último Login,Email,Estatus\n";
+
+    personasFiltradas.forEach(p => {
+        let nombre = `"${p.nombre || ''}"`;
+        let apellido = `"${p.apellido || ''}"`;
+        let ultimo = `"${p.ultimo_login || ''}"`;
+        let email = `"${p.email || ''}"`;
+        let estadoStr = p.estado === true ? 'ACTIVO' : (p.estado === false ? 'INACTIVO' : p.estado);
+        
+        csvContent += `${nombre},${apellido},${ultimo},${email},${estadoStr}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "Reporte_Usuarios_InzurAi.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+function exportarExcel() {
+    document.getElementById('menu-tres-puntos').classList.remove('mostrar');
+    
+    if (personasFiltradas.length === 0) {
+        alert("No hay datos para exportar.");
+        return;
+    }
+    
+    let csvContent = "\uFEFF"; // Para que los acentos y las ñ se vean bien en Excel
+    // Cabecera actualizada con Username
+    csvContent += "Persona,Username,Último Login,Email,Estatus\n";
+
+    personasFiltradas.forEach(p => {
+        let nombre = `"${p.nombre || ''}"`;
+        let username = `"@${p.username || ''}"`; // Usamos la variable correcta
+        let ultimo = `"${p.ultimo_login || 'Sin ingreso'}"`;
+        let email = `"${p.email || ''}"`;
+        let estadoStr = p.estado === true ? 'ACTIVO' : (p.estado === false ? 'INACTIVO' : p.estado);
+        
+        csvContent += `${nombre},${username},${ultimo},${email},${estadoStr}\n`;
+    });
+
+    // Creamos el archivo y forzamos la descarga
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "Reporte_Usuarios_InzurAi.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+// ==========================================
+// 8. AUTOCOMPLETADO PERSONALIZADO
+// ==========================================
+function mostrarSugerencias(valor, tipo) {
+    const dropdown = document.getElementById(`sugerencias-${tipo}`);
+    const input = document.getElementById(`val-${tipo}`);
+    
+    // Aplicamos el filtro a la tabla para que reaccione en tiempo real
+    aplicarFiltros();
+
+    if (valor.trim() === '') {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    // Extraemos la lista correcta dependiendo del filtro activo
+    let listaValores = [];
+    if (tipo === 'persona') {
+        listaValores = [...new Set(personas.map(p => p.nombre))].filter(Boolean);
+    } else if (tipo === 'username') {
+        listaValores = [...new Set(personas.map(p => p.username))].filter(Boolean);
+    }
+    
+    // Filtramos coincidencias
+    const coincidencias = listaValores.filter(texto => 
+        texto.toLowerCase().includes(valor.toLowerCase())
+    );
+
+    dropdown.innerHTML = '';
+
+    if (coincidencias.length > 0) {
+        coincidencias.forEach(texto => {
+            const item = document.createElement('a');
+            item.className = 'dropdown-item'; 
+            item.href = '#';
+            item.textContent = tipo === 'username' ? `@${texto}` : texto; // Añadimos el '@' visualmente si es username
+            
+            item.onclick = function(e) {
+                e.preventDefault();
+                input.value = texto; // Ponemos el valor limpio en el input
+                dropdown.style.display = 'none'; 
+                aplicarFiltros(); // Filtramos la tabla de forma exacta
+            };
+            
+            dropdown.appendChild(item);
+        });
+        dropdown.style.display = 'block'; 
+    } else {
+        dropdown.style.display = 'none'; 
+    }
+}
+
+// Ocultar los menús si el usuario hace clic fuera de ellos
+document.addEventListener('click', function(e) {
+    const wrappers = document.querySelectorAll('.autocomplete-wrapper');
+    wrappers.forEach(wrapper => {
+        if (!wrapper.contains(e.target)) {
+            const dropdown = wrapper.querySelector('.search-dropdown-menu');
+            if (dropdown) dropdown.style.display = 'none';
+        }
+    });
+});
+    </script>
+{% endblock %}
