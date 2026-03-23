@@ -48,18 +48,17 @@ body, html {
 .sidebar {
     width: 300px;
     background: linear-gradient(to bottom, var(--sidebar-bg), var(--sidebar-bg-light));
-    padding: 50px 0;
-    border-right: 1px solid rgba(255,255,255,0.1);
-    position: relative;
-    overflow: visible; /* Asegurar visibilidad */
     border-right: 1px solid rgba(255, 255, 255, 0.2);
     padding: 0px 0;
-    position: relative;
-    min-height: 100vh; /* Asegura que el sidebar llegue hasta abajo de la pantalla */
+    
+    /* Sticky para mantenerlo anclado durante el scroll */
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    
     display: flex;
     flex-direction: column;
     overflow: visible !important;
-   
 }
 /* linea roja */
 
