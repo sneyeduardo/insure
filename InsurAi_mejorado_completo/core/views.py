@@ -371,76 +371,42 @@ def recuperar_password_view(request):
         usuario_ingresado = request.POST.get('username')
         email_ingresado = request.POST.get('email')
         
-        print("==================================================")
-        print(f"🔍 BUSCANDO: User='{usuario_ingresado}' | Email='{email_ingresado}'")
-        
         try:
             usuario = Usuarios.objects.get(username=usuario_ingresado, email=email_ingresado)
-            print("✅ ¡Usuario encontrado en la BD! Preparando correo HTML...")
             
             signer = TimestampSigner()
             token = signer.sign(usuario.id_usuario) 
+            link_recuperacion = request.build_absolute_uri(reverse('cambiar_password', args=[token]))
             
-            link_recuperacion = request.build_absolute_uri(
-                reverse('cambiar_password', args=[token])
-            )
-            
-            asunto = "Recuperar Contraseña - InzurAi+"
-            
-            # Construimos la URL absoluta del logo
-            url_logo = request.build_absolute_uri('/static/imagenes/inzur.png') 
-            
-            # Cargamos la plantilla HTML
+            # Renderizamos el HTML del correo
             html_content = render_to_string('email_recuperacion.html', {
                 'nombre_usuario': usuario.nombre_completo,
                 'link': link_recuperacion,
-                'logo_url': url_logo
+                'logo_url': request.build_absolute_uri('/static/imagenes/inzur.png')
             })
-            
-            # --- NUEVO ENVÍO POR API (Mailjet) ---
-            url_api = "https://api.mailjet.com/v3.1/send"
-            
-            # Reemplaza estas variables con las claves exactas que te dé Mailjet
-            api_key = "a7d3f5ac80e85e8ec3904b9cd198fcb2"
-            api_secret = "fa337edb3cb35386ce0a09d4d10439ed"
+
+            # --- ENVÍO A TRAVÉS DEL PUENTE DE GOOGLE ---
+            url_puente = "https://script.google.com/macros/s/AKfycbywyfHwYo-S-MDAr9OdUxYp0RVD8-PXMCGSxcyk5U-M_aflxEQ54zt5OaP9utqRvvGosw/exec"
             
             payload = {
-                "Messages": [
-                    {
-                        "From": {
-                            "Email": "sneyeduardo4@gmail.com",
-                            "Name": "InzurAi+"
-                        },
-                        "To": [
-                            {
-                                "Email": usuario.email,
-                                "Name": usuario.nombre_completo
-                            }
-                        ],
-                        "Subject": asunto,
-                        "HTMLPart": html_content
-                    }
-                ]
+                "to": usuario.email,
+                "subject": "Recuperar Contraseña - InzurAi+",
+                "htmlBody": html_content
             }
             
-            # Hacemos la petición HTTP con Autenticación Básica
-            respuesta = requests.post(
-                url_api, 
-                auth=(api_key, api_secret), 
-                json=payload
-            )
+            # Enviamos la petición al script (Puerto 443, no bloqueado)
+            # Nota: Google Apps Script requiere seguir redirecciones (allow_redirects=True)
+            respuesta = requests.post(url_puente, data=json.dumps(payload), allow_redirects=True)
             
             if respuesta.status_code == 200:
-                print("🚀 ¡CORREO ENVIADO CON ÉXITO POR API (MAILJET)!")
+                print("🚀 ¡CORREO ENVIADO VÍA GOOGLE APPS SCRIPT!")
             else:
-                print(f"🔥 ERROR DE LA API: {respuesta.text}")
-                
+                print(f"🔥 ERROR EN EL PUENTE: {respuesta.text}")
+
         except Usuarios.DoesNotExist:
-            print("🛑 BLOQUEADO: El usuario o el correo no existen/no coinciden en la base de datos.")
+            print("🛑 Usuario no encontrado.")
         except Exception as e:
-            print(f"🔥 ERROR FATAL AL ENVIAR CORREO: {str(e)}")
-            
-        print("==================================================")
+            print(f"🔥 ERROR FATAL: {str(e)}")
 
         messages.success(request, 'Si los datos son correctos, te hemos enviado un enlace de recuperación.')
         return redirect('recuperar_password')
