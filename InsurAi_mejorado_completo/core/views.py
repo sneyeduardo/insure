@@ -387,37 +387,54 @@ def recuperar_password_view(request):
             
             asunto = "Recuperar Contraseña - InzurAi+"
             
-            # --- NUEVO: Construimos la URL absoluta del logo ---
-            # Recuerda haber guardado 'inzur.png' en tu carpeta static/imagenes/
-            # Cambia esto solo para la prueba:
-            # Cuando estés en producción, vuelve a esto:
+            # Construimos la URL absoluta del logo
             url_logo = request.build_absolute_uri('/static/imagenes/inzur.png') 
             
-            # 1. Cargamos la plantilla HTML y agregamos 'logo_url'
+            # Cargamos la plantilla HTML
             html_content = render_to_string('email_recuperacion.html', {
                 'nombre_usuario': usuario.nombre_completo,
                 'link': link_recuperacion,
-                'logo_url': url_logo  # <--- Aquí le mandamos la imagen al correo
+                'logo_url': url_logo
             })
             
-            # 2. Creamos una versión en texto plano
-            text_content = strip_tags(html_content)
+            # --- NUEVO ENVÍO POR API (Mailjet) ---
+            url_api = "https://api.mailjet.com/v3.1/send"
             
-            # 3. Armamos el correo "Multialternativa"
-            correo = EmailMultiAlternatives(
-                asunto,
-                text_content,
-                'sneyeduardo4@gmail.com', # <-- Tu correo
-                [usuario.email]
+            # Reemplaza estas variables con las claves exactas que te dé Mailjet
+            api_key = "a7d3f5ac80e85e8ec3904b9cd198fcb2"
+            api_secret = "fa337edb3cb35386ce0a09d4d10439ed"
+            
+            payload = {
+                "Messages": [
+                    {
+                        "From": {
+                            "Email": "sneyeduardo4@gmail.com",
+                            "Name": "InzurAi+"
+                        },
+                        "To": [
+                            {
+                                "Email": usuario.email,
+                                "Name": usuario.nombre_completo
+                            }
+                        ],
+                        "Subject": asunto,
+                        "HTMLPart": html_content
+                    }
+                ]
+            }
+            
+            # Hacemos la petición HTTP con Autenticación Básica
+            respuesta = requests.post(
+                url_api, 
+                auth=(api_key, api_secret), 
+                json=payload
             )
             
-            # 4. Adjuntamos la versión HTML bella
-            correo.attach_alternative(html_content, "text/html")
-            
-            # 5. ¡Enviamos!
-            correo.send()
-            print("🚀 ¡CORREO HTML ENVIADO CON ÉXITO A LOS SERVIDORES DE GOOGLE!")
-
+            if respuesta.status_code == 200:
+                print("🚀 ¡CORREO ENVIADO CON ÉXITO POR API (MAILJET)!")
+            else:
+                print(f"🔥 ERROR DE LA API: {respuesta.text}")
+                
         except Usuarios.DoesNotExist:
             print("🛑 BLOQUEADO: El usuario o el correo no existen/no coinciden en la base de datos.")
         except Exception as e:
