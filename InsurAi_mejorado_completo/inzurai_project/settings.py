@@ -153,5 +153,5 @@ EMAIL_HOST = 'in-v3.mailjet.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('a7d3f5ac80e85e8ec3904b9cd198fcb2')
-EMAIL_HOST_PASSWORD = os.environ.get('fa337edb3cb35386ce0a09d4d10439ed')
+EMAIL_HOST_PASSWORD = os.environ.get('7aa7d3beb626007b116a6e290a3282d4')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'sneyeduardo4@gmail.com')
