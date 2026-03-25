@@ -373,66 +373,61 @@ def recuperar_password_view(request):
         usuario_ingresado = request.POST.get('username')
         email_ingresado = request.POST.get('email')
         
+        print(f"--- Iniciando recuperación para: {usuario_ingresado} ---") # Log de control
+
         try:
+            # 1. Buscar usuario
             usuario = Usuarios.objects.get(username=usuario_ingresado, email=email_ingresado)
-            
+            print("✅ Usuario encontrado en la DB")
+
+            # 2. Generar Token y Link
             signer = TimestampSigner()
             token = signer.sign(usuario.id_usuario) 
             link_recuperacion = request.build_absolute_uri(reverse('cambiar_password', args=[token]))
-            
-            # Renderizamos el HTML del correo
-            html_content = render_to_string('email_recuperacion.html', {
-                'nombre_usuario': usuario.nombre_completo,
-                'link': link_recuperacion,
-                'logo_url': request.build_absolute_uri('/static/imagenes/inzur.png')
-            })
+            print(f"🔗 Link generado: {link_recuperacion}")
 
-            # --- ENVÍO VÍA API REST DE MAILJET (EVITA BLOQUEOS DE RENDER) ---
-            mailjet_url = "https://api.mailjet.com/v3.1/send"
-            
-            # Traemos las credenciales que pusiste en el dashboard de Render
+            # 3. Renderizar Template (¡Ojo aquí!)
+            try:
+                html_content = render_to_string('email_recuperacion.html', {
+                    'nombre_usuario': usuario.nombre_completo,
+                    'link': link_recuperacion,
+                    'logo_url': request.build_absolute_uri('/static/imagenes/inzur.png')
+                })
+                print("✅ Plantilla HTML renderizada con éxito")
+            except Exception as e:
+                print(f"❌ ERROR EN TEMPLATE: ¿Existe el archivo email_recuperacion.html? {str(e)}")
+                raise e
+
+            # 4. Enviar a Mailjet
             api_key = settings.EMAIL_HOST_USER 
             api_secret = settings.EMAIL_HOST_PASSWORD
             remitente = settings.DEFAULT_FROM_EMAIL
 
             payload = {
-                "Messages": [
-                    {
-                        "From": {
-                            "Email": remitente,
-                            "Name": "InzurAI+"
-                        },
-                        "To": [
-                            {
-                                "Email": usuario.email,
-                                "Name": usuario.nombre_completo
-                            }
-                        ],
-                        "Subject": "Recuperar Contraseña - InzurAi+",
-                        "HTMLPart": html_content
-                    }
-                ]
+                "Messages": [{
+                    "From": {"Email": remitente, "Name": "InzurAI+"},
+                    "To": [{"Email": usuario.email, "Name": usuario.nombre_completo}],
+                    "Subject": "Recuperar Contraseña - InzurAi+",
+                    "HTMLPart": html_content
+                }]
             }
 
-            # Hacemos la petición POST a la API de Mailjet
             respuesta = requests.post(
-                mailjet_url, 
+                "https://api.mailjet.com/v3.1/send", 
                 auth=HTTPBasicAuth(api_key, api_secret), 
                 json=payload,
-                timeout=10 # Evita que se quede cargando infinito si falla
+                timeout=10
             )
             
-            if respuesta.status_code == 200:
-                print("🚀 ¡CORREO ENVIADO VÍA MAILJET API!")
-            else:
-                print(f"🔥 ERROR EN MAILJET: {respuesta.text}")
+            print(f"📬 Respuesta Mailjet: {respuesta.status_code}")
 
         except Usuarios.DoesNotExist:
-            print("🛑 Usuario no encontrado.")
-        except requests.exceptions.Timeout:
-            print("⏳ Tiempo de espera agotado conectando con Mailjet.")
+            print("⚠️ Usuario no encontrado, pero enviamos mensaje de éxito por seguridad.")
         except Exception as e:
-            print(f"🔥 ERROR FATAL: {str(e)}")
+            print(f"❌ ERROR CRÍTICO: {str(e)}")
+            # Esto evita que la página dé un 500 y te muestra el error en los logs
+            messages.error(request, f"Ocurrió un error interno: {str(e)}")
+            return redirect('recuperar_password')
 
         messages.success(request, 'Si los datos son correctos, te hemos enviado un enlace de recuperación.')
         return redirect('recuperar_password')
