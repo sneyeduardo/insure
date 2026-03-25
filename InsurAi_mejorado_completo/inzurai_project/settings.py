@@ -152,6 +152,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'in-v3.mailjet.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('a7d3f5ac80e85e8ec3904b9cd198fcb2')
-EMAIL_HOST_PASSWORD = os.environ.get('7aa7d3beb626007b116a6e290a3282d4')
+EMAIL_HOST_USER = os.environ.get('MAILJET_API_KEY') 
+EMAIL_HOST_PASSWORD = os.environ.get('MAILJET_SECRET_KEY')
+
+# Para el correo, asegúrate de que el nombre coincida con tu KEY en Render
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'sneyeduardo4@gmail.com')
