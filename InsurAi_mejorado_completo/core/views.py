@@ -76,6 +76,13 @@ def login_view(request):
                     request.session['usuario_id'] = user_obj.id_usuario
                     request.session['username'] = user_obj.username
                     request.session['nombre_completo'] = user_obj.nombre_completo
+                    
+                    # ---> ¡AQUÍ ESTÁ LA MAGIA! <---
+                    # Registramos el momento exacto del login y lo guardamos
+                    user_obj.ultimo_login = timezone.now()
+                    user_obj.save()
+                    # ------------------------------
+
                     return redirect('dashboard') 
                 else:
                     messages.error(request, '⚠️ Tu cuenta está inactiva o bloqueada.')
