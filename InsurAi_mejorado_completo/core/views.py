@@ -1,3 +1,4 @@
+import requests
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Polizas, Clientes, Siniestros
@@ -385,21 +386,50 @@ def recuperar_password_view(request):
                 'logo_url': request.build_absolute_uri('/static/imagenes/inzur.png')
             })
 
-            # --- ENVÍO A TRAVÉS DE MAILJET (SMTP NATIVO DE DJANGO) ---
-            subject = "Recuperar Contraseña - InzurAi+"
-            text_content = strip_tags(html_content) # Genera una versión en texto plano por seguridad
-            from_email = settings.DEFAULT_FROM_EMAIL # Llama a la variable que configuraste en settings.py
-            to = usuario.email
+            # --- ENVÍO VÍA API REST DE MAILJET (EVITA BLOQUEOS DE RENDER) ---
+            mailjet_url = "https://api.mailjet.com/v3.1/send"
             
-            # Construimos y enviamos el correo
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
+            # Traemos las credenciales que pusiste en el dashboard de Render
+            api_key = settings.EMAIL_HOST_USER 
+            api_secret = settings.EMAIL_HOST_PASSWORD
+            remitente = settings.DEFAULT_FROM_EMAIL
+
+            payload = {
+                "Messages": [
+                    {
+                        "From": {
+                            "Email": remitente,
+                            "Name": "InzurAI+"
+                        },
+                        "To": [
+                            {
+                                "Email": usuario.email,
+                                "Name": usuario.nombre_completo
+                            }
+                        ],
+                        "Subject": "Recuperar Contraseña - InzurAi+",
+                        "HTMLPart": html_content
+                    }
+                ]
+            }
+
+            # Hacemos la petición POST a la API de Mailjet
+            respuesta = requests.post(
+                mailjet_url, 
+                auth=HTTPBasicAuth(api_key, api_secret), 
+                json=payload,
+                timeout=10 # Evita que se quede cargando infinito si falla
+            )
             
-            print("🚀 ¡CORREO ENVIADO VÍA MAILJET!")
+            if respuesta.status_code == 200:
+                print("🚀 ¡CORREO ENVIADO VÍA MAILJET API!")
+            else:
+                print(f"🔥 ERROR EN MAILJET: {respuesta.text}")
 
         except Usuarios.DoesNotExist:
             print("🛑 Usuario no encontrado.")
+        except requests.exceptions.Timeout:
+            print("⏳ Tiempo de espera agotado conectando con Mailjet.")
         except Exception as e:
             print(f"🔥 ERROR FATAL: {str(e)}")
 
