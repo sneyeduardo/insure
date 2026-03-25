@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'crear_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="content">
+    <div class="container">
+        <div class="top-bar-content" style="display: flex; align-items: center;">
+            <a href="{% url 'perfiles' %}" style="margin-right: 10px; font-size: 1.8rem; color: #333; text-decoration: none; transition: color 0.2s;" title="Volver" onmouseover="this.style.color='#007bff'" onmouseout="this.style.color='#333'">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            
+            <h1 class="main-title" style="margin: 0;">
+                {% if perfil %}Editar Perfil{% else %}Crear Usuario{% endif %}
+            </h1>
+        </div>
+        
+        <div class="logo-box">
+            <i class="bi bi-person-fill" style="font-size: 4rem; color: #6c757d; margin-top: 5px;"></i>
+        </div>
+
+        <header class="header">
+            <div class="header-actions" id="edit-trigger" {% if not usuario %}style="display: none;"{% endif %}>
+                <span class="edit-icon" title="Habilitar edición"> ✎ </span>  
+            </div>
+        </header>
+
+        <nav class="tabs-nav">
+            <div class="tab">Propiedades</div>
+        </nav>
+
+        <main class="content-grid" id="main-container">
+            <div class="col">
+                <section>
+                    <h2>Información del Usuario</h2>
+                    
+                    <input type="hidden" id="u-id" value="{{ usuario.id|default:'' }}">
+
+                    <div class="info-card" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase;">ID Sistema (PK)</span>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: #212529; font-family: monospace;">
+                                {% if usuario %}
+                                    USR-{{ usuario.id|stringformat:"03d" }}
+                                {% else %}
+                                    <span style="color: #adb5bd; font-style: italic;">Auto-generado al guardar</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase;">Fecha de Registro</span>
+                            <div style="font-size: 0.95rem; font-weight: 500; color: #495057;">
+                                {% if usuario %}
+                                    {{ usuario.fecha_creacion|date:"d/m/Y H:i" }}
+                                {% else %}
+                                    -- / -- / ----
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Perfil Asignado</div>
+                        <div class="value">
+                            <select id="u-rol" {% if usuario %}disabled{% endif %} style="font-weight: 600; color: #0d6efd;">
+                                <option value="" disabled selected>-- Seleccione un Perfil --</option>
+                                {% for rol in roles %}
+                                    <option value="{{ rol.id_rol }}" {% if usuario.id_rol == rol.id_rol %}selected{% endif %}>
+                                        {{ rol.nombre_rol }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Usuario</div>
+                        <div class="value">
+                            <input type="text" id="u-nombre" 
+                                   value="{{ usuario.nombre|default:'' }}" 
+                                   placeholder="Ej: Jose"
+                                   {% if usuario %}
+                                   readonly 
+                                   style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;" 
+                                   title="No se puede editar el nombre después de creado"
+                                   {% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Username</div>
+                        <div class="value">
+                            <input type="text" id="u-username" 
+                                   value="{{ usuario.username|default:'' }}" 
+                                   placeholder="Ej: jperez_admin"
+                                   {% if usuario %}
+                                   readonly 
+                                   style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;" 
+                                   title="El username no es modificable"
+                                   {% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Correo Electrónico</div>
+                        <div class="value">
+                            <input type="email" id="u-email" 
+                                   value="{{ usuario.email|default:'' }}" 
+                                   placeholder="Ej: correo@zynapxe.com"
+                                   {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="label">Contraseña</div>
+                        <div class="value">
+                            <input type="password" id="u-password" 
+                                   placeholder="{% if usuario %}Dejar en blanco para no cambiar{% else %}Escribir contraseña{% endif %}"
+                                   style="padding: 6px 8px; width: 100%; border: 1px solid #d0d7de; border-radius: 4px;"
+                                   {% if usuario %}readonly{% endif %}
+                                   oninput="evaluarPassword()">
+                                   
+                            <div class="password-strength-meter" id="strength-meter-container" style="display: none; margin-top: 8px;">
+                                <div class="strength-bar-bg" style="width: 100%; height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden;">
+                                    <div id="strength-bar" style="height: 100%; width: 0%; transition: all 0.3s ease;"></div>
+                                </div>
+                                <small id="strength-text" style="font-size: 0.8rem; font-weight: 600; margin-top: 4px; display: block;"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="row-confirmar" {% if usuario %}style="display: none;"{% endif %}>
+                        <div class="label">Confirmar Contraseña</div>
+                        <div class="value">
+                            <input type="password" id="u-confirm-password" 
+                                   placeholder="Repite la contraseña"
+                                   style="padding: 6px 8px; width: 100%; border: 1px solid #d0d7de; border-radius: 4px;"
+                                   {% if usuario %}readonly{% endif %}
+                                   oninput="validarCoincidencia()">
+                                   
+                            <small id="pass-match-msg" style="display: none; font-size: 0.8rem; margin-top: 5px; font-weight: 600;"></small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Estatus</div>
+                        <div class="value">
+                            <select id="u-estado" {% if usuario %}disabled{% endif %}>
+                                <option value="activo" {% if usuario.estado == 'activo' or not usuario %}selected{% endif %}>Activo</option>
+                                <option value="inactivo" {% if usuario.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col">
+                <section>
+                    <h2>Parámetros JSON de Salida</h2>
+                    <textarea class="json-area" id="json-preview" readonly>
+{% if usuario %}
+Modo Edición: Presiona el lápiz (✎) para desbloquear los campos.
+{% else %}
+Modo Creación: Los campos están abiertos. Llena los datos para continuar.
+{% endif %}
+                    </textarea>
+                </section>
+            </div>
+            
+        </main>
+    </div>
+    
+    <button class="btn-guardar-flotante" id="btn-save" {% if not usuario %}style="display: block;"{% else %}style="display: none;"{% endif %}>GUARDAR CAMBIOS</button>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const editIcon = document.getElementById('edit-trigger');
+    const saveBtn = document.getElementById('btn-save');
+    const container = document.getElementById('main-container');
+    
+    const inputs = document.querySelectorAll('input:not([type="hidden"]):not(:disabled), select');
+    const infoArea = document.getElementById('json-preview');
+
+    const esEdicion = "{{ usuario|yesno:'true,false' }}" === "true";
+
+    if (!esEdicion) {
+        container.classList.add('editing');
+    }
+
+    editIcon.addEventListener('click', () => {
+        container.classList.add('editing');
+        inputs.forEach(el => {
+            const rowConfirm = document.getElementById('row-confirmar');
+            if (rowConfirm) rowConfirm.style.display = 'flex';
+            // 🛑 PROTECCIÓN: Si estamos editando, no desbloqueamos nombre ni username
+            if (esEdicion && (el.id === 'u-nombre' || el.id === 'u-username')) {
+                return; 
+            }
+            
+            el.removeAttribute('readonly');
+            el.removeAttribute('disabled');
+        });
+        saveBtn.style.display = 'block';
+        infoArea.value = "Modo edición habilitado.\nEl nombre y username están protegidos.";
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    saveBtn.addEventListener('click', () => {
+        const pass = document.getElementById('u-password').value;
+        const confirmPass = document.getElementById('u-confirm-password').value;
+        // JS FIX: El ID correcto es 'pass-match-msg', no 'pass-error'
+        const errorMsg = document.getElementById('pass-match-msg');
+        // JS FIX: Declarar textoOriginal para que no crashee si hay error
+        const textoOriginal = saveBtn.innerHTML;
+
+        // 1. VALIDACIÓN DE COINCIDENCIA (Solo si no es edición o si se escribió algo)
+        if (!esEdicion || pass.length > 0) {
+            if (pass !== confirmPass) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Las contraseñas no coinciden';
+                errorMsg.style.color = '#dc3545';
+                document.getElementById('u-confirm-password').style.borderColor = '#dc3545';
+                alert("❌ Error: Las contraseñas no coinciden. Por favor, verifícalas.");
+                return; // ✋ Aquí se detiene todo, no llega al fetch
+            }
+        }
+
+        // Si pasa la validación, ocultamos el error
+        errorMsg.style.display = 'none';
+        document.getElementById('u-confirm-password').style.borderColor = '#d0d7de';
+
+        // 2. ARMADO DE DATOS (Continúa tu código normal)
+        const datosUsuario = {
+            id: document.getElementById('u-id').value,
+            nombre: document.getElementById('u-nombre').value,
+            username: document.getElementById('u-username').value,
+            email: document.getElementById('u-email').value, 
+            estado: document.getElementById('u-estado').value,
+            id_rol: document.getElementById('u-rol').value, // <--- ¡LA PIEZA FALTANTE!
+            password: pass
+        };
+        
+        // ¡AQUÍ CAMBIAMOS LA URL PARA QUE VAYA AL API DE USUARIOS!
+        fetch('/app/api/guardar-usuario/', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(datosUsuario)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                container.classList.remove('editing');
+                inputs.forEach(el => {
+                    el.setAttribute('readonly', true);
+                    el.setAttribute('disabled', true);
+                });
+                
+                saveBtn.innerHTML = '¡GUARDADO!';
+                saveBtn.style.backgroundColor = '#28a745';
+                
+                setTimeout(() => {
+                    // ¡Y AQUÍ CAMBIAMOS LA REDIRECCIÓN A LA TABLA DE USUARIOS!
+                    window.location.href = "{% url 'usuarios' %}"; 
+                }, 1500);
+            } else {
+                alert("Hubo un error al guardar: " + data.mensaje);
+                saveBtn.innerHTML = textoOriginal;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Error de conexión al intentar guardar.");
+            saveBtn.innerHTML = textoOriginal;
+        });
+    });
+
+    // Validadores de contraseña
+    const passInput = document.getElementById('u-password');
+    const confirmInput = document.getElementById('u-confirm-password');
+    const meterContainer = document.getElementById('strength-meter-container');
+    const strengthBar = document.getElementById('strength-bar');
+    const strengthText = document.getElementById('strength-text');
+    const matchMsg = document.getElementById('pass-match-msg');
+    const saveBtnDOM = document.getElementById('btn-save');
+
+    function evaluarPassword() {
+        const pwd = passInput.value;
+        
+        // Si está vacío, ocultamos el medidor (útil en edición)
+        if (pwd.length === 0) {
+            meterContainer.style.display = 'none';
+            validarCoincidencia();
+            return;
+        }
+
+        meterContainer.style.display = 'block';
+        
+        // Algoritmo de fuerza
+        let fuerza = 0;
+        if (pwd.length > 5) fuerza += 1;
+        if (pwd.length > 8) fuerza += 1;
+        if (/[A-Z]/.test(pwd)) fuerza += 1;
+        if (/[0-9]/.test(pwd)) fuerza += 1;
+        if (/[^A-Za-z0-9]/.test(pwd)) fuerza += 1;
+
+        // Actualizamos la barra
+        if (fuerza <= 2) {
+            strengthBar.style.width = '33%';
+            strengthBar.style.backgroundColor = '#dc3545'; // Rojo
+            strengthText.textContent = 'Débil';
+            strengthText.style.color = '#dc3545';
+        } else if (fuerza === 3 || fuerza === 4) {
+            strengthBar.style.width = '66%';
+            strengthBar.style.backgroundColor = '#ffc107'; // Amarillo
+            strengthText.textContent = 'Aceptable';
+            strengthText.style.color = '#ffc107';
+        } else {
+            strengthBar.style.width = '100%';
+            strengthBar.style.backgroundColor = '#28a745'; // Verde
+            strengthText.textContent = 'Fuerte';
+            strengthText.style.color = '#28a745';
+        }
+
+        validarCoincidencia();
+    }
+
+    function validarCoincidencia() {
+        const pwd = passInput.value;
+        const confirmPwd = confirmInput.value;
+
+        if (confirmPwd.length === 0 && pwd.length > 0) {
+            matchMsg.style.display = 'block';
+            matchMsg.textContent = 'Falta confirmar la contraseña';
+            matchMsg.style.color = '#ffc107';
+            saveBtnDOM.disabled = true;
+            return;
+        }
+
+        if (pwd.length > 0 && confirmPwd.length > 0) {
+            matchMsg.style.display = 'block';
+            if (pwd === confirmPwd) {
+                matchMsg.innerHTML = '<i class="bi bi-check-circle-fill"></i> Las contraseñas coinciden';
+                matchMsg.style.color = '#28a745';
+                saveBtnDOM.disabled = false; // Habilitamos guardar
+            } else {
+                matchMsg.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Las contraseñas no coinciden';
+                matchMsg.style.color = '#dc3545';
+                saveBtnDOM.disabled = true; // Bloqueamos guardar
+            }
+        } else {
+            matchMsg.style.display = 'none';
+            // Si no está editando y ambos están vacíos, no se puede guardar
+            if (!esEdicion) saveBtnDOM.disabled = true;
+            // Si está editando y ambos vacíos, sí se puede (no cambia la pass)
+            if (esEdicion) saveBtnDOM.disabled = false;
+        }
+    }
+</script>
+{% endblock %}
