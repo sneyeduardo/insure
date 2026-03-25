@@ -385,23 +385,18 @@ def recuperar_password_view(request):
                 'logo_url': request.build_absolute_uri('/static/imagenes/inzur.png')
             })
 
-            # --- ENVÍO A TRAVÉS DEL PUENTE DE GOOGLE ---
-            url_puente = "https://script.google.com/macros/s/AKfycbywyfHwYo-S-MDAr9OdUxYp0RVD8-PXMCGSxcyk5U-M_aflxEQ54zt5OaP9utqRvvGosw/exec"
+            # --- ENVÍO A TRAVÉS DE MAILJET (SMTP NATIVO DE DJANGO) ---
+            subject = "Recuperar Contraseña - InzurAi+"
+            text_content = strip_tags(html_content) # Genera una versión en texto plano por seguridad
+            from_email = settings.DEFAULT_FROM_EMAIL # Llama a la variable que configuraste en settings.py
+            to = usuario.email
             
-            payload = {
-                "to": usuario.email,
-                "subject": "Recuperar Contraseña - InzurAi+",
-                "htmlBody": html_content
-            }
+            # Construimos y enviamos el correo
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
             
-            # Enviamos la petición al script (Puerto 443, no bloqueado)
-            # Nota: Google Apps Script requiere seguir redirecciones (allow_redirects=True)
-            respuesta = requests.post(url_puente, data=json.dumps(payload), allow_redirects=True)
-            
-            if respuesta.status_code == 200:
-                print("🚀 ¡CORREO ENVIADO VÍA GOOGLE APPS SCRIPT!")
-            else:
-                print(f"🔥 ERROR EN EL PUENTE: {respuesta.text}")
+            print("🚀 ¡CORREO ENVIADO VÍA MAILJET!")
 
         except Usuarios.DoesNotExist:
             print("🛑 Usuario no encontrado.")
