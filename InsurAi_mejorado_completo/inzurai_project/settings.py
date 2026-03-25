@@ -149,11 +149,9 @@ WHITENOISE_MANIFEST_STRICT = False
 
 # Configuración de Envío de Correos (SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'in-v3.mailjet.com'
 EMAIL_PORT = 587
-EMAIL_USE_SSL = True                 # Activamos SSL
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = 'sneyeduardo4@gmail.com' # Tu correo de Zynapxe o personal
-EMAIL_HOST_PASSWORD = 'vbhiijkiraahcrsa' # No es tu clave normal, es una especial de Google
-DEFAULT_FROM_EMAIL = 'InzurAi+ <sneyeduardo4@gmail.com>'
-EMAIL_TIMEOUT = 10
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('a7d3f5ac80e85e8ec3904b9cd198fcb2')
+EMAIL_HOST_PASSWORD = os.environ.get('fa337edb3cb35386ce0a09d4d10439ed')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'sneyeduardo4@gmail.com')
