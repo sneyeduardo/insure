@@ -373,61 +373,40 @@ def recuperar_password_view(request):
         usuario_ingresado = request.POST.get('username')
         email_ingresado = request.POST.get('email')
         
-        print(f"--- Iniciando recuperación para: {usuario_ingresado} ---") # Log de control
-
         try:
-            # 1. Buscar usuario
             usuario = Usuarios.objects.get(username=usuario_ingresado, email=email_ingresado)
-            print("✅ Usuario encontrado en la DB")
-
-            # 2. Generar Token y Link
+            
             signer = TimestampSigner()
             token = signer.sign(usuario.id_usuario) 
             link_recuperacion = request.build_absolute_uri(reverse('cambiar_password', args=[token]))
-            print(f"🔗 Link generado: {link_recuperacion}")
-
-            # 3. Renderizar Template (¡Ojo aquí!)
-            try:
-                html_content = render_to_string('email_recuperacion.html', {
-                    'nombre_usuario': usuario.nombre_completo,
-                    'link': link_recuperacion,
-                    'logo_url': request.build_absolute_uri('/static/imagenes/inzur.png')
-                })
-                print("✅ Plantilla HTML renderizada con éxito")
-            except Exception as e:
-                print(f"❌ ERROR EN TEMPLATE: ¿Existe el archivo email_recuperacion.html? {str(e)}")
-                raise e
-
-            # 4. Enviar a Mailjet
-            api_key = settings.EMAIL_HOST_USER 
-            api_secret = settings.EMAIL_HOST_PASSWORD
-            remitente = settings.DEFAULT_FROM_EMAIL
-
-            payload = {
-                "Messages": [{
-                    "From": {"Email": remitente, "Name": "InzurAI+"},
-                    "To": [{"Email": usuario.email, "Name": usuario.nombre_completo}],
-                    "Subject": "Recuperar Contraseña - InzurAi+",
-                    "HTMLPart": html_content
-                }]
-            }
-
-            respuesta = requests.post(
-                "https://api.mailjet.com/v3.1/send", 
-                auth=HTTPBasicAuth(api_key, api_secret), 
-                json=payload,
-                timeout=10
-            )
             
-            print(f"📬 Respuesta Mailjet: {respuesta.status_code}")
+            html_content = render_to_string('email_recuperacion.html', {
+                'nombre_usuario': usuario.nombre_completo,
+                'link': link_recuperacion,
+                'logo_url': request.build_absolute_uri('/static/imagenes/inzur.png')
+            })
+
+            # --- TU PUENTE MAGISTRAL DE GOOGLE APPS SCRIPT ---
+            url_puente = "https://script.google.com/macros/s/AKfycbywyfHwYo-S-MDAr9OdUxYp0RVD8-PXMCGSxcyk5U-M_aflxEQ54zt5OaP9utqRvvGosw/exec"
+            
+            payload = {
+                "to": usuario.email,
+                "subject": "Recuperar Contraseña - InzurAi+",
+                "htmlBody": html_content
+            }
+            
+            # allow_redirects=True es VITAL para que Google Script funcione
+            respuesta = requests.post(url_puente, data=json.dumps(payload), allow_redirects=True, timeout=15)
+            
+            if respuesta.status_code == 200:
+                print("🚀 ¡CORREO ENVIADO VÍA GOOGLE APPS SCRIPT!")
+            else:
+                print(f"🔥 Error en el puente: {respuesta.text}")
 
         except Usuarios.DoesNotExist:
-            print("⚠️ Usuario no encontrado, pero enviamos mensaje de éxito por seguridad.")
+            print("🛑 Usuario no encontrado.")
         except Exception as e:
-            print(f"❌ ERROR CRÍTICO: {str(e)}")
-            # Esto evita que la página dé un 500 y te muestra el error en los logs
-            messages.error(request, f"Ocurrió un error interno: {str(e)}")
-            return redirect('recuperar_password')
+            print(f"🔥 ERROR FATAL: {str(e)}")
 
         messages.success(request, 'Si los datos son correctos, te hemos enviado un enlace de recuperación.')
         return redirect('recuperar_password')
