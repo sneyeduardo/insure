@@ -5,8 +5,8 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
         .email-container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background-color: #0d6efd; padding: 30px 20px; text-align: center; }
-        .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 1px; }
+        /* Aumentamos el padding del header para darle más aire al logo */
+        .header { background-color: #ffffff; border-bottom: 4px solid #0d6efd; padding: 40px 20px; text-align: center; }
         .body-content { padding: 40px 30px; color: #333333; line-height: 1.6; }
         .body-content h2 { color: #212529; font-size: 20px; margin-top: 0; }
         .btn-recuperar { display: inline-block; background-color: #fd7e14; color: #ffffff !important; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; margin: 20px 0; font-size: 16px; }
@@ -16,8 +16,8 @@
 </head>
 <body>
     <div class="email-container">
-        <div class="header" style="background-color: #ffffff; border-bottom: 4px solid #0d6efd; padding: 25px 20px; text-align: center;">
-            <img src="{{ logo_url }}" alt="InzurAi+ Logo" style="max-height: 55px; width: auto; display: block; margin: 0 auto;">
+        <div class="header">
+            <img src="{{ logo_url }}" alt="InzurAi+ Logo" style="width: 250px; height: auto; display: block; margin: 0 auto;">
         </div>
 
         <div class="body-content">
