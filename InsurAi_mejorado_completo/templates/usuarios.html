@@ -7,15 +7,14 @@
     {% block content %}
     <div class="container-fluid p-0 d-flex">
         
-        <!-- MAIN CONTENT - DASHBOARD -->
         <main class="main-content-wrapper">
-            <!-- DASHBOARD -->
             <div class="main-dashboard" id="dashboardMain">
                 <div class="top-navbar">
                     <div class="action-buttons">
-                        <div class="btn-action back" onclick="window.history.back()" title="Volver atrás">
-        <i class="bi bi-chevron-left"></i>
-    </div>
+                        <a href="{% url 'dashboard' %}" class="btn-action back" title="Ir al Dashboard" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+    <i class="bi bi-chevron-left"></i>
+</a>
+
                         <a href="{% url 'crear_usuario' %}" class="btn-action plus" style="text-decoration: none;">
     +
 </a>
@@ -24,7 +23,7 @@
                     
                     <div class="nav-section-label" id="navPersonas">
                         <i class="bi bi-people-fill"></i>
-                        <span>Usuarios</span>
+                        <span>personas</span>
                     </div>
 
                     <div class="user-section">
@@ -36,14 +35,13 @@
 
                 <div class="main-content">
                     <div class="page-header">
-                        <h1 id="pageTitle">Buscar Usuarios</h1>
+                        <h1 id="pageTitle">Buscar usuarios</h1>
                         <div class="filter-text" id="filterIndicator">
                             <span>Filtro</span> | Todos los registros
                         </div>
                     </div>
 
-                     <!-- Search section -->
-                    <div class="search-section" id="searchSection">
+                     <div class="search-section" id="searchSection">
                         <div class="search-header">
                         <div class="search-title" onclick="toggleFilters()">
                             Opciones de búsqueda:
@@ -58,8 +56,8 @@
                                     <div class="btn-action plus" onclick="toggleSubmenuBusqueda(event)" style="cursor: pointer;">
     <i class="bi bi-plus-lg action-icon icon-jefe"></i> </div>
                                     <ul class="dropdown-menu search-dropdown-menu" id="searchOptionsMenu">
-    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('persona')">Persona</a></li>
-    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('username')">Username</a></li>
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('nombre')">Nombre</a></li>
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('cedula')">Cédula</a></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('ultimo_login')">Último login</a></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('email')">Email</a></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('estatus')">Estatus</a></li>
@@ -68,16 +66,13 @@
                                 
                             </div>
                         </div>
-                            <!-- Contenedor de filtros dinámicos -->
-                        <div class="filters-container" id="filtersContainer">
+                            <div class="filters-container" id="filtersContainer">
                             <div class="filters-grid" id="filtersGrid">
-                                <!-- Los filtros se añadirán aquí dinámicamente -->
-                            </div>
+                                </div>
                         </div>
                     
                         <div class="total-objects" id="totalObjects">Total: 7 personas</div>
                     </div>
-                    <!-- Tabla con botones -->
                     <div class="table-container" id="tableContainer">
     <div class="table-actions-header" style="display: flex; align-items: center; gap: 15px;">
         <a href="{% url 'crear_usuario' %}" style="color: inherit; text-decoration: none;">
@@ -115,8 +110,8 @@
                             <thead>
                                 <tr>
                                     <th style="width: 50px; text-align: center;">✔</th>
-                                    <th>Usuarios</th>
-                                    <th>Username</th>
+                                    <th>Nombre</th>
+                                    <th>Cédula</th>
                                     <th>Ultimo login</th>
                                     <th>Email</th>
                                     <th>Estatus</th>
@@ -174,7 +169,6 @@
         </div>
 {% endblock %}  
 {% block extra_js %}
-    <!-- SCRIPTS -->
     <script>
      // ==========================================
 // 1. VARIABLES Y CARGA INICIAL
@@ -216,8 +210,9 @@ function cargarUsuariosDesdeDB() {
             if (data.usuarios) {
                 personas = data.usuarios.map(u => ({
                     id: u.id,
-                    nombre: u.nombre,
-                    username: u.username, // Asegúrate de usar 'username' aquí
+                    cedula: u.id, // Tu backend manda la cédula en 'id'
+                    // Tomamos el nombre_completo, lo separamos por espacios y agarramos el primero [0]
+                    nombre: u.nombre ? u.nombre.split(' ')[0] : '', 
                     ultimo_login: u.ultimo_login, 
                     email: u.email,
                     estado: u.estado
@@ -271,13 +266,13 @@ function renderizarTabla() {
                     ${persona.nombre} <i class="bi bi-pencil-square" style="font-size: 0.8rem; margin-left: 5px;"></i>
                 </a>
             </td>
-            <td>${persona.username}</td>
+            <td style="font-family: monospace; font-size: 1.05rem;">${persona.cedula}</td>
             <td style="color: #333; user-select: none; cursor: default;">${persona.ultimo_login}</td>
             <td style="color: #333; user-select: none; cursor: default;">${persona.email}</td>
             <td>
                 <div class="status-container" style="display: flex; align-items: center; justify-content: flex-start;">
                     <select class="status-select-clean" 
-                            onchange="cambiarEstado(${persona.id}, this.value); mostrarBotonGuardar(); 
+                            onchange="cambiarEstado('${persona.id}', this.value); mostrarBotonGuardar(); 
                                       this.style.backgroundColor = this.value === 'ACTIVO' ? '#d4edda' : '#f8d7da'; 
                                       this.style.color = this.value === 'ACTIVO' ? '#155724' : '#721c24'; 
                                       this.style.borderColor = this.value === 'ACTIVO' ? '#c3e6cb' : '#f5c6cb';" 
@@ -345,11 +340,11 @@ function addSearchFilter(tipo) {
     let inputHtml = '';
 
     switch(tipo) {
-        case 'persona':
-            labelText = 'Persona';
+        case 'nombre':
+            labelText = 'Nombre';
             inputHtml = `
                 <div class="autocomplete-wrapper" style="position: relative; width: 100%;">
-                    <input type="text" id="val-${tipo}" placeholder="Buscar persona..." 
+                    <input type="text" id="val-${tipo}" placeholder="Buscar nombre..." 
                            oninput="mostrarSugerencias(this.value, '${tipo}')" autocomplete="off"
                            style="width: 100%;">
                     <div id="sugerencias-${tipo}" class="dropdown-menu search-dropdown-menu" 
@@ -359,11 +354,11 @@ function addSearchFilter(tipo) {
             `;
             break;
             
-        case 'username': 
-            labelText = 'Username';
+        case 'cedula': 
+            labelText = 'Cédula';
             inputHtml = `
                 <div class="autocomplete-wrapper" style="position: relative; width: 100%;">
-                    <input type="text" id="val-${tipo}" placeholder="Buscar por @username..." 
+                    <input type="text" id="val-${tipo}" placeholder="Buscar cédula..." 
                            oninput="mostrarSugerencias(this.value, '${tipo}')" autocomplete="off"
                            style="width: 100%;">
                     <div id="sugerencias-${tipo}" class="dropdown-menu search-dropdown-menu" 
@@ -417,16 +412,13 @@ function removeSearchFilter(tipo) {
 }
 
 function aplicarFiltros() {
-    // 1. Empezamos con la lista completa de personas/usuarios
     personasFiltradas = [...personas];
 
-    // 2. Revisamos qué filtros están activos en la pantalla
     filtrosActivos.forEach(tipo => {
         let valoresBuscados = []; 
         let valorDesde = "";
         let valorHasta = "";
 
-        // Si es un filtro de fecha, capturamos los dos inputs (Desde y Hasta)
         if (tipo === 'fecha_creacion' || tipo === 'fecha_actualizacion') {
             const inputDesde = document.getElementById(`val-${tipo}-desde`);
             const inputHasta = document.getElementById(`val-${tipo}-hasta`);
@@ -434,26 +426,22 @@ function aplicarFiltros() {
             if (inputDesde) valorDesde = inputDesde.value; 
             if (inputHasta) valorHasta = inputHasta.value; 
 
-            // Si ambos están vacíos, no aplicamos este filtro
             if (!valorDesde && !valorHasta) return; 
         } else {
-            // Para el resto de filtros normales
             const inputElement = document.getElementById(`val-${tipo}`);
             if (!inputElement) return;
 
-            // Separamos lo escrito por comas y limpiamos los espacios
             valoresBuscados = inputElement.value.toLowerCase().split(',').map(v => v.trim()).filter(v => v !== '');
             if (valoresBuscados.length === 0) return; 
         }
 
-        // 3. Filtramos la lista dependiendo del tipo de filtro
         personasFiltradas = personasFiltradas.filter(persona => {
             switch(tipo) {
-                case 'persona':
+                case 'nombre':
                     return valoresBuscados.some(val => persona.nombre && persona.nombre.toLowerCase().includes(val));
                 
-                case 'username':
-                    return valoresBuscados.some(val => persona.username && persona.username.toLowerCase().includes(val));
+                case 'cedula':
+                    return valoresBuscados.some(val => persona.cedula && persona.cedula.toLowerCase().includes(val));
                 
                 case 'email':
                     return valoresBuscados.some(val => persona.email && persona.email.toLowerCase().includes(val));
@@ -466,7 +454,6 @@ function aplicarFiltros() {
 
                 case 'fecha_creacion':
                 case 'fecha_actualizacion':
-                    // IMPORTANTE: Verifica que 'persona.fecha_creacion' coincida con cómo guardas la fecha en tu DB de usuarios
                     let fechaString = tipo === 'fecha_creacion' ? persona.fecha_creacion : persona.fecha_actualizacion;
                     if (!fechaString) return false;
 
@@ -490,7 +477,6 @@ function aplicarFiltros() {
         });
     });
 
-    // 4. Regresamos a la página 1 y redibujamos la tabla
     paginaActual = 1;
     renderizarTabla();
 }
@@ -617,34 +603,8 @@ function refrescarDatos() {
     cargarUsuariosDesdeDB();
 }
 
-function exportarExcel() {
-    document.getElementById('menu-tres-puntos').classList.remove('mostrar');
-    if (personasFiltradas.length === 0) {
-        alert("No hay datos para exportar.");
-        return;
-    }
-    let csvContent = "\uFEFF";
-    csvContent += "Persona,Apellido,Último Login,Email,Estatus\n";
-
-    personasFiltradas.forEach(p => {
-        let nombre = `"${p.nombre || ''}"`;
-        let apellido = `"${p.apellido || ''}"`;
-        let ultimo = `"${p.ultimo_login || ''}"`;
-        let email = `"${p.email || ''}"`;
-        let estadoStr = p.estado === true ? 'ACTIVO' : (p.estado === false ? 'INACTIVO' : p.estado);
-        
-        csvContent += `${nombre},${apellido},${ultimo},${email},${estadoStr}\n`;
-    });
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "Reporte_Usuarios_InzurAi.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-function exportarExcel() {
+function exportarExcel(event) {
+    if (event) event.preventDefault();
     document.getElementById('menu-tres-puntos').classList.remove('mostrar');
     
     if (personasFiltradas.length === 0) {
@@ -653,20 +613,18 @@ function exportarExcel() {
     }
     
     let csvContent = "\uFEFF"; // Para que los acentos y las ñ se vean bien en Excel
-    // Cabecera actualizada con Username
-    csvContent += "Persona,Username,Último Login,Email,Estatus\n";
+    csvContent += "Nombre,Cédula,Último Login,Email,Estatus\n";
 
     personasFiltradas.forEach(p => {
         let nombre = `"${p.nombre || ''}"`;
-        let username = `"@${p.username || ''}"`; // Usamos la variable correcta
+        let cedula = `"${p.cedula || ''}"`;
         let ultimo = `"${p.ultimo_login || 'Sin ingreso'}"`;
         let email = `"${p.email || ''}"`;
         let estadoStr = p.estado === true ? 'ACTIVO' : (p.estado === false ? 'INACTIVO' : p.estado);
         
-        csvContent += `${nombre},${username},${ultimo},${email},${estadoStr}\n`;
+        csvContent += `${nombre},${cedula},${ultimo},${email},${estadoStr}\n`;
     });
 
-    // Creamos el archivo y forzamos la descarga
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -675,6 +633,7 @@ function exportarExcel() {
     link.click();
     document.body.removeChild(link);
 }
+
 // ==========================================
 // 8. AUTOCOMPLETADO PERSONALIZADO
 // ==========================================
@@ -682,7 +641,6 @@ function mostrarSugerencias(valor, tipo) {
     const dropdown = document.getElementById(`sugerencias-${tipo}`);
     const input = document.getElementById(`val-${tipo}`);
     
-    // 1. Separar por comas y tomar solo la última palabra que está escribiendo
     let partes = valor.split(',');
     let busquedaActual = partes[partes.length - 1].trim();
 
@@ -695,16 +653,15 @@ function mostrarSugerencias(valor, tipo) {
 
     let listaValores = [];
     
-    // Filtramos según las columnas que existen en tu tabla de usuarios
-    if (tipo === 'persona') {
+    // Filtramos según las columnas actualizadas (Nombre y Cédula)
+    if (tipo === 'nombre') {
         listaValores = [...new Set(personas.map(p => p.nombre))].filter(Boolean);
-    } else if (tipo === 'username') {
-        listaValores = [...new Set(personas.map(p => p.username))].filter(Boolean);
+    } else if (tipo === 'cedula') {
+        listaValores = [...new Set(personas.map(p => p.cedula))].filter(Boolean);
     } else if (tipo === 'email') {
         listaValores = [...new Set(personas.map(p => p.email))].filter(Boolean);
     }
     
-    // 2. Filtramos usando la ÚLTIMA palabra escrita
     const coincidencias = listaValores.filter(texto => 
         texto.toLowerCase().startsWith(busquedaActual.toLowerCase())
     );
@@ -716,19 +673,15 @@ function mostrarSugerencias(valor, tipo) {
             const item = document.createElement('a');
             item.className = 'dropdown-item'; 
             item.href = '#';
-            item.textContent = tipo === 'username' ? `@${texto}` : texto;
+            item.textContent = texto; // Quité el @ ya que no usamos username
             
             item.onclick = function(e) {
                 e.preventDefault();
-                // 3. Quitamos la palabra a medias y metemos el nombre completo
                 partes.pop(); 
                 partes.push(texto);
-                
-                // 4. Unimos todo con comas y dejamos un espacio al final
                 input.value = partes.join(', ') + ', '; 
-                
                 dropdown.style.display = 'none'; 
-                input.focus(); // Mantiene el cursor en la barra
+                input.focus(); 
                 aplicarFiltros(); 
             };
             
@@ -740,7 +693,6 @@ function mostrarSugerencias(valor, tipo) {
     }
 }
 
-// Ocultar los menús si el usuario hace clic fuera de ellos
 document.addEventListener('click', function(e) {
     const wrappers = document.querySelectorAll('.autocomplete-wrapper');
     wrappers.forEach(wrapper => {
@@ -750,19 +702,17 @@ document.addEventListener('click', function(e) {
         }
     });
 });
+
 function limpiarTodosLosFiltros() {
-    // 1. Buscamos el contenedor donde están todos los inputs de búsqueda
     const contenedorFiltros = document.querySelector('.filters-grid');
     if (!contenedorFiltros) return;
 
-    // 2. Limpiamos inputs de texto, fecha y reseteamos los selects
     const inputs = contenedorFiltros.querySelectorAll('input');
     const selects = contenedorFiltros.querySelectorAll('select');
 
     inputs.forEach(input => input.value = '');
     selects.forEach(select => select.selectedIndex = 0);
 
-    // 3. Efecto visual de rotación al hacer clic
     const icono = document.querySelector('.btn-action.refresh i');
     if (icono) {
         icono.style.transition = "transform 0.5s ease";
@@ -770,9 +720,9 @@ function limpiarTodosLosFiltros() {
         setTimeout(() => { icono.style.transform = "rotate(0deg)"; }, 500);
     }
 
-    // 4. Actualizamos la tabla para mostrar todos los datos de nuevo
     aplicarFiltros();
 }
+
 // --- FUNCIONES DEL MODAL COMPARTIR ---
 function abrirModalCompartir() {
     const menu = document.getElementById('menu-tres-puntos');

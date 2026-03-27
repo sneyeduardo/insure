@@ -347,8 +347,8 @@ class Suscripciones(models.Model):
 
 
 class Usuarios(models.Model):
-    id_usuario = models.AutoField(primary_key=True)
-    cedula = models.CharField(unique=True, max_length=20)
+    
+    cedula = models.CharField(primary_key=True, max_length=20)
     id_rol = models.ForeignKey(Roles, models.DO_NOTHING, db_column='id_rol')
     username = models.CharField(unique=True, max_length=50)
     password_hash = models.CharField(max_length=255)

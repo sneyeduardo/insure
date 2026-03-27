@@ -1334,7 +1334,7 @@ body .footer-updates {
 /* Efecto hover */
 .btn-clean-logout:hover {
     background-color: #3d3d3d;
-    color: #ffffff; /* Color de resalte al pasar el mouse */
+    color: #ff0000; /* Color de resalte al pasar el mouse */
 }
 /* ==========================================
    BURBUJA DE ZYBANNA (FOTO SOBRESALIENDO SIN FONDO)
@@ -1363,7 +1363,7 @@ body .footer-updates {
 .zybanna-chatbot-prompt:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(82, 36, 125, 0.3);
-    background: linear-gradient(135deg, #ffffff 0%, #ebe2f5 100%);
+    
 }
 
 /* ==========================================

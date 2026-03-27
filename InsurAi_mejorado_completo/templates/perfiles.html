@@ -7,15 +7,13 @@
     {% block content %}
         <div class="container-fluid p-0 d-flex">
         
-        <!-- MAIN CONTENT - DASHBOARD -->
         <main class="main-content-wrapper">
-            <!-- DASHBOARD -->
             <div class="main-dashboard" id="dashboardMain">
                 <div class="top-navbar">
                     <div class="action-buttons">
-                        <div class="btn-action back" onclick="window.history.back()" title="Volver atrás">
-        <i class="bi bi-chevron-left"></i>
-    </div>
+                        <a href="{% url 'dashboard' %}" class="btn-action back" title="Ir al Dashboard" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+    <i class="bi bi-chevron-left"></i>
+</a>
                         <a href="{% url 'perfil_nuevo' %}" class="btn-action plus" style="text-decoration: none;">
     +
 </a>
@@ -30,7 +28,12 @@
                     <div class="user-section">
     <span class="user-name" id="userDisplay">{{ request.session.nombre_completo|default:"Administrador" }}</span>
     
-    <div class="user-avatar">{{ request.session.nombre_completo|make_list|first|upper|default:"A" }}</div>
+    <div class="user-avatar" style="overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center;">
+    {% if request.session.imagen_perfil %}
+        <img src="{{ request.session.imagen_perfil }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+    {% else %}
+        {{ request.session.nombre_completo|make_list|first|upper|default:"A" }}
+    {% endif %}
 </div>
                 </div>
 
@@ -42,7 +45,6 @@
                         </div>
                     </div>
 
-                    <!-- Search section -->
                     <div class="search-section" id="searchSection">
                         <div class="search-header">
                         <div class="search-title" onclick="toggleFilters()">
@@ -66,17 +68,14 @@
                                 
                             </div>
                         </div>
-                            <!-- Contenedor de filtros dinámicos -->
-                        <div class="filters-container" id="filtersContainer">
+                            <div class="filters-container" id="filtersContainer">
                             <div class="filters-grid" id="filtersGrid">
-                                <!-- Los filtros se añadirán aquí dinámicamente -->
-                            </div>
+                                </div>
                         </div>
                     
-                        <div class="total-objects" id="totalObjects">Total: 7 personas</div>
+                        <div class="total-objects" id="totalObjects">Total: 7 perfiles</div>
                     </div>
 
-                    <!-- Tabla con botones -->
                     <div class="table-container" id="tableContainer">
     <div class="table-actions-header" style="display: flex; align-items: center; gap: 15px;">
         <a href="{% url 'perfil_nuevo' %}" style="color: inherit; text-decoration: none;">
@@ -123,6 +122,7 @@
                             <thead>
                                 <tr>
                                     <th style="width: 40px; text-align: center;">✔</th>
+                                    <th style="width: 50px; text-align: center;">ID</th>
                                     <th>Perfil</th>
                                     <th>Descripcion</th>
                                     <th>Fecha de creacion</th>
@@ -182,7 +182,6 @@
         </div>
     {% endblock %}
     {% block extra_js %}
-    <!-- SCRIPTS -->
     <script>
  // Dejamos los arreglos vacíos para llenarlos desde la base de datos
 let personas = [];
@@ -298,7 +297,7 @@ function renderizarTabla() {
     if (personasFiltradas.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6" style="text-align: center; padding: 30px; color: #6c757d;">
+                <td colspan="7" style="text-align: center; padding: 30px; color: #6c757d;">
                     No se encontró ningún perfil
                 </td>
             </tr>
@@ -307,29 +306,28 @@ function renderizarTabla() {
     }
 
     personasPaginadas.forEach(persona => {
-        // 1. Nos aseguramos de entender bien el estado actual
+        // --- NUEVO: Formateamos el ID (Ej: 1 -> PRF-001) ---
+        const idFormateado = "PRF-" + String(persona.id).padStart(3, '0');
+
         let estadoFinal = persona.estado;
         if (estadoFinal === true) estadoFinal = 'ACTIVO';
         if (estadoFinal === false) estadoFinal = 'INACTIVO';
         
-        // Si viene algún estado desconocido, lo forzamos a algo válido por seguridad
         if (estadoFinal !== 'ACTIVO' && estadoFinal !== 'INACTIVO' && estadoFinal !== 'DESHABILITADO') {
             estadoFinal = 'INACTIVO'; 
         }
 
         const row = document.createElement('tr');
         
-        // 2. Calculamos los colores para los 3 estados
         let colorTexto, colorFondo, colorBorde;
         if (estadoFinal === 'ACTIVO') {
-            colorTexto = '#155724'; colorFondo = '#d4edda'; colorBorde = '#c3e6cb'; // Verde
+            colorTexto = '#155724'; colorFondo = '#d4edda'; colorBorde = '#c3e6cb'; 
         } else if (estadoFinal === 'INACTIVO') {
-            colorTexto = '#721c24'; colorFondo = '#f8d7da'; colorBorde = '#f5c6cb'; // Rojo
-        } else { // DESHABILITADO
-            colorTexto = '#383d41'; colorFondo = '#e2e3e5'; colorBorde = '#d6d8db'; // Gris
+            colorTexto = '#721c24'; colorFondo = '#f8d7da'; colorBorde = '#f5c6cb'; 
+        } else { 
+            colorTexto = '#383d41'; colorFondo = '#e2e3e5'; colorBorde = '#d6d8db'; 
         }
 
-        // 3. Aplicamos tu regla de secuencia estricta
         let opcionesHTML = '';
         if (estadoFinal === 'ACTIVO') {
             opcionesHTML = `
@@ -353,6 +351,9 @@ function renderizarTabla() {
             <td style="text-align: center; width: 40px;" onclick="event.stopPropagation();">
                 <input type="checkbox" class="check-perfil" value="${persona.id}" onchange="verificarSeleccion()" 
                        style="width: 18px !important; height: 18px !important; display: inline-block !important; opacity: 1 !important; visibility: visible !important; appearance: checkbox !important; z-index: 100 !important; cursor: pointer;">
+            </td>
+            <td style="text-align: center; font-weight: bold; color: #6c757d; font-family: monospace; font-size: 1.05rem;">
+                ${idFormateado}
             </td>
             <td>
                 <a href="/app/perfiles/editar/${persona.id}/" class="person-name" style="color: #fd7e14; font-weight: 600; text-decoration: none; cursor: pointer;">
@@ -378,7 +379,6 @@ function renderizarTabla() {
         tableBody.appendChild(row);
     });
 
-    // Paginación y contadores (tu código original)
     totalObjects.textContent = `Total: ${personasFiltradas.length} perfiles`;
     totalItems.textContent = `${personasFiltradas.length} items`;
     const totalPaginas = Math.ceil(personasFiltradas.length / itemsPorPagina);
@@ -388,7 +388,6 @@ function renderizarTabla() {
     
     verificarSeleccion();
 }
-
 function aplicarFiltros() {
     // 1. Empezamos con la lista completa de personas
     personasFiltradas = [...personas];
@@ -764,46 +763,40 @@ function limpiarFiltros(event) {
 function exportarAExcel(event) {
     if (event) event.preventDefault();
     
-    // 1. Ocultamos el menú de los 3 puntitos
     const menu = document.getElementById('menu-tres-puntos');
     if (menu) menu.classList.remove('mostrar');
     
-    // 2. Verificamos que haya datos en la tabla
     if (personasFiltradas.length === 0) {
         alert("No hay datos para exportar.");
         return;
     }
     
-    // 3. Agregamos el BOM (\uFEFF) para que Excel lea los acentos y la 'ñ'
     let csvContent = "\uFEFF"; 
-    
-    // 4. Armamos la cabecera del archivo con las columnas de Perfiles
-    csvContent += "Perfil,Descripción,Fecha de Creación,Fecha de Actualización,Estatus\n";
+    csvContent += "ID,Perfil,Descripción,Fecha de Creación,Fecha de Actualización,Estatus\n";
 
-    // 5. Recorremos los perfiles que están visibles en la tabla (filtrados)
     personasFiltradas.forEach(p => {
-        // Mapeamos según como guardaste las variables en tu fetch de perfiles
+        // --- NUEVO: Formateamos el ID para el Excel también ---
+        let idFormateado = p.id ? "PRF-" + String(p.id).padStart(3, '0') : "PRF-000";
+        let id = `"${idFormateado}"`;
+        
         let nombre = `"${p.nombre || 'Sin nombre'}"`;
-        let descripcion = `"${p.apellido || 'Sin descripción'}"`; // Tu descripcion está en 'apellido'
-        let f_creacion = `"${p.email || 'N/A'}"`;                 // Tu fecha_creacion está en 'email'
-        let f_actualizacion = `"${p.organizacion || 'N/A'}"`;     // Tu fecha_actualizacion está en 'organizacion'
+        let descripcion = `"${p.apellido || 'Sin descripción'}"`; 
+        let f_creacion = `"${p.email || 'N/A'}"`;                 
+        let f_actualizacion = `"${p.organizacion || 'N/A'}"`;     
         
         let estadoActual = p.estado;
         if (estadoActual === true) estadoActual = 'ACTIVO';
         if (estadoActual === false) estadoActual = 'INACTIVO';
         let estadoStr = `"${estadoActual}"`;
         
-        // Unimos la fila con comas y damos un salto de línea
-        csvContent += `${nombre},${descripcion},${f_creacion},${f_actualizacion},${estadoStr}\n`;
+        csvContent += `${id},${nombre},${descripcion},${f_creacion},${f_actualizacion},${estadoStr}\n`;
     });
 
-    // 6. Creamos el archivo virtual y forzamos la descarga en el navegador
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "Reporte_Perfiles_InzurAi.csv"; // Nombre del archivo a descargar
+    link.download = "Reporte_Perfiles_InzurAi.csv"; 
     
-    // Truco para que funcione en todos los navegadores
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

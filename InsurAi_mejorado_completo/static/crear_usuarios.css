@@ -212,3 +212,23 @@ input, select, textarea {
     color: var(--molkobain-orange); /* Tu naranja de hover */
     transform: scale(1.15) translateX(-4px); /* Animación de "ir hacia atrás" */
 }
+/* Estilos para la sección de imagen */
+    .image-upload-section {
+        margin-top: 20px;
+        border-top: 1px solid #dee2e6;
+        padding-top: 20px;
+    }
+    .image-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #dee2e6;
+        margin-top: 10px;
+    }
+    .image-upload-label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #495057;
+    }
