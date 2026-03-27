@@ -1,4 +1,3 @@
-import requests
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Polizas, Clientes, Siniestros
@@ -19,9 +18,8 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+import requests
 from django.conf import settings
-from requests.auth import HTTPBasicAuth
-
 
 
 def requiere_autenticacion(view_func):
@@ -381,19 +379,22 @@ def recuperar_password_view(request):
         email_ingresado = request.POST.get('email')
         
         try:
+            # 1. Buscamos al usuario
             usuario = Usuarios.objects.get(username=usuario_ingresado, email=email_ingresado)
             
+            # 2. Generamos token y link de recuperación
             signer = TimestampSigner()
             token = signer.sign(usuario.id_usuario) 
             link_recuperacion = request.build_absolute_uri(reverse('cambiar_password', args=[token]))
             
+            # 3. Preparamos la plantilla HTML del correo
             html_content = render_to_string('email_recuperacion.html', {
                 'nombre_usuario': usuario.nombre_completo,
                 'link': link_recuperacion,
                 'logo_url': request.build_absolute_uri('/static/imagenes/inzur.png')
             })
 
-            # --- TU PUENTE MAGISTRAL DE GOOGLE APPS SCRIPT ---
+            # --- 4. ENVÍO VÍA GOOGLE APPS SCRIPT ---
             url_puente = "https://script.google.com/macros/s/AKfycbywyfHwYo-S-MDAr9OdUxYp0RVD8-PXMCGSxcyk5U-M_aflxEQ54zt5OaP9utqRvvGosw/exec"
             
             payload = {
@@ -402,19 +403,25 @@ def recuperar_password_view(request):
                 "htmlBody": html_content
             }
             
-            # allow_redirects=True es VITAL para que Google Script funcione
-            respuesta = requests.post(url_puente, data=json.dumps(payload), allow_redirects=True, timeout=15)
+            # allow_redirects=True es vital porque Google Script hace una redirección interna (Código 302)
+            respuesta = requests.post(
+                url_puente, 
+                data=json.dumps(payload), 
+                allow_redirects=True,
+                timeout=15 
+            )
             
             if respuesta.status_code == 200:
                 print("🚀 ¡CORREO ENVIADO VÍA GOOGLE APPS SCRIPT!")
             else:
-                print(f"🔥 Error en el puente: {respuesta.text}")
+                print(f"🔥 Error en el puente de Google: {respuesta.status_code} - {respuesta.text}")
 
         except Usuarios.DoesNotExist:
-            print("🛑 Usuario no encontrado.")
+            print("🛑 Usuario no encontrado en la DB.")
         except Exception as e:
-            print(f"🔥 ERROR FATAL: {str(e)}")
+            print(f"🔥 ERROR FATAL EN LA VISTA: {str(e)}")
 
+        # Mensaje genérico de éxito en pantalla
         messages.success(request, 'Si los datos son correctos, te hemos enviado un enlace de recuperación.')
         return redirect('recuperar_password')
 def cambiar_password_view(request, token):
@@ -452,3 +459,52 @@ def cambiar_password_view(request, token):
         else:
             error_msg = '❌ Las contraseñas no coinciden.'
             return render(request, 'cambiar_password.html', {'token': token, 'nombre': usuario.nombre_completo, 'error_msg': error_msg})
+def enviar_correo_compartir(request):
+    if request.method == 'POST':
+        try:
+            # 1. Recibimos los datos del JavaScript (el modal)
+            data = json.loads(request.body)
+            correo_destino = data.get('correo')
+            formato = data.get('formato', 'pdf')
+            
+            if not correo_destino:
+                return JsonResponse({'status': 'error', 'mensaje': 'El correo es obligatorio.'})
+
+            # 2. Tu URL puente de Google Apps Script
+            url_puente = "https://script.google.com/macros/s/AKfycbywyfHwYo-S-MDAr9OdUxYp0RVD8-PXMCGSxcyk5U-M_aflxEQ54zt5OaP9utqRvvGosw/exec"
+
+            # 3. Preparamos el asunto y el mensaje
+            asunto = f"InzurAI+ - Reporte de Datos ({formato.upper()})"
+            mensaje_html = f"""
+            <div style="font-family: Arial, sans-serif; color: #333; padding: 20px;">
+                <h2 style="color: #52247d;">InzurAI+</h2>
+                <p>Hola,</p>
+                <p>Se ha solicitado compartir la información de la tabla contigo en formato <strong>{formato.upper()}</strong>.</p>
+                <br>
+                <p>Saludos,</p>
+                <p><strong>Equipo InzurAI+</strong></p>
+            </div>
+            """
+
+            # 4. Armamos el paquete de datos
+            # IMPORTANTE: Revisa que las llaves ('correo', 'asunto', 'html') 
+            # coincidan con lo que tu Google Script espera recibir.
+            datos_correo = {
+                "correo": correo_destino,
+                "asunto": asunto,
+                "html": mensaje_html 
+            }
+
+            # 5. Disparamos la petición hacia Google
+            respuesta = requests.post(url_puente, json=datos_correo)
+
+            # 6. Verificamos si Google dijo "OK"
+            if respuesta.status_code == 200:
+                return JsonResponse({'status': 'success', 'mensaje': f'Correo enviado exitosamente a {correo_destino}'})
+            else:
+                return JsonResponse({'status': 'error', 'mensaje': 'El servidor de Google no respondió correctamente.'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'mensaje': f'Error interno: {str(e)}'})
+            
+    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)

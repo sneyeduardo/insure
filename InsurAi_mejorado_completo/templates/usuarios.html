@@ -52,6 +52,9 @@
 
                         <div class="search-actions">
                                 <div class="dropdown search-dropdown">
+                                    <div class="btn-action refresh" onclick="limpiarTodosLosFiltros()" title="Limpiar filtros">
+        <i class="bi bi-arrow-clockwise action-icon icon-jefe"></i>
+    </div>
                                     <div class="btn-action plus" onclick="toggleSubmenuBusqueda(event)" style="cursor: pointer;">
     <i class="bi bi-plus-lg action-icon icon-jefe"></i> </div>
                                     <ul class="dropdown-menu search-dropdown-menu" id="searchOptionsMenu">
@@ -92,13 +95,15 @@
             <i class="bi bi-three-dots-vertical action-icon icon-jefe" onclick="toggleMenuOpciones(event)" title="Más opciones"></i>
             
             <div id="menu-tres-puntos" class="menu-desplegable-acciones">
-                <a href="#" class="opcion-menu" onclick="event.preventDefault(); exportarExcel()">
-                    <i class="bi bi-file-earmark-excel" style="color: #198754;"></i> Exportar a Excel
-                </a>
-                <a href="#" class="opcion-menu" onclick="event.preventDefault(); limpiarFiltros()">
-                    <i class="bi bi-eraser" style="color: #6c757d;"></i> Limpiar Filtros
-                </a>
-            </div>
+    <a href="#" class="opcion-menu" onclick="exportarExcel(event)"><i class="bi bi-file-earmark-excel"></i> Exportar a Excel</a>
+    <a href="#" class="opcion-menu" onclick="limpiarFiltros(event)"><i class="bi bi-eraser"></i> Limpiar Filtros</a>
+    
+    <a href="#" class="opcion-menu" onclick="abrirModalCompartir()"><i class="bi bi-share"></i> Compartir</a>
+    <a href="#" class="opcion-menu" onclick="abrirModalCompartir()"><i class="bi bi-envelope"></i> Enviar por correo</a>
+    <a href="#" class="opcion-menu" onclick="accionExportarPDF()"><i class="bi bi-file-pdf"></i> Exportar a PDF</a>
+    <a href="#" class="opcion-menu" onclick="accionImportar()"><i class="bi bi-cloud-arrow-up"></i> Importar datos</a>
+    <a href="#" class="opcion-menu" onclick="accionConfigurarColumnas()"><i class="bi bi-layout-three-columns"></i> Configurar columnas</a>
+</div>
         </div>
         
         <button id="btn-guardar-estado" class="btn-guardar-cambios" style="display: none;" onclick="confirmarCambio()">
@@ -135,6 +140,38 @@
             </div>
         </main>
     </div>
+    <div id="modalCompartir" class="modal">
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="ticket-header" style="border-bottom: none; padding-bottom: 0;">
+                    <h1 style="font-size: 1.2rem; color: #52247d;">
+                        <i class="bi bi-send-fill me-2"></i> Compartir Información
+                    </h1>
+                    <p class="subtitle" style="margin-top: 5px;">Envía los datos de esta tabla a un cliente.</p>
+                </div>
+                
+                <div class="ticket-section" style="border-bottom: none;">
+                    <div class="filter-item" style="margin-bottom: 15px;">
+                        <label for="correoCliente">Correo del destinatario <span style="color:red;">*</span></label>
+                        <input type="email" id="correoCliente" placeholder="ejemplo@cliente.com" required style="width: 100%;">
+                    </div>
+                    
+                    <div class="filter-item">
+                        <label for="formatoEnvio">Formato de archivo</label>
+                        <select id="formatoEnvio" style="width: 100%;">
+                            <option value="pdf">Documento PDF (.pdf)</option>
+                            <option value="excel">Hoja de cálculo Excel (.xlsx)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancelar" onclick="cerrarModalCompartir()">Cancelar</button>
+                    <button type="button" class="btn-guardar" onclick="enviarCorreoCompartir()">
+                        <i class="bi bi-send"></i> Enviar
+                    </button>
+                </div>
+            </div>
+        </div>
 {% endblock %}  
 {% block extra_js %}
     <!-- SCRIPTS -->
@@ -380,38 +417,80 @@ function removeSearchFilter(tipo) {
 }
 
 function aplicarFiltros() {
+    // 1. Empezamos con la lista completa de personas/usuarios
     personasFiltradas = [...personas];
 
+    // 2. Revisamos qué filtros están activos en la pantalla
     filtrosActivos.forEach(tipo => {
-        const inputElement = document.getElementById(`val-${tipo}`);
-        if (!inputElement) return;
+        let valoresBuscados = []; 
+        let valorDesde = "";
+        let valorHasta = "";
 
-        const valorBuscado = inputElement.value.toLowerCase().trim();
-        if (valorBuscado === "") return; 
+        // Si es un filtro de fecha, capturamos los dos inputs (Desde y Hasta)
+        if (tipo === 'fecha_creacion' || tipo === 'fecha_actualizacion') {
+            const inputDesde = document.getElementById(`val-${tipo}-desde`);
+            const inputHasta = document.getElementById(`val-${tipo}-hasta`);
+            
+            if (inputDesde) valorDesde = inputDesde.value; 
+            if (inputHasta) valorHasta = inputHasta.value; 
 
+            // Si ambos están vacíos, no aplicamos este filtro
+            if (!valorDesde && !valorHasta) return; 
+        } else {
+            // Para el resto de filtros normales
+            const inputElement = document.getElementById(`val-${tipo}`);
+            if (!inputElement) return;
+
+            // Separamos lo escrito por comas y limpiamos los espacios
+            valoresBuscados = inputElement.value.toLowerCase().split(',').map(v => v.trim()).filter(v => v !== '');
+            if (valoresBuscados.length === 0) return; 
+        }
+
+        // 3. Filtramos la lista dependiendo del tipo de filtro
         personasFiltradas = personasFiltradas.filter(persona => {
             switch(tipo) {
-                case 'persona': return persona.nombre && persona.nombre.toLowerCase().includes(valorBuscado);
-                case 'username': 
-                    return persona.username && persona.username.toLowerCase().includes(valorBuscado);
-                case 'email': return persona.email && persona.email.toLowerCase().includes(valorBuscado);
+                case 'persona':
+                    return valoresBuscados.some(val => persona.nombre && persona.nombre.toLowerCase().includes(val));
+                
+                case 'username':
+                    return valoresBuscados.some(val => persona.username && persona.username.toLowerCase().includes(val));
+                
+                case 'email':
+                    return valoresBuscados.some(val => persona.email && persona.email.toLowerCase().includes(val));
+                
                 case 'estatus':
-                    let estadoActual = persona.estado === true ? 'ACTIVO' : (persona.estado === false ? 'INACTIVO' : persona.estado);
-                    return estadoActual.toLowerCase() === valorBuscado;
-                case 'ultimo_login':
-                    if (persona.ultimo_login) {
-                        const partesFecha = valorBuscado.split('-');
-                        if (partesFecha.length === 3) {
-                            const fechaFormat = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
-                            return persona.ultimo_login.includes(fechaFormat);
-                        }
-                    }
-                    return false;
-                default: return true;
+                    let estadoActual = persona.estado;
+                    if (estadoActual === true) estadoActual = 'ACTIVO';
+                    if (estadoActual === false) estadoActual = 'INACTIVO';
+                    return valoresBuscados.some(val => estadoActual.toLowerCase() === val);
+
+                case 'fecha_creacion':
+                case 'fecha_actualizacion':
+                    // IMPORTANTE: Verifica que 'persona.fecha_creacion' coincida con cómo guardas la fecha en tu DB de usuarios
+                    let fechaString = tipo === 'fecha_creacion' ? persona.fecha_creacion : persona.fecha_actualizacion;
+                    if (!fechaString) return false;
+
+                    let soloFecha = fechaString.split(' ')[0];
+                    let partes = soloFecha.split('/');
+                    
+                    if (partes.length !== 3) return false; 
+
+                    let fechaRegistro = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                    let cumpleDesde = true;
+                    let cumpleHasta = true;
+
+                    if (valorDesde) cumpleDesde = fechaRegistro >= valorDesde;
+                    if (valorHasta) cumpleHasta = fechaRegistro <= valorHasta;
+
+                    return cumpleDesde && cumpleHasta;
+
+                default:
+                    return true;
             }
         });
     });
 
+    // 4. Regresamos a la página 1 y redibujamos la tabla
     paginaActual = 1;
     renderizarTabla();
 }
@@ -603,47 +682,60 @@ function mostrarSugerencias(valor, tipo) {
     const dropdown = document.getElementById(`sugerencias-${tipo}`);
     const input = document.getElementById(`val-${tipo}`);
     
-    // Aplicamos el filtro a la tabla para que reaccione en tiempo real
+    // 1. Separar por comas y tomar solo la última palabra que está escribiendo
+    let partes = valor.split(',');
+    let busquedaActual = partes[partes.length - 1].trim();
+
     aplicarFiltros();
 
-    if (valor.trim() === '') {
-        dropdown.style.display = 'none';
+    if (busquedaActual === '') {
+        if(dropdown) dropdown.style.display = 'none';
         return;
     }
 
-    // Extraemos la lista correcta dependiendo del filtro activo
     let listaValores = [];
+    
+    // Filtramos según las columnas que existen en tu tabla de usuarios
     if (tipo === 'persona') {
         listaValores = [...new Set(personas.map(p => p.nombre))].filter(Boolean);
     } else if (tipo === 'username') {
         listaValores = [...new Set(personas.map(p => p.username))].filter(Boolean);
+    } else if (tipo === 'email') {
+        listaValores = [...new Set(personas.map(p => p.email))].filter(Boolean);
     }
     
-    // Filtramos coincidencias
+    // 2. Filtramos usando la ÚLTIMA palabra escrita
     const coincidencias = listaValores.filter(texto => 
-        texto.toLowerCase().startsWith(valor.toLowerCase())
+        texto.toLowerCase().startsWith(busquedaActual.toLowerCase())
     );
 
-    dropdown.innerHTML = '';
+    if(dropdown) dropdown.innerHTML = '';
 
-    if (coincidencias.length > 0) {
+    if (coincidencias.length > 0 && dropdown) {
         coincidencias.forEach(texto => {
             const item = document.createElement('a');
             item.className = 'dropdown-item'; 
             item.href = '#';
-            item.textContent = tipo === 'username' ? `@${texto}` : texto; // Añadimos el '@' visualmente si es username
+            item.textContent = tipo === 'username' ? `@${texto}` : texto;
             
             item.onclick = function(e) {
                 e.preventDefault();
-                input.value = texto; // Ponemos el valor limpio en el input
+                // 3. Quitamos la palabra a medias y metemos el nombre completo
+                partes.pop(); 
+                partes.push(texto);
+                
+                // 4. Unimos todo con comas y dejamos un espacio al final
+                input.value = partes.join(', ') + ', '; 
+                
                 dropdown.style.display = 'none'; 
-                aplicarFiltros(); // Filtramos la tabla de forma exacta
+                input.focus(); // Mantiene el cursor en la barra
+                aplicarFiltros(); 
             };
             
             dropdown.appendChild(item);
         });
         dropdown.style.display = 'block'; 
-    } else {
+    } else if (dropdown) {
         dropdown.style.display = 'none'; 
     }
 }
@@ -658,5 +750,78 @@ document.addEventListener('click', function(e) {
         }
     });
 });
+function limpiarTodosLosFiltros() {
+    // 1. Buscamos el contenedor donde están todos los inputs de búsqueda
+    const contenedorFiltros = document.querySelector('.filters-grid');
+    if (!contenedorFiltros) return;
+
+    // 2. Limpiamos inputs de texto, fecha y reseteamos los selects
+    const inputs = contenedorFiltros.querySelectorAll('input');
+    const selects = contenedorFiltros.querySelectorAll('select');
+
+    inputs.forEach(input => input.value = '');
+    selects.forEach(select => select.selectedIndex = 0);
+
+    // 3. Efecto visual de rotación al hacer clic
+    const icono = document.querySelector('.btn-action.refresh i');
+    if (icono) {
+        icono.style.transition = "transform 0.5s ease";
+        icono.style.transform = "rotate(360deg)";
+        setTimeout(() => { icono.style.transform = "rotate(0deg)"; }, 500);
+    }
+
+    // 4. Actualizamos la tabla para mostrar todos los datos de nuevo
+    aplicarFiltros();
+}
+// --- FUNCIONES DEL MODAL COMPARTIR ---
+function abrirModalCompartir() {
+    const menu = document.getElementById('menu-tres-puntos');
+    if (menu) menu.classList.remove('mostrar');
+    
+    document.getElementById('correoCliente').value = '';
+    document.getElementById('modalCompartir').classList.add('show');
+}
+
+function cerrarModalCompartir() {
+    document.getElementById('modalCompartir').classList.remove('show');
+}
+
+function enviarCorreoCompartir() {
+    const correo = document.getElementById('correoCliente').value;
+    const formato = document.getElementById('formatoEnvio').value;
+    const botonEnviar = document.querySelector('#modalCompartir .btn-guardar');
+    
+    if (!correo || !correo.includes('@')) {
+        alert("Por favor, ingresa un correo electrónico válido.");
+        return;
+    }
+    
+    const textoOriginal = botonEnviar.innerHTML;
+    botonEnviar.innerHTML = '<i class="bi bi-hourglass-split"></i> Enviando...';
+    botonEnviar.disabled = true;
+    
+    setTimeout(() => {
+        alert(`¡Éxito! La información ha sido enviada a ${correo} en formato ${formato.toUpperCase()}.`);
+        botonEnviar.innerHTML = textoOriginal;
+        botonEnviar.disabled = false;
+        cerrarModalCompartir();
+    }, 1500);
+}
+
+// --- ALERTAS PARA LOS DEMÁS BOTONES ---
+function accionImportar() {
+    document.getElementById('menu-tres-puntos').classList.remove('mostrar');
+    alert("Has hecho clic en: Importar datos (Se abrirá un selector de archivos próximamente)");
+}
+
+function accionConfigurarColumnas() {
+    document.getElementById('menu-tres-puntos').classList.remove('mostrar');
+    alert("Has hecho clic en: Configurar columnas (Aquí podrás ocultar/mostrar columnas)");
+}
+
+function accionExportarPDF() {
+    document.getElementById('menu-tres-puntos').classList.remove('mostrar');
+    alert("Has hecho clic en: Exportar a PDF (Generando documento...)");
+}
     </script>
 {% endblock %}

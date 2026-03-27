@@ -28,4 +28,5 @@ urlpatterns = [
     path('usuarios/editar/<int:id>/', views.vista_crear_editar_usuario, name='editar_usuario'),
     path('recuperar-password/', views.recuperar_password_view, name='recuperar_password'),
     path('cambiar-password/<str:token>/', views.cambiar_password_view, name='cambiar_password'), # <-- La apuntamos al login temporalmente
+    path('api/enviar-correo/', views.enviar_correo_compartir, name='enviar_correo_compartir'),
 ]

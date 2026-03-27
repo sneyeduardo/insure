@@ -436,13 +436,12 @@
     <script>
         // === LÓGICA PARA LA FECHA ACTUAL ===
         const elementoFecha = document.getElementById('fecha-actual');
-        if (elementoFecha) {
-            const hoy = new Date();
-            const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
-
-            // Aplica el formato de fecha local (DD/MM/YYYY)
-            elementoFecha.textContent = hoy.toLocaleDateString('es-VE', opciones);
-        }
+            if (elementoFecha) {
+                const hoy = new Date();
+                // === LÍNEA MODIFICADA ===
+                const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+                elementoFecha.textContent = hoy.toLocaleDateString('es-VE', opciones);
+            }
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {

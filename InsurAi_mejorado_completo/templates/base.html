@@ -270,7 +270,8 @@
             const elementoFecha = document.getElementById('fecha-actual');
             if (elementoFecha) {
                 const hoy = new Date();
-                const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                // === LÍNEA MODIFICADA ===
+                const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
                 elementoFecha.textContent = hoy.toLocaleDateString('es-VE', opciones);
             }
 

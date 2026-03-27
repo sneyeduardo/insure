@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -155,5 +154,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('MAILJET_API_KEY') 
 EMAIL_HOST_PASSWORD = os.environ.get('MAILJET_SECRET_KEY')
 
-# Para el correo, asegúrate de que el nombre coincida con tu KEY en Render
+
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'sneyeduardo4@gmail.com')

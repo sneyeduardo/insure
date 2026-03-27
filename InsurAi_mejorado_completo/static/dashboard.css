@@ -462,7 +462,7 @@ body, html {
     left: 0;
     width: 100%;       /* Ocupa todo el ancho del sidebar */
     background-color: #000000;
-    padding: 10px 0 0px 0  !important;
+    padding: 2px 0 0px 0  !important;
     z-index: 100
     
 }
@@ -561,7 +561,7 @@ body, html {
 }
 .avatar-card .username { 
     font-weight: bold; 
-    margin-bottom: 10px; 
+    margin-bottom: 2px; 
     font-size: 0.95rem;
     
 }
@@ -1346,7 +1346,7 @@ body .footer-updates {
     z-index: 1000;
 
     /* EL FONDO QUE RECUBRE LAS LETRAS */
-    background: linear-gradient(135deg, #3347fd 0%, #000000 100%);
+    background: linear-gradient(135deg, #2600ff 0% 100%);
     border-radius: 30px; 
     border: 1px solid rgba(82, 36, 125, 0.15);
     box-shadow: 0 0px px rgba(82, 36, 125, 0.2);
@@ -1401,7 +1401,7 @@ body .footer-updates {
    EL TEXTO (ENVUELTO POR EL FONDO)
    ========================================== */
 .zybanna-mensaje {
-    color: #ff4800;
+    color: #ffffff;
     font-size: 15px;
     font-weight: 50;
     font-family: 'Montserrat', sans-serif;
