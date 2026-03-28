@@ -10,4 +10,4 @@ tzdata==2025.3
 # Agrega requests y pillow si los usas para imágenes o APIs
 requests==2.32.5
 pillow==11.2.1
-requests==2.31.0
+
