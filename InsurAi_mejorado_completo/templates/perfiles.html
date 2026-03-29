@@ -587,14 +587,41 @@ function addSearchFilter(tipo) {
     switch(tipo) {
         case 'perfil':
             labelText = 'Perfil';
-            // Creamos un wrapper relativo y reciclamos tus clases de dropdown
             inputHtml = `
-                <div class="autocomplete-wrapper" style="position: relative; width: 100%;">
-                    <input type="text" id="val-${tipo}" placeholder="Buscar perfil..." 
-                           oninput="mostrarSugerencias(this.value, '${tipo}')" autocomplete="off"
-                           style="width: 100%;">
-                    <div id="sugerencias-${tipo}" class="dropdown-menu search-dropdown-menu" 
-                         style="display: none; position: absolute; top: 100%; left: 0; width: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; margin-top: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="autocomplete-wrapper" style="position: relative; width: 100%; display: flex; align-items: center; border: 1px solid #d0d7de; border-radius: 8px; background-color: #ffffff; transition: box-shadow 0.2s, border-color 0.2s;" onfocusin="this.style.borderColor='#0969da'; this.style.boxShadow='0 0 0 3px rgba(9, 105, 218, 0.3)';" onfocusout="this.style.borderColor='#d0d7de'; this.style.boxShadow='none';">
+                    <input type="text" id="val-${tipo}" placeholder="Seleccionados..." 
+                           oninput="aplicarFiltros()" autocomplete="off"
+                           style="width: calc(100% - 38px); border: none; border-radius: 8px 0 0 8px; background-color: transparent; padding: 8px 12px; outline: none; font-style: italic; color: #57606a; font-size: 0.95rem; line-height: 1.5;" readonly>
+                    <button class="btn-lupa" onclick="abrirModalPerfiles(event)" 
+                        onmouseover="this.querySelector('i').style.transform='scale(1.15)'; this.querySelector('i').style.color='#0a58ca'; this.style.backgroundColor='#f6f8fa';" 
+                        onmouseout="this.querySelector('i').style.transform='scale(1)'; this.querySelector('i').style.color='#0969da'; this.style.backgroundColor='transparent';"
+                        style="width: 38px; height: 38px; border: none; border-left: 1px solid #e1e4e8; background-color: transparent; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; padding: 0;">
+                        <i class="bi bi-search" style="color: #0969da; font-size: 1.1rem; transition: all 0.2s ease;"></i>
+                    </button>
+
+                    <div id="dropdown-multi-${tipo}" class="search-dropdown-menu animacion-aparecer" 
+                         style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); width: 280px; z-index: 1050; box-shadow: 0 10px 25px rgba(0,0,0,0.15); background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; flex-direction: column;">
+                        
+                        <div style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid #f1f1f1; padding-bottom: 8px;">
+                            <span style="font-weight: 600; color: #52247d; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Seleccionar Perfiles</span>
+                        </div>
+
+                        <div style="margin-bottom: 15px; position: relative;">
+                            <i class="bi bi-filter" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #adb5bd;"></i>
+                            <input type="text" id="buscador-interno-${tipo}" placeholder="Filtrar lista..." 
+                                   oninput="filtrarListaInterna(this.value, '${tipo}')" 
+                                   style="width: 100%; padding: 8px 10px 8px 35px; border: 1px solid #dee2e6; border-radius: 20px; font-size: 0.85rem; outline: none; text-align: center; background-color: #fcfcfc;">
+                        </div>
+                        
+                        <div id="lista-checkboxes-${tipo}" style="display: flex; flex-direction: column; gap: 0; overflow-y: auto; max-height: 200px; padding: 0;">
+                            </div>
+                        
+                        <div style="margin-top: 15px; display: flex; justify-content: center; border-top: 1px solid #f1f1f1; padding-top: 12px;">
+                            <button onclick="aplicarSeleccionMultiple('${tipo}')" 
+                                    style="background-color: #0d6efd; color: white; border: none; padding: 10px; border-radius: 25px; cursor: pointer; font-size: 0.85rem; font-weight: 600; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);">
+                                Aplicar Selección
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1027,5 +1054,115 @@ function accionConfigurarColumnas() {
 function accionExportarPDF() {
     alert("Has hecho clic en: Exportar a PDF (Generando documento...)");
 }
+
+function abrirModalPerfiles(event) {
+    event.stopPropagation();
+    const tipo = 'perfil';
+    const dropdown = document.getElementById(`dropdown-multi-${tipo}`);
+    
+    // Si ya está abierto, lo cerramos
+    if (dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    // Cerrar otros dropdowns si existen
+    document.querySelectorAll('[id^="dropdown-multi-"]').forEach(el => el.style.display = 'none');
+
+    // Obtener valores únicos (DISTINCT)
+    let perfilesUnicos = [...new Set(personas.map(p => p.nombre))].filter(Boolean);
+    
+    // Ordenar alfabéticamente
+    perfilesUnicos.sort();
+
+    const contenedorLista = document.getElementById(`lista-checkboxes-${tipo}`);
+    contenedorLista.innerHTML = '';
+
+    // Obtener los valores que ya estaban seleccionados en el input principal
+    const inputPrincipal = document.getElementById(`val-${tipo}`);
+    const seleccionadosPrevios = inputPrincipal.value.split(',').map(v => v.trim()).filter(Boolean);
+
+    // Generar checkboxes con el diseño ordenado a la izquierda
+    perfilesUnicos.forEach(nombrePerfil => {
+        const isChecked = seleccionadosPrevios.includes(nombrePerfil) ? 'checked' : '';
+        
+        const div = document.createElement('div');
+        div.className = 'checkbox-item-multi';
+        
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'flex-start';
+        div.style.padding = '10px 15px';
+        div.style.borderBottom = '1px solid #f8f9fa';
+        div.style.cursor = 'pointer';
+        div.style.transition = 'background 0.2s';
+        
+        div.onmouseover = () => div.style.backgroundColor = '#f1f3f5';
+        div.onmouseout = () => div.style.backgroundColor = 'transparent';
+
+        div.innerHTML = `
+            <div style="display: flex; align-items: center; width: 100%;">
+                <input type="checkbox" id="chk-${tipo}-${nombrePerfil}" value="${nombrePerfil}" class="chk-multi-${tipo}" ${isChecked} 
+                       style="width: 18px; height: 18px; cursor: pointer; margin: 0 15px 0 0; accent-color: #0d6efd; flex-shrink: 0;">
+                
+                <label for="chk-${tipo}-${nombrePerfil}" style="cursor: pointer; margin: 0; font-size: 0.9rem; color: #333; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;">
+                    ${nombrePerfil}
+                </label>
+            </div>
+        `;
+
+        div.onclick = function(e) {
+            if (e.target.tagName !== 'INPUT') {
+                const cb = this.querySelector('input');
+                cb.checked = !cb.checked;
+            }
+        };
+
+        contenedorLista.appendChild(div);
+    });
+
+    document.getElementById(`buscador-interno-${tipo}`).value = '';
+    dropdown.style.display = 'block';
+}
+
+function filtrarListaInterna(valor, tipo) {
+    const termino = valor.toLowerCase().trim();
+    const items = document.querySelectorAll(`#lista-checkboxes-${tipo} .checkbox-item-multi`);
+    
+    items.forEach(item => {
+        const labelText = item.querySelector('label').textContent.toLowerCase().trim();
+        
+        if (labelText.startsWith(termino)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function aplicarSeleccionMultiple(tipo) {
+    const checkboxes = document.querySelectorAll(`.chk-multi-${tipo}:checked`);
+    const valoresSeleccionados = Array.from(checkboxes).map(cb => cb.value);
+    
+    const inputElement = document.getElementById(`val-${tipo}`);
+    inputElement.value = valoresSeleccionados.join(', ');
+    
+    document.getElementById(`dropdown-multi-${tipo}`).style.display = 'none';
+    
+    aplicarFiltros();
+}
+
+// Cerrar el dropdown si se hace clic afuera
+document.addEventListener('click', function(e) {
+    const dropdowns = document.querySelectorAll('[id^="dropdown-multi-"]');
+    dropdowns.forEach(dropdown => {
+        if (dropdown.style.display === 'block') {
+            const wrapper = dropdown.closest('.autocomplete-wrapper');
+            if (!wrapper.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        }
+    });
+});
     </script>
     {% endblock %}

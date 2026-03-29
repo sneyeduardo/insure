@@ -4,7 +4,7 @@
     --item-bg-dark: rgba(0, 0, 0, 0.2);
     --accent-white: #ffffff;
     --transition: all 0.3s ease;
-    --sidebar-bg: rgba(60, 20, 100, 0.85); 
+    --sidebar-bg: rgba(60, 20, 100, 0.85);
     --sidebar-bg-light: rgba(40, 10, 70, 0.9);
     /* ... resto de tus variables ... */
 
@@ -12,21 +12,30 @@
 }
 
 /* Reset y Base */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     font-family: 'Inter', sans-serif !important;
 }
-button, input, optgroup, select, textarea {
+
+button,
+input,
+optgroup,
+select,
+textarea {
     font-family: 'Inter', sans-serif !important;
 }
-body, html {
+
+body,
+html {
     margin: 0;
     padding: 0;
-    height: 100%;
+    min-height: 100vh;
     font-family: 'Inter', sans-serif;
     color: white;
     /* Degradado similar a la imagen original */
-    background:#E8E0DF;
+    background: #E8E0DF;
     background-attachment: fixed;
     overflow-x: hidden;
 }
@@ -47,30 +56,34 @@ body, html {
 /* Sidebar */
 .sidebar {
     /* Mantén el width, background, padding, y flex-direction que ya tienes... */
-    width: 250px; /* (O 300px según el archivo) */
+    width: 250px;
+    /* (O 300px según el archivo) */
     background: linear-gradient(to bottom, var(--sidebar-bg), var(--sidebar-bg-light));
-    border-right: 1px solid rgba(255,255,255,0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
     overflow: visible !important;
-    
-    /* === REGLAS CLAVE PARA QUE NO SE ESTIRE NUNCA === */
-    height: 100vh !important;       /* Altura exacta de la ventana */
-    max-height: 100vh !important;   /* Prohibido crecer más allá de la ventana */
-    position: sticky !important;    /* Lo fija en la pantalla aunque hagas scroll */
-    top: 0 !important;              /* Lo ancla a la parte superior */
-    flex-shrink: 0 !important;      /* Evita que se aplaste horizontalmente */
-    z-index: 1  !important;
+
+    /* REGLAS PARA QUE OCUPE TODO EL ESPACIO */
+    min-height: 100vh !important;
+    height: auto !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    /* Evita que se aplaste horizontalmente */
+    z-index: 1 !important;
 }
+
 /* linea roja */
 
 .sidebar-red-line {
     width: 100%;
     height: 1.5px;
     background-color: #ff0000;
-    margin: 118px 0 400px 0;  /* Reducido de 100px a 30px */
+    margin: 118px 0 400px 0;
+    /* Reducido de 100px a 30px */
     position: absolute;
 }
+
 /* Submenú Soporte: despliegue a la derecha del sidebar (estilo referencia) */
 .soporte-menu-trigger {
     cursor: pointer;
@@ -78,23 +91,26 @@ body, html {
     align-items: center;
     gap: 6px;
 }
+
 .soporte-chevron {
     width: 0;
     height: 0;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-left: 10px solid rgba(255,255,255,0.7);
+    border-left: 10px solid rgba(255, 255, 255, 0.7);
     margin-left: auto;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
+
 .soporte-li.submenu-open .soporte-chevron {
     opacity: 1;
 }
+
 .acc-list li.soporte-li.submenu-open {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
     border-left: 0px solid var(--accent-white);
-    
+
 }
 
 /* ── Paneles flotantes Soporte / Documentación ───────────────────────── */
@@ -103,14 +119,15 @@ body, html {
 .doc-menu-panel {
     display: none;
     position: fixed;
-    left: 10px;          /* mismo ancho que el sidebar */
+    left: 10px;
+    /* mismo ancho que el sidebar */
     width: 200px;
     background: rgba(102, 56, 145, 0.97);
-    border-left: 2px solid rgba(255,255,255,0.25);
+    border-left: 2px solid rgba(255, 255, 255, 0.25);
     border-radius: 0 6px 6px 0;
-    box-shadow: 10px 0 20px rgba(0,0,0,0.45);
+    box-shadow: 10px 0 20px rgba(0, 0, 0, 0.45);
     z-index: 99999;
-    
+
 }
 
 .soporte-menu-panel.show,
@@ -125,20 +142,24 @@ body, html {
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.55);
-    border-bottom: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255, 255, 255, 0.55);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
+
 .soporte-submenu-list {
     list-style: none;
     margin: 0;
     padding: 0px 0;
 }
+
 .soporte-submenu-list li {
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
+
 .soporte-submenu-list li:last-child {
     border-bottom: none;
 }
+
 .soporte-submenu-list a {
     display: block;
     padding: 12px 18px;
@@ -149,7 +170,7 @@ body, html {
 }
 
 .soporte-submenu-list a:hover {
-    background: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.12);
     color: #fff !important;
 }
 
@@ -161,6 +182,7 @@ body, html {
     align-items: center;
     gap: 6px;
 }
+
 .doc-chevron {
     width: 0;
     height: 0;
@@ -171,9 +193,11 @@ body, html {
     opacity: 0;
     transition: opacity 0.2s ease;
 }
+
 .doc-li.submenu-open .doc-chevron {
     opacity: 1;
 }
+
 .acc-list li.doc-li.submenu-open {
     background: rgba(73, 73, 73, 0.08);
     border-left: 4px solid var(--accent-white);
@@ -184,12 +208,15 @@ body, html {
     margin: 0;
     padding: 12px 0;
 }
+
 .doc-submenu-list li {
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
+
 .doc-submenu-list li:last-child {
     border-bottom: none;
 }
+
 .doc-submenu-list a {
     display: block;
     padding: 10px 18px;
@@ -198,47 +225,54 @@ body, html {
     text-decoration: none;
     transition: background 0.2s ease;
 }
+
 .doc-submenu-list a:hover {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 /* LOGO INICIAL */
 
 .logo-section {
-    padding: 0; 
+    padding: 0;
     margin: 0;
     width: 100%;
     display: flex;
-    justify-content: flex-start; /* Pega la caja negra a la izquierda */
+    justify-content: flex-start;
+    /* Pega la caja negra a la izquierda */
 }
+
 .caja-negra-logo {
     background-color: #000000;
-    
+
     /* Controla el tamaño exacto de tu fondo negro aquí */
-    width: 260px;   /* Por ejemplo, 250px cubre todo el ancho del sidebar */
-    height: 120px;  /* Alto de tu franja negra */
-    
+    width: 260px;
+    /* Por ejemplo, 250px cubre todo el ancho del sidebar */
+    height: 120px;
+    /* Alto de tu franja negra */
+
     /* Esto mantiene el logo perfectamente centrado adentro, sin importar el tamaño */
     display: flex;
-    justify-content: center; 
-    align-items: center;     
+    justify-content: center;
+    align-items: center;
     text-decoration: none;
-    
+
     /* Si necesitas mover toda la caja negra hacia arriba o abajo, usa esto: */
-    margin-top: 0px; 
-    margin-left: 0px; 
+    margin-top: 0px;
+    margin-left: 0px;
 }
 
 .logo-img {
     /* Controla qué tan grande o pequeño se ve el logo adentro del fondo negro */
-    width: 250px; 
+    width: 250px;
     height: auto;
-    
-    background-color: transparent; /* Ya no tiene fondo propio */
+
+    background-color: transparent;
+    /* Ya no tiene fondo propio */
     margin: 0;
     padding: 0;
-    clip-path: none; /* Adiós tijeras, ya no hacen falta */
-    box-shadow: none; 
+    clip-path: none;
+    /* Adiós tijeras, ya no hacen falta */
+    box-shadow: none;
     margin-top: -15px;
 }
 
@@ -247,30 +281,38 @@ body, html {
     padding: 0 30px 30px 20px;
     margin-top: 60px !important;
     position: relative;
-    flex: 1;                /* Toma el espacio disponible */
-    overflow: visible !important;      /* Si los menús son muy largos, aparece scroll solo aquí */
+    flex: 1;
+    /* Toma el espacio disponible */
+    overflow: visible !important;
+    /* Si los menús son muy largos, aparece scroll solo aquí */
 }
+
 .accordion::-webkit-scrollbar {
     width: 4px;
 }
+
 .accordion::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
 }
+
 /* tamano del menu separacion */
 .acc-item {
     margin-bottom: 0px;
-    
+
 }
+
 .acc-header {
     /* 1. La fórmula mágica: 100% del espacio + los 50px de relleno del sidebar */
-    width: calc(100% + 50px) !important; 
+    width: calc(100% + 50px) !important;
     /* 2. Lo rodamos exactamente 20px a la izquierda para tocar el borde */
-    margin-left: -20px !important; 
-    margin-right: 0 !important; /* Eliminamos el margen derecho para que no se salga */
+    margin-left: -20px !important;
+    margin-right: 0 !important;
+    /* Eliminamos el margen derecho para que no se salga */
     /* 3. Mantenemos el espacio interno para que el texto "Cartera" no se pegue al borde */
     padding: 12px 30px 12px 20px !important;
-    box-sizing: border-box !important; /* Asegura que el padding no engorde la caja */
+    box-sizing: border-box !important;
+    /* Asegura que el padding no engorde la caja */
     background: rgba(82, 36, 125);
     text-align: left;
     color: rgb(255, 255, 255);
@@ -284,60 +326,78 @@ body, html {
     display: flex;
     align-items: center;
     border-bottom: none !important;
-    font-weight: 500; /* Antes quizás estaba en 600 o bold. 500 es un punto medio elegante. */
+    font-weight: 500;
+    /* Antes quizás estaba en 600 o bold. 500 es un punto medio elegante. */
     letter-spacing: 0.5px;
     border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
-    
+
 }
-.acc-header:hover { opacity: 0.9; }
+
+.acc-header:hover {
+    opacity: 0.9;
+}
+
 .acc-header::after {
     content: '';
     flex: 1;
     height: 3px;
     margin-left: 5px;
-    background: rgba(255,255,255,0.22);
+    background: rgba(255, 255, 255, 0.22);
     border-radius: 2px;
     display: none;
 }
+
 .acc-body {
     overflow: hidden;
     max-height: 0;
     transition: max-height 0.35s ease;
-    background: transparent; /* Esto hace que tome el mismo fondo del sidebar */
+    background: transparent;
+    /* Esto hace que tome el mismo fondo del sidebar */
 }
-/* la flechita */ 
+
+/* la flechita */
 .acc-item.open .acc-body {
-    max-height: 1000px; /* Aumentado para seguridad */
-    border-left-color: rgba(255,255,255,0.12);
-    overflow: visible !important; /* CRÍTICO: Permite que el submenú salga del sidebar */
+    max-height: 1000px;
+    /* Aumentado para seguridad */
+    border-left-color: rgba(255, 255, 255, 0.12);
+    overflow: visible !important;
+    /* CRÍTICO: Permite que el submenú salga del sidebar */
 }
+
 .acc-list {
     list-style: none;
     margin: 0;
     padding: 2px 18px;
 }
+
 /* 1. Quitamos el borde tradicional del elemento */
 .acc-list li {
-    position: relative; 
-    padding: 12px 5px 12px 10px; /* Cambiamos el 25px a 5px para pegarlos más al borde derecho */
+    position: relative;
+    padding: 12px 5px 12px 10px;
+    /* Cambiamos el 25px a 5px para pegarlos más al borde derecho */
     color: rgba(255, 255, 255, 0.7);
-    border-bottom: none; 
+    border-bottom: none;
     display: flex;
-    justify-content: flex-end; /* Esto los empuja a la derecha */
+    justify-content: flex-end;
+    /* Esto los empuja a la derecha */
     align-items: center;
-    gap: 15px; /* Baja este valor (estaba en 30px) para que el texto y el ícono no estén tan separados */
+    gap: 15px;
+    /* Baja este valor (estaba en 30px) para que el texto y el ícono no estén tan separados */
     font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.3s ease;
 }
+
 /* 2. Dibujamos la nueva línea de punta a punta */
 /* Línea divisoria para TODOS los items (estén activos o no) */
 .acc-list li::before {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 0px; /* Ajusta este valor para que coincida con el inicio del texto */
-    right: -50px; /* Llega hasta el borde derecho */
+    left: 0px;
+    /* Ajusta este valor para que coincida con el inicio del texto */
+    right: -50px;
+    /* Llega hasta el borde derecho */
     width: auto;
     height: 1px;
     background-color: rgba(255, 255, 255, 0.2);
@@ -355,11 +415,14 @@ body, html {
     position: relative;
     z-index: 2;
     /* Extender el fondo de lado a lado */
-    margin-left: -38px;  /* Esto extiende hacia la izquierda */
-    margin-right: -48px; /* Esto extiende hacia la derecha */
+    margin-left: -38px;
+    /* Esto extiende hacia la izquierda */
+    margin-right: -48px;
+    /* Esto extiende hacia la derecha */
     width: auto;
     /* El padding IZQUIERDO debe ser MAYOR para que el texto NO se mueva */
-    padding: 8px 20px 8px 48px !important; /* Aumentamos padding-left a 48px */
+    padding: 8px 20px 8px 48px !important;
+    /* Aumentamos padding-left a 48px */
     /* El padding-right se mantiene igual */
 }
 
@@ -375,9 +438,10 @@ body, html {
     border-top: 26px solid transparent;
     border-bottom: 26px solid transparent;
     border-left: 30px solid #2b2b2b;
-    filter: drop-shadow(4px 0 3px rgba(0,0,0,0.2));
+    filter: drop-shadow(4px 0 3px rgba(0, 0, 0, 0.2));
     z-index: 3;
-    right: -35px; /* La flecha sobresale */
+    right: -35px;
+    /* La flecha sobresale */
 }
 
 /* Línea divisoria en items activos */
@@ -385,7 +449,8 @@ body, html {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 36px; /* Ajustado para que coincida con el padding-left del texto */
+    left: 36px;
+    /* Ajustado para que coincida con el padding-left del texto */
     right: 0;
     width: auto;
     height: 1px;
@@ -396,24 +461,26 @@ body, html {
 /*flecha*/
 
 .acc-list li.active {
-    background-color: #2b2b2b; 
-    color: #ffffff; 
-    border-left: none; 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    
+    background-color: #2b2b2b;
+    color: #ffffff;
+    border-left: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+
 }
+
 .acc-list li.active::after {
     content: "";
     position: absolute;
     top: 0;
-    right: -20px; 
+    right: -20px;
     width: 0;
     height: 0;
-    border-top: 22px solid transparent; 
-    border-bottom: 24px solid transparent; 
-    border-left: 20px solid #2b2b2b; 
+    border-top: 22px solid transparent;
+    border-bottom: 24px solid transparent;
+    border-left: 20px solid #2b2b2b;
     z-index: 10;
 }
+
 .acc-list li .icon {
     display: flex;
     align-items: center;
@@ -421,30 +488,36 @@ body, html {
     width: 30px;
     height: 28px;
     border-radius: 50%;
-    border: 200px solid rgba(255, 255, 255, 0.4); 
+    border: 200px solid rgba(255, 255, 255, 0.4);
     font-size: 0.85rem;
     transition: all 0.3s ease;
 }
+
 .acc-list li.active .icon {
     border-color: #ffffff;
 }
+
 .acc-list.two-cols {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px 12px;
 }
+
 /* Enlaces dentro del acordeón (ej. Administración) mismo estilo que el resto */
 .acc-list .acc-link {
     color: inherit;
     text-decoration: none;
     display: block;
-    flex: 0 1 auto !important; /* <--- Esto fuerza a que el texto ocupe solo lo necesario y no se estire */
+    flex: 0 1 auto !important;
+    /* <--- Esto fuerza a que el texto ocupe solo lo necesario y no se estire */
     font-size: 14px;
 }
+
 .acc-list li:hover .acc-link,
 .acc-list .acc-link:hover {
     color: inherit;
 }
+
 .acc-header .bi {
     font-size: 1.1rem;
     opacity: 0.9;
@@ -457,29 +530,32 @@ body, html {
     text-align: center;
     flex-shrink: 0;
     margin-bottom: 0 !important;
-    margin-top: 0; 
-    bottom: 0 !important;         /* La pega al fondo del sidebar */
+    margin-top: 0;
+    bottom: 0 !important;
+    /* La pega al fondo del sidebar */
     left: 0;
-    width: 100%;       /* Ocupa todo el ancho del sidebar */
+    width: 100%;
+    /* Ocupa todo el ancho del sidebar */
     background-color: #000000;
-    padding: 2px 0 0px 0  !important;
+    padding: 2px 0 0px 0 !important;
     z-index: 100
-    
 }
+
 .avatar-box .red-line {
     position: absolute;
     top: 0px;
     left: 0;
     width: 100%;
     height: 1.5px;
-    background: #ff0000; 
+    background: #ff0000;
     display: block;
-     
+
 }
+
 .avatar-wrap {
-    margin-top: -20px; 
+    margin-top: -20px;
     position: relative;
-    z-index: 2; 
+    z-index: 2;
     width: 70px;
     height: 70px;
     margin-left: auto;
@@ -487,9 +563,11 @@ body, html {
     border-radius: 50%;
     flex-shrink: 0;
 }
+
 .avatar-trigger-wrap {
     position: relative;
 }
+
 .avatar-btn {
     padding: 0;
     border: none;
@@ -498,6 +576,7 @@ body, html {
     display: block;
     line-height: 0;
 }
+
 .avatar-dropdown {
     position: absolute;
     left: 50%;
@@ -505,108 +584,125 @@ body, html {
     top: calc(100% + 8px);
     min-width: 180px;
     background: var(--sidebar-bg);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     box-shadow: 0 6px 18px rgba(255, 255, 255, 0.25);
     z-index: 1060;
     display: none;
     overflow: hidden;
     bottom: calc(100% + 8px);
-    top: auto; 
-    background-color: #2b2b2b !important; 
+    top: auto;
+    background-color: #2b2b2b !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 8px 16px rgba(255, 255, 255, 0.5) !important;
 }
+
 .avatar-dropdown.show {
     display: block;
 }
+
 .avatar-dropdown-item {
     display: block;
     padding: 10px 16px;
     color: var(--accent-white);
     font-size: 0.9rem;
     text-decoration: none;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     transition: background 0.2s ease;
 }
+
 .avatar-dropdown-item:last-child {
     border-bottom: none;
 }
+
 .avatar-dropdown-item:hover {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
 }
+
 .avatar-img {
     width: 70px;
     height: 70px;
     border-radius: 50%;
     border: 2px solid rgb(255, 255, 255);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-    background: #6b4b9a; /* fallback color */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    background: #6b4b9a;
+    /* fallback color */
     object-fit: cover;
     display: block;
     aspect-ratio: 1 / 1;
     top: auto;
     margin-top: -40px;
-    
+
 }
+
 .avatar-card {
     background: rgb(0, 0, 0);
     color: #ffffff;
-    margin: 15px 30px 0 30px; /* Le damos el margen lateral solo a la tarjeta */
+    margin: 15px 30px 0 30px;
+    /* Le damos el margen lateral solo a la tarjeta */
     padding: 20px 10px;
-    border-radius: 0; /* Bordes rectos como en la imagen de referencia */
+    border-radius: 0;
+    /* Bordes rectos como en la imagen de referencia */
     font-size: 0.85rem;
     margin-top: -50px;
     transform: translateX(-1px);
 }
-.avatar-card .username { 
-    font-weight: bold; 
-    margin-bottom: 2px; 
+
+.avatar-card .username {
+    font-weight: bold;
+    margin-bottom: 2px;
     font-size: 0.95rem;
-    
+
 }
-.avatar-card .user-date { 
-    font-size: 0.8rem; 
-    color: #ffffff; 
+
+.avatar-card .user-date {
+    font-size: 0.8rem;
+    color: #ffffff;
     font-weight: bold;
-    margin-bottom: 10px; 
+    margin-bottom: 10px;
 }
-.avatar-card .user-role { 
-    font-size: 0.8rem; 
-    color: #ffffff; 
+
+.avatar-card .user-role {
+    font-size: 0.8rem;
+    color: #ffffff;
     font-weight: bold;
 }
+
 .main-nav li {
     padding: 18px 40px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    position: relative; 
+    position: relative;
 }
+
 .main-nav li:hover {
     background: rgba(255, 255, 255, 0.05);
 }
+
 .main-nav li.active {
-    background: #252525; 
-    border-left: none; 
+    background: #252525;
+    border-left: none;
 }
+
 .main-nav li.active::after {
     content: '';
     position: absolute;
     top: 50%;
-    right: -20px; 
-    transform: translateY(-50%); 
-    border-top: 28px solid transparent; 
+    right: -20px;
+    transform: translateY(-50%);
+    border-top: 28px solid transparent;
     border-bottom: 28px solid transparent;
-    border-left: 20px solid #252525; 
+    border-left: 20px solid #252525;
     z-index: 10;
 }
+
 .main-nav li .icon {
     position: relative;
-    z-index: 11; 
+    z-index: 11;
 }
 
 /* Login Box */
@@ -617,8 +713,8 @@ body, html {
     margin: 5px 0;
     padding: 8px;
     background: rgba(89, 0, 255, 0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-        border-right: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 3px;
 }
 
@@ -642,50 +738,69 @@ body, html {
     padding: 60px 20px;
 }
 
+.content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 /* Dashboards: tarjetas blancas con esquinas curvas */
 .dashboards {
     padding: 30px 40px;
     background: transparent;
     max-width: none !important;
+    flex-grow: 1;
 }
+
 .dash-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
     align-items: start;
     max-width: none !important;
 }
+
 .card {
     background: #ffffff;
     color: #222;
     padding: 16px;
     border-radius: 10px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 30px 60px rgba(0,0,0,0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 30px 60px rgba(0, 0, 0, 0.15);
     min-height: 120px;
 }
-.card.wide { grid-column: span 3; }
+
+.card.wide {
+    grid-column: 1 / -1;
+}
+
 .card-title {
     font-size: 1rem;
     margin: 0 0 10px 0;
     color: #333;
 }
+
 .chart {
     width: 100%;
     height: 110px;
     display: block;
 }
-.chart.mini-rows { height: auto; }
-.mini-rows .row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0; }
-.mini-rows .row:last-child { border-bottom: none; }
 
-@media (max-width: 900px) {
-    .dash-grid { grid-template-columns: repeat(2, 1fr); }
-    .card.wide { grid-column: span 2; }
+.chart.mini-rows {
+    height: auto;
 }
-@media (max-width: 600px) {
-    .dash-grid { grid-template-columns: 1fr; }
-    .card.wide { grid-column: span 1; }
+
+.mini-rows .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
 }
+
+.mini-rows .row:last-child {
+    border-bottom: none;
+}
+/* Responsive grid is handled by auto-fit now */
 
 .main-title {
     font-size: 6rem;
@@ -710,50 +825,69 @@ body, html {
     justify-content: space-between;
     align-items: center;
     padding: 20px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.step-num { font-weight: bold; font-size: 1.1rem; }
-.step-text { font-size: 1.2rem; }
+.step-num {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.step-text {
+    font-size: 1.2rem;
+}
 
 /* Footer */
 .footer-updates {
-    display: grid ;
+    display: grid;
     grid-template-columns: repeat(5, 1fr) !important;
     gap: 12px !important;
-    padding: 2px 20px !important; /* El valor que quieras */
+    padding: 2px 20px !important;
+    /* El valor que quieras */
     background: linear-gradient(90deg, #707070 0%, #8a8a8a 40%, #9e9e9e 100%) !important;
     align-items: center !important;
 }
+
 .update-card {
+    min-height: 10vh;
     background: transparent;
     color: #222;
-    padding: px ;
+    padding: px;
     /* Nuevas propiedades para centrar todo */
     display: flex;
-    flex-direction: column; /* Coloca el ícono arriba y el texto abajo */
-    align-items: center;    /* Centra el ícono (.icon-wrap) horizontalmente */
-    text-align: center;     /* Centra el texto del h4 y el párrafo */
-    
+    flex-direction: column;
+    /* Coloca el ícono arriba y el texto abajo */
+    align-items: center;
+    /* Centra el ícono (.icon-wrap) horizontalmente */
+    text-align: center;
+    /* Centra el texto del h4 y el párrafo */
+    flex: 1;
+
 }
+
 .update-card h4 {
     font-size: 0.9rem;
     margin: 0 0 8px 0;
     color: #000000;
 }
+
 .update-card p {
     font-size: 0.8rem;
     color: #222;
     opacity: 0.85;
     margin: 0;
 }
+
 /* iconos mas detallados, linea nueva y mejorada */
 .footer-updates .icon-wrap img {
-    width: 80px;  /* Aumenta este número según lo que necesites (ej. 80px, 90px) */
-    height: 80px; /* Asegúrate de que sea igual al width para que no se deformen */
+    width: 80px;
+    /* Aumenta este número según lo que necesites (ej. 80px, 90px) */
+    height: 80px;
+    /* Asegúrate de que sea igual al width para que no se deformen */
     transform: translateY(-8px);
-    
+
 }
+
 /* Tarjetas más compactas */
 body .footer-updates .update-card {
     padding: 200px 5px !important;
@@ -762,18 +896,21 @@ body .footer-updates .update-card {
 /* Iconos del pie de pagina, linea vieja */
 
 .icon-wrap {
-    width: 70px ;
-    max-height: px ;
+    width: 70px;
+    max-height: px;
     display: flex;
     align-items: center;
     justify-content: center;
-  /* Evita que imágenes grandes se salgan del recuadro */
+    /* Evita que imágenes grandes se salgan del recuadro */
 }
+
 .icon-wrap img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Mantiene la proporción de la imagen sin deformarla ni estirarla */
+    object-fit: contain;
+    /* Mantiene la proporción de la imagen sin deformarla ni estirarla */
 }
+
 body .footer-updates {
     padding: 5px 20px !important;
     gap: 5px !important;
@@ -795,17 +932,20 @@ body .footer-updates .update-card {
 /* Logo Zybanna en la tarjeta del footer: redondo */
 .update-card.zybanna-logo-card .icon-wrap {
     border-radius: 100% !important;
-    width: 120px !important;  /* Aumentamos de 60px a 100px */
-    height: 120px !important; /* Aumentamos de 60px a 100px */
+    width: 120px !important;
+    /* Aumentamos de 60px a 100px */
+    height: 120px !important;
+    /* Aumentamos de 60px a 100px */
     margin-bottom: 15px;
-    margin-top: -100px !important; 
+    margin-top: -100px !important;
     aspect-ratio: 1;
     object-fit: cover;
     /* Aseguramos que el resto del contenido no se pegue */
-    margin-bottom: 10px; 
+    margin-bottom: 10px;
     border: 4px solid rgb(255, 255, 255);
     position: relative;
-    z-index: 10; /* Por si quieres que sobresalga un poco del borde superior */
+    z-index: 10;
+    /* Por si quieres que sobresalga un poco del borde superior */
 }
 
 .update-card.zybanna-logo-card .icon-wrap img {
@@ -815,14 +955,19 @@ body .footer-updates .update-card {
     object-fit: cover;
 
 }
+
 .update-card.zybanna-logo-card .icon-wrap .bi {
-    display: none; /* Oculta el ícono si hay imagen */
+    display: none;
+    /* Oculta el ícono si hay imagen */
 }
+
 /* 1. Movemos el contenedor completo (borde + imagen) hacia arriba */
 .zybanna-logo-card .icon-wrap {
-    transform: translateY(-15px); /* Súbelo ajustando este número (-20px, -25px) */
-    overflow: hidden; /* Esto obliga a la imagen a no salirse del círculo */
-    padding: 0; 
+    transform: translateY(-15px);
+    /* Súbelo ajustando este número (-20px, -25px) */
+    overflow: hidden;
+    /* Esto obliga a la imagen a no salirse del círculo */
+    padding: 0;
 }
 
 /* 2. Hacemos que la foto encaje perfecto dentro del círculo */
@@ -831,7 +976,8 @@ body .footer-updates .update-card {
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-    transform: none; /* Asegura que la foto no se mueva sola por dentro */
+    transform: none;
+    /* Asegura que la foto no se mueva sola por dentro */
 }
 
 /* 3. Ocultamos el ícono de persona con lupa que sobra en el fondo */
@@ -839,58 +985,66 @@ body .footer-updates .update-card {
     display: none;
 }
 
-/* bloques de arriba cuadrados, codigo repetido*/ 
+/* bloques de arriba cuadrados, codigo repetido*/
 
 .grid-item {
     padding: 10px 15PX;
     text-align: center;
     background: #ED704E;
-    border-right: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
     justify-content: center;
     /* Transición suave para el color de fondo y la sombra */
-    position: relative; 
+    position: relative;
     /* Esta transición le da un pequeño efecto de "rebote" elástico muy natural */
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background 0.4s ease;
     cursor: pointer;
     height: 100%;
 }
+
 .grid-item:hover {
-    transform: scale(1.05); 
-    
+    transform: scale(1.05);
+
     /* Sombra 3D profunda que se proyecta alrededor y debajo */
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    
+
     /* Asegura que este cuadro y su sombra queden por encima de los cuadros vecinos */
     z-index: 10;
 }
+
 .grid-item:hover .item-icon {
     transform: scale(1.2);
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
     transition: transform 0.3s ease, filter 0.3s ease;
 }
+
 .top-grid {
     width: 100%;
     margin: 0 !important;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    min-height: 8px; /* Reducido de 150px para hacerlos más cortos */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    min-height: 8px;
+    /* Reducido de 150px para hacerlos más cortos */
     gap: 0;
-    margin-top: 100px; /* Reducido de 100px para moverlos hacia arriba */
+    margin-top: 100px;
+    /* Reducido de 100px para moverlos hacia arriba */
     position: relative;
     z-index: 10;
     max-width: none !important;
 }
+
 .item-icon {
     font-size: 2.5rem;
-    margin-bottom: 5px; /* Reducido de 15px a 5px */
+    margin-bottom: 5px;
+    /* Reducido de 15px a 5px */
 }
 
 /* NUEVO: Forzar que las imágenes sean más pequeñas para que el bloque no se estire a lo alto */
 
 .item-icon img {
-    width: 140px !important; /* El HTML tiene width="180", esto lo sobrescribe para hacerlo más compacto */
+    width: 140px !important;
+    /* El HTML tiene width="180", esto lo sobrescribe para hacerlo más compacto */
     height: auto;
 }
 
@@ -914,13 +1068,17 @@ body .footer-updates .update-card {
 /* EL CONTENEDOR DE LA FRANJA NARANJA */
 
 .orange-footer-bar {
-    background-color: #FF8C00; /* Color naranja */
+    background-color: #FF8C00;
+    /* Color naranja */
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center; /* Cambia a 'flex-start' si prefieres que esté a la izquierda */
-    padding: 0px 0px; /* Mantiene la franja delgada */
-    gap: 20px; /* Espacio entre el logo y el texto */
+    justify-content: center;
+    /* Cambia a 'flex-start' si prefieres que esté a la izquierda */
+    padding: 0px 0px;
+    /* Mantiene la franja delgada */
+    gap: 20px;
+    /* Espacio entre el logo y el texto */
     box-sizing: border-box;
     height: 30px;
 }
@@ -930,16 +1088,19 @@ body .footer-updates .update-card {
    Truco: mantenemos la altura real pequeña para que la franja
    no crezca, pero visualmente agrandamos el logo con scale(). */
 .orange-footer-bar .footer-logo {
-    height: 35px;      /* Tamaño "real" que define la altura de la barra */
+    height: 35px;
+    /* Tamaño "real" que define la altura de la barra */
     width: auto;
     object-fit: contain;
-    transform: scale(1.3);      /* Lo vemos más grande sin engordar la franja */
+    transform: scale(1.3);
+    /* Lo vemos más grande sin engordar la franja */
     transform-origin: center;
 }
 
 /* EL TEXTO DE DERECHOS RESERVADOS */
 .orange-footer-bar span {
-    color: #ffffff; /* Texto blanco para que resalte en el naranja */
+    color: #ffffff;
+    /* Texto blanco para que resalte en el naranja */
     font-size: 0.85rem;
     font-weight: 500;
     margin: 0;
@@ -954,6 +1115,7 @@ body .footer-updates .update-card {
     z-index: 50;
     width: 100%;
 }
+
 /* 2. La flecha gigante que sobresale del panel hacia la derecha */
 .soporte-submenu-list li.active::after,
 .doc-submenu-list li.active::after {
@@ -961,39 +1123,46 @@ body .footer-updates .update-card {
     position: absolute;
     top: -80;
     bottom: 0;
-    left: 100%; 
+    left: 100%;
     width: 0;
     height: 100;
-    border-bottom: 19px solid transparent; 
-    border-left: 25px solid #2b2b2b; 
-    filter: drop-shadow(4px 0 3px rgba(0,0,0,0.2));
+    border-bottom: 19px solid transparent;
+    border-left: 25px solid #2b2b2b;
+    filter: drop-shadow(4px 0 3px rgba(0, 0, 0, 0.2));
     z-index: 51;
-    transform: none; 
+    transform: none;
 }
+
 /* Alineación del contenedor LI para que el icono y texto convivan bien */
 .acc-list li,
 .soporte-submenu-list li,
 .doc-submenu-list li {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Texto a la izquierda, icono anclado a la derecha */
-    gap: 0; 
+    justify-content: space-between;
+    /* Texto a la izquierda, icono anclado a la derecha */
+    gap: 0;
     padding: 10px 20px;
-    padding-left: 10px !important; 
+    padding-left: 10px !important;
     padding-right: 20px;
     height: 45px;
 }
 
 /* Estilo para las imágenes de los iconos */
 .sub-icon {
-    width: 45px;  /* Ajusta el tamaño a tu gusto */
-    height: 25px; /* Manténlo cuadrado */
-    filter: brightness(0) invert(1); /* OPCIONAL: Si tus iconos son negros, esto los vuelve blancos */
+    width: 45px;
+    /* Ajusta el tamaño a tu gusto */
+    height: 25px;
+    /* Manténlo cuadrado */
+    filter: brightness(0) invert(1);
+    /* OPCIONAL: Si tus iconos son negros, esto los vuelve blancos */
     opacity: 0.7;
-    object-fit: contain; /* Para que no se estiren */
+    object-fit: contain;
+    /* Para que no se estiren */
     transition: transform 0.3s ease;
     display: block;
-    margin-left: auto;  /* Empuja el icono hacia el borde derecho del sidebar */
+    margin-left: auto;
+    /* Empuja el icono hacia el borde derecho del sidebar */
     margin-right: 0;
 }
 
@@ -1001,50 +1170,56 @@ body .footer-updates .update-card {
 li:hover .sub-icon,
 li.active .sub-icon {
     opacity: 1;
-    transform: scale(1.2); /* Un pequeño salto para que se vea vivo */
+    transform: scale(1.2);
+    /* Un pequeño salto para que se vea vivo */
 }
 
 /* Contenedor de la burbuja expandida */
 
 .woot-widget-bubble.woot-elements--expanded {
-  display: flex !important;
-  align-items: center !important;
-  padding-left: 58px !important; /* Espacio para el avatar circular */
-  position: relative !important;
-  overflow: visible !important;
-  border-radius: 35px !important;
-  min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-left: 58px !important;
+    /* Espacio para el avatar circular */
+    position: relative !important;
+    overflow: visible !important;
+    border-radius: 35px !important;
+    min-height: 48px !important;
 }
 
 /* Inyección del Avatar (Mujer) */
 .woot-widget-bubble.woot-elements--expanded::before {
-  content: "" !important;
-  display: block !important;
-  position: absolute !important;
-  left: 6px !important; /* Posición desde el borde izquierdo de la burbuja */
-  top: 50% !important;
-  transform: translateY(-50%) !important; /* Centrado vertical */
-  width: 42px !important;
-  height: 42px !important;
-  
-  /* URL de imagen real de prueba (Asistente profesional) */
-  background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  
-  border-radius: 50% !important;
-  border: 2px solid #ffffff !important; /* Borde blanco para contraste */
-  z-index: 100 !important;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2) !important;
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    left: 6px !important;
+    /* Posición desde el borde izquierdo de la burbuja */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    /* Centrado vertical */
+    width: 42px !important;
+    height: 42px !important;
+
+    /* URL de imagen real de prueba (Asistente profesional) */
+    background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+
+    border-radius: 50% !important;
+    border: 2px solid #ffffff !important;
+    /* Borde blanco para contraste */
+    z-index: 100 !important;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Ajuste del texto para que no se pegue al avatar */
 .woot-widget-bubble.woot-elements--expanded span {
-  margin-left: 2px !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
+    margin-left: 2px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
 }
+
 /* Para que toda la página use la nueva fuente */
 body {
     font-family: 'Montserrat', sans-serif;
@@ -1056,14 +1231,17 @@ body {
 /* El cuadro de diálogo estilo buscador */
 /* La franja azul que atraviesa la pantalla */
 .search-bar-stripe {
-    background-color: #ffffff; 
-    padding: 4px 0 !important; /* Aún más fina */
+    background-color: #ffffff;
+    padding: 4px 0 !important;
+    /* Aún más fina */
     width: 100%;
-    margin-top: 0px; /* Reducido para que suba más (si la quieres pegada, pon 0px) */
+    margin-top: 0px;
+    /* Reducido para que suba más (si la quieres pegada, pon 0px) */
     display: flex;
     align-items: center;
-    position: relative; /* Necesario para posicionar la línea roja fuera */
-    
+    position: relative;
+    /* Necesario para posicionar la línea roja fuera */
+
     /* Quitamos el border-bottom anterior */
     border-bottom: 2px solid red;
 }
@@ -1076,14 +1254,14 @@ body {
     align-items: center;
     /* Ajustamos el padding para acomodar el botón a la derecha */
     padding: -5px 0px 0px 0px;
-    
+
     /* Estos dos valores lo estiran de punta a punta */
     width: 100%;
     /* si hace falta cambiar el grosor de la barra de busqueda */
     max-width: 1200px;
-    
+
     margin: 0 auto;
-    
+
 }
 
 /* El ícono de lupa */
@@ -1099,83 +1277,100 @@ body {
     border: none;
     outline: none;
     /* "flex-grow: 1" hace que el input ocupe todo el espacio disponible */
-    flex-grow: 1; 
+    flex-grow: 1;
     font-size: 15px;
     color: #333;
     background: transparent;
-    margin-right: 10px; /* Espacio entre el texto y el botón */
+    margin-right: 10px;
+    /* Espacio entre el texto y el botón */
 }
 
 /* Boton de buscar, lo voy a quitar mientras tanto */
 
 .search-btn:hover {
-    background-color: #e65c00; /* Un naranja un poco más oscuro al pasar el mouse */
+    background-color: #e65c00;
+    /* Un naranja un poco más oscuro al pasar el mouse */
 }
+
 .search-bar-stripe::after {
     content: "";
     position: absolute;
     left: 0;
-    bottom: 0px; /* AQUÍ CONTROLAS LA SEPARACIÓN: más número = más lejos */
+    bottom: 0px;
+    /* AQUÍ CONTROLAS LA SEPARACIÓN: más número = más lejos */
     width: 100%;
-    height: 1px;     /* Grosor de la línea */
-    background-color: #ff4500; /* Color rojo/naranja */
+    height: 1px;
+    /* Grosor de la línea */
+    background-color: #ff4500;
+    /* Color rojo/naranja */
 }
+
 .search-btn {
     background-color: #ffffff;
     color: white;
     border: none;
-    
+
     /* Reducimos el padding vertical del botón */
-    padding: 1px 2px; 
-    
+    padding: 1px 2px;
+
     border-radius: 20px;
-    font-size: 1px; /* Texto un poco más pequeño para que no se vea apretado */
+    font-size: 1px;
+    /* Texto un poco más pequeño para que no se vea apretado */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     margin-left: 10px;
 }
+
 /* ESTILOS NUEVOS PARA EL BOTÓN "BUSCAR" */
 .search-btn {
-    background-color: #ff6b00; /* Naranja consistente con tu diseño */
+    background-color: #ff6b00;
+    /* Naranja consistente con tu diseño */
     color: white;
     border: none;
-    padding: 10px 20px; /* Tamaño del botón */
-    border-radius: 20px; /* Bordes redondeados */
+    padding: 10px 20px;
+    /* Tamaño del botón */
+    border-radius: 20px;
+    /* Bordes redondeados */
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    white-space: nowrap; /* Evita que el texto se rompa en dos líneas */
+    white-space: nowrap;
+    /* Evita que el texto se rompa en dos líneas */
 }
 
 
 
 /* Estilo para la punta de flecha que sobresale */
 #marker {
-    position: absolute; /* */
-    
+    position: absolute;
+    /* */
+
     /* Lo pegamos al borde derecho */
-    right: -15px; 
-    
+    right: -15px;
+
     /* Ajusta este valor para que quede centrado con 'Cartera' */
-    top: 60px; 
-    
+    top: 60px;
+
     /* Construcción del triángulo (punta de flecha) */
     width: 0;
     height: 0;
     border-top: 15px solid transparent;
     border-bottom: 15px solid transparent;
-    
+
     /* El color debe ser el mismo que el fondo de tu sidebar o el de acento */
-    border-left: 15px solid #ff4500; 
-    
-    z-index: 9999; /* Para asegurar que se vea por encima de todo */
+    border-left: 15px solid #ff4500;
+
+    z-index: 9999;
+    /* Para asegurar que se vea por encima de todo */
 }
+
 /* Hacer el marker transparente pero mantener su espacio */
 #marker {
     border-left-color: transparent !important;
     opacity: 0 !important;
 }
+
 /* Reducir footer verticalmente */
 body .footer-updates {
     padding: 5px 20px !important;
@@ -1185,34 +1380,43 @@ body .footer-updates {
 
 /* Permite mover los submenus de izquierda a derecha */
 .acc-list li {
-    position: relative; 
+    position: relative;
     /* El último valor (50px) es el padding izquierdo. Al ser grande, empuja el texto y el icono hacia la derecha */
-    padding: 12px 0px 12px 10px !important; 
+    padding: 12px 0px 12px 10px !important;
     color: rgba(255, 255, 255, 0.7);
-    border-bottom: none; 
+    border-bottom: none;
     display: flex;
-    justify-content: flex-end !important; /* Forzamos la alineación a la derecha */
+    justify-content: flex-end !important;
+    /* Forzamos la alineación a la derecha */
     align-items: center;
-    gap: 15px !important; /* Separación fija entre el texto y el icono */
+    gap: 15px !important;
+    /* Separación fija entre el texto y el icono */
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    padding-left: 300px; /* Aquí controlas dónde empieza la palabra */
-    padding-right: 150px; /* Aquí controlas dónde termina el ícono */
-    
+    padding-left: 300px;
+    /* Aquí controlas dónde empieza la palabra */
+    padding-right: 150px;
+    /* Aquí controlas dónde termina el ícono */
+
 }
+
 .acc-list li,
 .soporte-submenu-list li,
 .doc-submenu-list li {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Texto a la izquierda, icono anclado a la derecha */
-    gap: 0; 
+    justify-content: space-between;
+    /* Texto a la izquierda, icono anclado a la derecha */
+    gap: 0;
     padding: 10px 20px;
-    padding-left: 20px !important;  /* <--- ESTO BLOQUEA LA IZQUIERDA */
-    padding-right: 20px;            /* <--- ESTO BLOQUEA LA DERECHA */
+    padding-left: 20px !important;
+    /* <--- ESTO BLOQUEA LA IZQUIERDA */
+    padding-right: 20px;
+    /* <--- ESTO BLOQUEA LA DERECHA */
     height: 45px;
 }
+
 /* =========================================
    NUEVOS MENÚS DESPLEGABLES EXTERNOS
 ========================================= */
@@ -1220,15 +1424,19 @@ body .footer-updates {
 /* El contenedor principal del menú flotante */
 .menu-externo-inzur {
     position: absolute;
-    left: 100%;       /* Lo expulsa fuera del sidebar */
-    top: -10px;       /* Lo centra verticalmente con el item */
-    margin-left: 5px; /* Le da un espacio a la flecha para que respire */
+    left: 100%;
+    /* Lo expulsa fuera del sidebar */
+    top: -10px;
+    /* Lo centra verticalmente con el item */
+    margin-left: 5px;
+    /* Le da un espacio a la flecha para que respire */
     width: 220px;
-    background-color: #1e1e24; /* Un tono oscuro elegante */
+    background-color: #1e1e24;
+    /* Un tono oscuro elegante */
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     box-shadow: 8px 8px 25px rgba(0, 0, 0, 0.4);
-    
+
     /* Animación de entrada */
     opacity: 0;
     visibility: hidden;
@@ -1270,9 +1478,11 @@ body .footer-updates {
     border: none !important;
     background: none !important;
 }
+
 .menu-externo-inzur ul li::before,
 .menu-externo-inzur ul li::after {
-    display: none !important; /* Mata cualquier flecha heredada accidentalmente */
+    display: none !important;
+    /* Mata cualquier flecha heredada accidentalmente */
 }
 
 /* Los links (botones) del submenú */
@@ -1289,30 +1499,33 @@ body .footer-updates {
 /* Efecto Hover estilo Inzur */
 .menu-externo-inzur ul li a:hover {
     background-color: rgba(255, 140, 0, 0.1) !important;
-    color: #FF8C00 !important; /* Naranja Inzur */
-    padding-left: 26px !important; /* Animación de moverse a la derecha */
+    color: #FF8C00 !important;
+    /* Naranja Inzur */
+    padding-left: 26px !important;
+    /* Animación de moverse a la derecha */
 }
+
 /* =========================================
    FORZAR FLECHA Y COLOR MIENTRAS ESTÁ ABIERTO
 ========================================= */
 
 /* Mantiene el texto naranja y el fondo como si el ratón siguiera encima */
-#li-soporte.active > a.acc-link,
-#li-doc.active > a.acc-link {
+#li-soporte.active>a.acc-link,
+#li-doc.active>a.acc-link {
     background-color: rgba(255, 255, 255, 0.1) !important;
     color: #FF8C00 !important;
-    z-index: 100; 
+    z-index: 100;
 }
 
 /* Fuerza a los elementos que dibujan tu flecha (::before o ::after) a quedarse visibles */
-#li-soporte.active::before, 
+#li-soporte.active::before,
 #li-soporte.active::after,
-#li-soporte.active > a.acc-link::before, 
-#li-soporte.active > a.acc-link::after,
-#li-doc.active::before, 
+#li-soporte.active>a.acc-link::before,
+#li-soporte.active>a.acc-link::after,
+#li-doc.active::before,
 #li-doc.active::after,
-#li-doc.active > a.acc-link::before, 
-#li-doc.active > a.acc-link::after {
+#li-doc.active>a.acc-link::before,
+#li-doc.active>a.acc-link::after {
     display: block !important;
     opacity: 1 !important;
     visibility: visible !important;
@@ -1321,43 +1534,48 @@ body .footer-updates {
 /* Botón de Logout camuflado, centrado y con línea */
 .btn-clean-logout {
     background: none;
-    border: none; /* La línea divisoria */
+    border: none;
+    /* La línea divisoria */
     width: 100%;
-    text-align: center;      /* Centra el texto */
-    padding: 12px 0;         /* Ajusta el espacio arriba y abajo */
+    text-align: center;
+    /* Centra el texto */
+    padding: 12px 0;
+    /* Ajusta el espacio arriba y abajo */
     display: block;
-    color: #ffffff;             /* Usa el color de tus otros links */
+    color: #ffffff;
+    /* Usa el color de tus otros links */
     font-family: 'Montserrat', sans-serif;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 /* Efecto hover */
 .btn-clean-logout:hover {
     background-color: #3d3d3d;
-    color: #ff0000; /* Color de resalte al pasar el mouse */
+    /* Color de resalte al pasar el mouse */
 }
+
 /* ==========================================
    BURBUJA DE ZYBANNA (FOTO SOBRESALIENDO SIN FONDO)
    ========================================== */
 .zybanna-chatbot-prompt {
-    position: absolute;
-    bottom: 20px; 
-    right: 20px; 
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
     z-index: 1000;
 
     /* EL FONDO QUE RECUBRE LAS LETRAS */
     background: linear-gradient(135deg, #2600ff 0% 100%);
-    border-radius: 30px; 
+    border-radius: 30px;
     border: 1px solid rgba(82, 36, 125, 0.15);
     box-shadow: 0 0px px rgba(82, 36, 125, 0.2);
-    
+
     /* Le damos MUCHO espacio arriba (50px) para que la foto encaje 
        sin tapar el texto, y menos espacio abajo (20px) */
-    padding: 10px 10px 10px 10px; 
-    
+    padding: 10px 10px 10px 10px;
+
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1366,7 +1584,7 @@ body .footer-updates {
 .zybanna-chatbot-prompt:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(82, 36, 125, 0.3);
-    
+
 }
 
 /* ==========================================
@@ -1375,28 +1593,32 @@ body .footer-updates {
 .zybanna-avatar {
     /* La sacamos del flujo normal para empujarla hacia arriba */
     position: absolute;
-    top: -68px; /* Esto hace que la mitad de la foto salga de la caja */
-    left: 50%; /* La centramos... */
-    transform: translateX(-50%); /* ...perfectamente */
-    
-    width: 80px;  
-    height: 80px; 
-    
+    top: -68px;
+    /* Esto hace que la mitad de la foto salga de la caja */
+    left: 50%;
+    /* La centramos... */
+    transform: translateX(-50%);
+    /* ...perfectamente */
+
+    width: 80px;
+    height: 80px;
+
     /* LE QUITAMOS EL FONDO Y LOS BORDES */
     background-color: transparent;
     border-radius: 0;
-    box-shadow: none; 
-    overflow: visible; 
+    box-shadow: none;
+    overflow: visible;
 }
 
 .zybanna-avatar img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Contain para que respete si tu imagen es PNG sin fondo */
-    
+    object-fit: contain;
+    /* Contain para que respete si tu imagen es PNG sin fondo */
+
     /* Sombra opcional: Si la imagen es un PNG transparente, esto le da 
        sombra a la silueta de Zybanna, no a la caja completa */
-    filter: drop-shadow(0 4px 6px rgba(82, 36, 125, 0.3)); 
+    filter: drop-shadow(0 4px 6px rgba(82, 36, 125, 0.3));
     border-radius: 50%;
 }
 
@@ -1410,31 +1632,43 @@ body .footer-updates {
     font-family: 'Montserrat', sans-serif;
     line-height: 1.
 }
+
 .custom-icon {
-    font-size: 3rem;       /* Tamaño del icono */
-    color: #495057;        /* Color gris oscuro como el de tus imágenes */
+    font-size: 3rem;
+    /* Tamaño del icono */
+    color: #495057;
+    /* Color gris oscuro como el de tus imágenes */
     background-color: #fff;
-    border-radius: 50%;    /* Hace que sea un círculo */
+    border-radius: 50%;
+    /* Hace que sea un círculo */
     padding: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra suave */
-    width: 80px;          /* Ajusta según necesites */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Sombra suave */
+    width: 80px;
+    /* Ajusta según necesites */
     height: 80px;
 }
+
 /* Estilo para que todos los iconos del footer sean blancos */
 .footer-icon {
-    color: #ffffff !important; /* Color blanco puro */
-    font-size: 2.2rem;         /* Ajusta este valor para cambiar el tamaño */
+    color: #ffffff !important;
+    /* Color blanco puro */
+    font-size: 2.2rem;
+    /* Ajusta este valor para cambiar el tamaño */
     display: inline-block;
-    transition: all 0.3s ease; /* Para que el cambio al pasar el mouse sea suave */
+    transition: all 0.3s ease;
+    /* Para que el cambio al pasar el mouse sea suave */
 }
 
 /* Opcional: Si quieres que cambien de color al pasar el mouse (hover) */
 .update-card:hover .footer-icon {
-    color: #FF8C00 !important; /* Cambia a naranja al pasar el mouse */
-    transform: scale(1.1);     /* Crece un poquito */
+    color: #FF8C00 !important;
+    /* Cambia a naranja al pasar el mouse */
+    transform: scale(1.1);
+    /* Crece un poquito */
 }
 
 /* Asegura que el contenedor no limite el tamaño del icono */
@@ -1446,24 +1680,32 @@ body .footer-updates {
     justify-content: center;
     margin-bottom: 5px;
 }
+
 /* === Agrega esto al final del bloque <style> existente en base.html === */
 
 /* Estilos para el nuevo Avatar Circular en el Sidebar */
 .sidebar-user-avatar-circle {
-    width: 70px; /* Tamaño del círculo */
+    width: 70px;
+    /* Tamaño del círculo */
     height: 70px;
-    border-radius: 50%; /* Hace el círculo perfecto */
-    background-color: #0d6efd; /* El azul corporativo usado en Usuarios/Perfiles */
+    border-radius: 50%;
+    /* Hace el círculo perfecto */
+    background-color: #0d6efd;
+    /* El azul corporativo usado en Usuarios/Perfiles */
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: 700; /* Negrita */
-    font-size: 1.4rem; /* Tamaño de la inicial */
-    border: 2px solid white; /* Borde blanco sutil para separarlo del fondo */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: 700;
+    /* Negrita */
+    font-size: 1.4rem;
+    /* Tamaño de la inicial */
+    border: 2px solid white;
+    /* Borde blanco sutil para separarlo del fondo */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     text-transform: uppercase;
-    cursor: pointer; /* Indica que es clickeable */
+    cursor: pointer;
+    /* Indica que es clickeable */
     margin-top: -60px;
 }
 
@@ -1472,8 +1714,10 @@ body .footer-updates {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: auto; /* Dejamos que el círculo defina el ancho */
+    width: auto;
+    /* Dejamos que el círculo defina el ancho */
 }
+
 .update-card h4 {
     color: white;
 }

@@ -370,13 +370,15 @@ function addSearchFilter(tipo) {
         case 'nombre':
             labelText = 'Nombre';
             inputHtml = `
-                <div class="autocomplete-wrapper" style="position: relative; width: 100%; display: flex; align-items: center;">
+                <div class="autocomplete-wrapper" style="position: relative; width: 100%; display: flex; align-items: center; border: 1px solid #d0d7de; border-radius: 8px; background-color: #ffffff; transition: box-shadow 0.2s, border-color 0.2s;" onfocusin="this.style.borderColor='#0969da'; this.style.boxShadow='0 0 0 3px rgba(9, 105, 218, 0.3)';" onfocusout="this.style.borderColor='#d0d7de'; this.style.boxShadow='none';">
                     <input type="text" id="val-${tipo}" placeholder="Seleccionados..." 
                            oninput="aplicarFiltros()" autocomplete="off"
-                           style="width: calc(100% - 35px); border-right: none; border-radius: 8px 0 0 8px; background-color: #fdfdfd;" readonly>
+                           style="width: calc(100% - 38px); border: none; border-radius: 8px 0 0 8px; background-color: transparent; padding: 8px 12px; outline: none; font-style: italic; color: #57606a; font-size: 0.95rem; line-height: 1.5;" readonly>
                     <button class="btn-lupa" onclick="abrirModalNombres(event)" 
-                        style="width: 35px; height: 38px; border: 1px solid #d0d7de; border-left: none; border-radius: 0 8px 8px 0; background-color: #f8f9fa; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
-                        <i class="bi bi-search" style="color: #0d6efd;"></i>
+                        onmouseover="this.querySelector('i').style.transform='scale(1.15)'; this.querySelector('i').style.color='#0a58ca'; this.style.backgroundColor='#f6f8fa';" 
+                        onmouseout="this.querySelector('i').style.transform='scale(1)'; this.querySelector('i').style.color='#0969da'; this.style.backgroundColor='transparent';"
+                        style="width: 38px; height: 38px; border: none; border-left: 1px solid #e1e4e8; background-color: transparent; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; padding: 0;">
+                        <i class="bi bi-search" style="color: #0969da; font-size: 1.1rem; transition: all 0.2s ease;"></i>
                     </button>
 
                     <div id="dropdown-multi-${tipo}" class="search-dropdown-menu animacion-aparecer" 
