@@ -19,6 +19,9 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import requests
 from django.conf import settings
+from decimal import Decimal, InvalidOperation
+from django.utils import timezone
+from django.contrib.auth.hashers import make_password
 
 # ==========================================
 # DECORADOR DE SEGURIDAD
@@ -98,7 +101,18 @@ def vista_crear_editar_usuario(request, cedula=None):
                 'username': u.username,
                 'email': u.email,
                 'estado': 'activo' if u.estatus == 'ACTIVO' else 'inactivo', 
-                'fecha_creacion': u.fecha_creacion,
+                'tipo_cliente': u.tipo_cliente,
+                'sexo': u.sexo,
+                'nacionalidad_pais': u.nacionalidad_pais,
+                'actividad_economica': u.actividad_economica,
+                'profesion': u.profesion,
+                'direccion_fiscal': u.direccion_fiscal,
+                'telefono_movil': u.telefono_movil,
+                'telefono_oficina': u.telefono_oficina,
+                'cuenta_bancaria': u.cuenta_bancaria,
+                'banco': u.banco,
+                'ingreso_promedio': u.ingreso_promedio,
+                'fecha_nacimiento_constitucion': u.fecha_nacimiento_constitucion,
                 'id_rol': u.id_rol.id_rol if u.id_rol else None 
             }
         except Usuarios.DoesNotExist:
@@ -244,97 +258,100 @@ def api_listar_usuarios(request):
     for u in usuarios_list:
         data.append({
             'id': u.cedula,
-            'nombre': u.nombre_completo,
+            'nombre_completo': u.nombre_completo,
             'username': u.username,
             'email': u.email,
             'ultimo_login': u.ultimo_login.strftime('%d/%m/%Y %H:%M') if u.ultimo_login else 'Sin ingreso',
             'estado': u.estatus if hasattr(u, 'estatus') else 'ACTIVO',
-            # ==========================================
-            # NUEVOS CAMPOS PARA EL BUSCADOR AVANZADO
-            # ==========================================
-            'tipo_cliente': getattr(u, 'tipo_cliente', ''),
-            'sexo': getattr(u, 'sexo', ''),
-            'nacionalidad': getattr(u, 'nacionalidad_pais', ''),
-            'actividad': getattr(u, 'actividad_economica', ''),
-            'profesion': getattr(u, 'profesion', ''),
-            'telefono_movil': getattr(u, 'telefono_movil', ''),
-            'banco': getattr(u, 'banco', ''),
-            'cuenta_bancaria': getattr(u, 'cuenta_bancaria', '')
+            # --- CAMPOS PARA FILTROS Y REPORTES ---
+            'tipo_cliente': getattr(u, 'tipo_cliente', 'N/A'),
+            'sexo': getattr(u, 'sexo', 'N/A'),
+            'nacionalidad': getattr(u, 'nacionalidad_pais', 'N/A'),
+            'actividad': getattr(u, 'actividad_economica', 'N/A'),
+            'profesion': getattr(u, 'profesion', 'N/A'),
+            'telefono_movil': getattr(u, 'telefono_movil', 'N/A'),
+            'telefono_oficina': getattr(u, 'telefono_oficina', 'N/A'),
+            'banco': getattr(u, 'banco', 'N/A'),
+            'cuenta_bancaria': getattr(u, 'cuenta_bancaria', 'N/A'),
+            'direccion_fiscal': getattr(u, 'direccion_fiscal', 'No registrada'),
+            'ingreso_promedio': str(u.ingreso_promedio) if u.ingreso_promedio else '0.00',
+            'fecha_nacimiento_constitucion': u.fecha_nacimiento_constitucion.strftime('%Y-%m-%d') if u.fecha_nacimiento_constitucion else ''
         })
     return JsonResponse({'usuarios': data})
-
 @require_http_methods(["POST"])
 def api_guardar_usuario(request):
     try:
-        # 1. LEER DATOS DESDE FormData
-        cedula_f = request.POST.get('cedula', '').strip()
-        nombre_completo = request.POST.get('nombre_completo')
-        username_f = request.POST.get('username', '').strip()
-        email = request.POST.get('email')
-        password_plana = request.POST.get('password')
-        estado_val = request.POST.get('estado', 'ACTIVO').upper()
-        rol_id_seleccionado = request.POST.get('id_rol')
-        banco = request.POST.get('banco') 
+        post = request.POST
+        # Sincronizamos con los nombres exactos que envía tu JavaScript
+        cedula_f = post.get('cedula', '').strip()
+        nombre_completo = post.get('nombre_completo')
+        username_f = post.get('username', '').strip()
+        email = post.get('email')
+        password_plana = post.get('password')
         
-        # Obtenemos la imagen
+        # CORRECCIÓN: Tu JS envía 'estatus', no 'estado'
+        estado_val = post.get('estatus', 'ACTIVO').upper() 
+        rol_id_seleccionado = post.get('id_rol')
+        
+        # Captura de todos los campos adicionales
+        banco = post.get('banco')
+        tipo_cliente = post.get('tipo_cliente')
+        sexo = post.get('sexo')
+        nacionalidad = post.get('nacionalidad_pais')
+        actividad = post.get('actividad_economica')
+        profesion = post.get('profesion')
+        direccion = post.get('direccion_fiscal')
+        movil = post.get('telefono_movil')
+        oficina = post.get('telefono_oficina')
+        cuenta = post.get('cuenta_bancaria')
+        
+        # Manejo de Fecha (Vital para la edad)
+        fecha_nac = post.get('fecha_nacimiento_constitucion')
+        if not fecha_nac: fecha_nac = None
+        
+        # Manejo de Ingreso Promedio (Decimal)
+        ingreso_raw = post.get('ingreso_promedio', '').replace(',', '').strip()
+        try:
+            ingreso_final = Decimal(ingreso_raw) if ingreso_raw else None
+        except (InvalidOperation, ValueError):
+            ingreso_final = None
+
         imagen_perfil = request.FILES.get('imagen_perfil')
+        
+        # LÓGICA DE DETECCIÓN MEJORADA
+        # Si el usuario ya existe en la BD, lo tratamos como edición
+        usuario = Usuarios.objects.filter(cedula=cedula_f).first()
 
-        referer = request.META.get('HTTP_REFERER', '')
-        es_edicion = 'editar' in referer
-
-        if es_edicion:
-            try:
-                usuario = Usuarios.objects.get(cedula=cedula_f)
-            except Usuarios.DoesNotExist:
-                return JsonResponse({'status': 'error', 'mensaje': 'El usuario no existe.'})
-
-            if Usuarios.objects.filter(username__iexact=username_f).exclude(cedula=cedula_f).exists():
-                return JsonResponse({'status': 'error', 'mensaje': f'El username "@{username_f}" ya está en uso.'})
-
+        if usuario:
+            # --- MODO EDICIÓN ---
             usuario.nombre_completo = nombre_completo 
             usuario.email = email
             usuario.estatus = estado_val
-            usuario.banco = banco 
+            usuario.banco = banco
+            usuario.tipo_cliente = tipo_cliente
+            usuario.sexo = sexo
+            usuario.nacionalidad_pais = nacionalidad
+            usuario.actividad_economica = actividad
+            usuario.profesion = profesion
+            usuario.direccion_fiscal = direccion
+            usuario.telefono_movil = movil
+            usuario.telefono_oficina = oficina
+            usuario.cuenta_bancaria = cuenta
+            usuario.ingreso_promedio = ingreso_final
+            usuario.fecha_nacimiento_constitucion = fecha_nac
             
             if rol_id_seleccionado:
                 usuario.id_rol = Roles.objects.get(id_rol=rol_id_seleccionado)
-
             if password_plana:
                 usuario.password_hash = make_password(password_plana)
-                
-            # 2. GUARDAR LA IMAGEN SI SE ENVIÓ UNA NUEVA
             if imagen_perfil:
                 usuario.imagen_perfil = imagen_perfil
             
             usuario.save()
-            
-            # ==========================================
-            # FIX DEFINITIVO: Volvemos a buscar el usuario en la BD
-            # ==========================================
-            usuario = Usuarios.objects.get(cedula=usuario.cedula)
-            
-            # 3. TRUCO DE UX: Actualizar la sesión si el usuario editado es el logueado
-            if request.session.get('usuario_id') == usuario.cedula:
-                request.session['nombre_completo'] = usuario.nombre_completo
-                if usuario.imagen_perfil:
-                    request.session['imagen_perfil'] = usuario.imagen_perfil.url
-
             msg = "Usuario actualizado con éxito"
-            
         else:
-            if Usuarios.objects.filter(cedula=cedula_f).exists():
-                return JsonResponse({'status': 'error', 'mensaje': f'La cédula "{cedula_f}" ya está registrada.'})
-            if Usuarios.objects.filter(username__iexact=username_f).exists():
-                return JsonResponse({'status': 'error', 'mensaje': f'El username "@{username_f}" ya está en uso.'})
-
-            if not rol_id_seleccionado:
-                return JsonResponse({'status': 'error', 'mensaje': 'Debe seleccionar un rol para el usuario'})
-                
+            # --- MODO CREACIÓN ---
             rol_asignado = Roles.objects.get(id_rol=rol_id_seleccionado) 
-
-            if not password_plana:
-                return JsonResponse({'status': 'error', 'mensaje': 'La contraseña es obligatoria para nuevos usuarios'})
-
             nuevo_usuario = Usuarios.objects.create(
                 cedula=cedula_f,
                 nombre_completo=nombre_completo,
@@ -345,40 +362,29 @@ def api_guardar_usuario(request):
                 fecha_creacion=timezone.now(),
                 intentos_fallidos=0,
                 bloqueado=0,
+                tipo_cliente=tipo_cliente,
+                sexo=sexo,
+                nacionalidad_pais=nacionalidad,
+                actividad_economica=actividad,
+                profesion=profesion,
+                direccion_fiscal=direccion,
+                telefono_movil=movil,
+                telefono_oficina=oficina,
+                cuenta_bancaria=cuenta,
                 banco=banco,
+                ingreso_promedio=ingreso_final,
+                fecha_nacimiento_constitucion=fecha_nac,
                 password_hash=make_password(password_plana) 
             )
-            
-            # Guardar la imagen si se subió al momento de crearlo
             if imagen_perfil:
                 nuevo_usuario.imagen_perfil = imagen_perfil
                 nuevo_usuario.save()
-                
-                # ==========================================
-                # FIX DEFINITIVO: Volvemos a buscar en la BD
-                # ==========================================
-                nuevo_usuario = Usuarios.objects.get(cedula=nuevo_usuario.cedula) 
-
             msg = "Usuario creado con éxito"
             
         return JsonResponse({'status': 'success', 'mensaje': msg})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'mensaje': str(e)})
     
-    except Roles.DoesNotExist:
-        return JsonResponse({'status': 'error', 'mensaje': 'El rol seleccionado no existe.'})
-    except Exception as e:
-        print(f"Error interno en api_guardar_usuario: {str(e)}")
-        return JsonResponse({'status': 'error', 'mensaje': str(e)})
-
-@require_http_methods(["POST"])
-def api_eliminar_usuario(request):
-    try:
-        data = json.loads(request.body)
-        ids = data.get('ids', []) 
-        Usuarios.objects.filter(cedula__in=ids).delete() 
-        return JsonResponse({'status': 'success', 'mensaje': f'Se eliminaron {len(ids)} usuarios'})
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'mensaje': str(e)})
-
 @require_http_methods(["POST"])
 def api_actualizar_estados_usuarios(request):
     try:
@@ -519,3 +525,33 @@ def enviar_correo_compartir(request):
             return JsonResponse({'status': 'error', 'mensaje': f'Error interno: {str(e)}'})
             
     return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
+def api_eliminar_usuario(request):
+    if request.method == 'POST':
+        try:
+            # Leemos los IDs que vienen del fetch en JavaScript
+            data = json.loads(request.body)
+            ids = data.get('ids', [])
+            
+            if not ids:
+                return JsonResponse({'status': 'error', 'mensaje': 'No se seleccionaron usuarios.'})
+            
+            # Borramos todos los usuarios cuyas cédulas estén en la lista
+            Usuarios.objects.filter(cedula__in=ids).delete()
+            
+            return JsonResponse({'status': 'success', 'mensaje': f'{len(ids)} usuario(s) eliminado(s) correctamente.'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'mensaje': str(e)})
+    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido.'})
+def api_actualizar_estados_usuarios(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            cambios = data.get('cambios', {}) # Es un diccionario {cedula: estado}
+            
+            for cedula, nuevo_estado in cambios.items():
+                Usuarios.objects.filter(cedula=cedula).update(estatus=nuevo_estado)
+            
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'mensaje': str(e)})
+    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido.'})

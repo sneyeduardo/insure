@@ -646,12 +646,14 @@ body, html {
 .dashboards {
     padding: 30px 40px;
     background: transparent;
+    max-width: none !important;
 }
 .dash-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     align-items: start;
+    max-width: none !important;
 }
 .card {
     background: #ffffff;
@@ -878,6 +880,7 @@ body .footer-updates .update-card {
     margin-top: 100px; /* Reducido de 100px para moverlos hacia arriba */
     position: relative;
     z-index: 10;
+    max-width: none !important;
 }
 .item-icon {
     font-size: 2.5rem;
@@ -1470,4 +1473,7 @@ body .footer-updates {
     align-items: center;
     justify-content: center;
     width: auto; /* Dejamos que el círculo defina el ancho */
+}
+.update-card h4 {
+    color: white;
 }

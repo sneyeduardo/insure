@@ -83,9 +83,9 @@
 
                         <div style="text-align: right;">
                             <span style="font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase;">Edad</span>
-                            <div style="font-size: 1.1rem; font-weight: 700; color: #0d6efd;">
-                                {% if usuario.edad %}{{ usuario.edad }} años{% else %}--{% endif %}
-                            </div>
+                            <div id="u-edad-display" style="font-size: 1.1rem; font-weight: 700; color: #0d6efd;">
+    {% if usuario.edad %}{{ usuario.edad }} años{% else %}--{% endif %}
+</div>
                         </div>
                     </div>
 
@@ -616,12 +616,13 @@ saveBtn.addEventListener('click', () => {
     formData.append('email', document.getElementById('u-email').value);
 
     // --- INFORMACIÓN FINANCIERA ---
+    formData.append('banco', document.getElementById('u-banco').value);
     formData.append('cuenta_bancaria', document.getElementById('u-cuenta').value);
     formData.append('ingreso_promedio', document.getElementById('u-ingreso').value);
 
     // --- SISTEMA ---
     formData.append('username', usernameGenerado);
-    formData.append('estado', document.getElementById('u-estado').value);
+    formData.append('estatus', document.getElementById('u-estado').value);
     formData.append('id_rol', document.getElementById('u-rol').value);
     formData.append('password', pass);
 
