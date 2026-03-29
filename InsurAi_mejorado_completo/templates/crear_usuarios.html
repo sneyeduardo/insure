@@ -1,0 +1,635 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'crear_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="content">
+    <div class="container">
+        
+        <div class="top-bar-content" style="display: flex; align-items: center;">
+            <a href="{% url 'usuarios' %}" style="margin-right: 10px; font-size: 1.8rem; color: #333; text-decoration: none; transition: color 0.2s;" title="Volver" onmouseover="this.style.color='#007bff'" onmouseout="this.style.color='#333'">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            <h1 class="main-title" style="margin: 0;">
+                {% if perfil %}Editar Perfil{% else %}Crear Usuario{% endif %}
+            </h1>
+        </div>
+        
+        <div class="logo-box">
+            <i class="bi bi-person-fill" style="font-size: 4rem; color: #6c757d; margin-top: 5px;"></i>
+        </div>
+
+        <header class="header">
+            <div class="header-actions" id="edit-trigger" {% if not usuario %}style="display: none;"{% endif %}>
+                <span class="edit-icon" title="Habilitar edición"> ✎ </span>  
+            </div>
+        </header>
+
+        <nav class="tabs-nav">
+            <div class="tab">Propiedades</div>
+        </nav>
+
+        <main class="content-grid" id="main-container">
+            
+            <div class="col">
+                <section>
+                    <h2>Información del Usuario</h2>
+                    <input type="hidden" id="u-id" value="{{ usuario.id|default:'' }}">
+
+                    <div class="info-card" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        
+                        <div style="width: 50%;">
+                            <div id="cedula-container" 
+                                {% if usuario %}
+                                    style="margin-top: 5px; display: flex; border: 1px solid #ced4da; border-radius: 4px; overflow: hidden; background-color: #e9ecef;"
+                                {% else %}
+                                    style="margin-top: 5px; display: flex; border: 1px solid #ced4da; border-radius: 4px; overflow: hidden; background-color: #fff;"
+                                {% endif %}>
+                                
+                                <select id="u-tipo-cedula" 
+                                    {% if usuario %} disabled {% endif %}
+                                    {% if usuario %}
+                                        style="font-size: 1.2rem; font-weight: 700; padding: 5px 8px; border: none; border-right: 1px solid #ced4da; background: transparent; outline: none; color: #6c757d; cursor: not-allowed;"
+                                    {% else %}
+                                        style="font-size: 1.2rem; font-weight: 700; padding: 5px 8px; border: none; border-right: 1px solid #ced4da; background: transparent; outline: none; color: #212529; cursor: pointer;"
+                                    {% endif %}>
+                                    <option value="V" {% if 'V' in usuario.cedula %}selected{% endif %}>V</option>
+                                    <option value="E" {% if 'E' in usuario.cedula %}selected{% endif %}>E</option>
+                                    <option value="J" {% if 'J' in usuario.cedula %}selected{% endif %}>J</option>
+                                    <option value="G" {% if 'G' in usuario.cedula %}selected{% endif %}>G</option>
+                                    <option value="P" {% if 'P' in usuario.cedula %}selected{% endif %}>P</option>
+                                </select>
+
+                                <input type="text" id="u-cedula" 
+                                    maxlength="10" 
+                                    value="{{ usuario.cedula|default:'' }}" 
+                                    placeholder="12345678"
+                                    oninput="validarCedulaNumerica()"
+                                    {% if usuario %}
+                                        style="font-size: 1.2rem; font-weight: 700; font-family: monospace; width: 100%; border: none; padding: 5px 10px; background-color: transparent; cursor: not-allowed; color: #6c757d; outline: none;"
+                                        readonly 
+                                    {% else %}
+                                        style="font-size: 1.2rem; font-weight: 700; font-family: monospace; width: 100%; border: none; padding: 5px 10px; background-color: transparent; color: #212529; outline: none;"
+                                    {% endif %}>
+                            </div>
+                            
+                            <small id="cedula-error-msg" style="display: none; color: #dc3545; font-weight: 600; margin-top: 5px;">
+                                <i class="bi bi-exclamation-octagon-fill"></i> La cédula solo debe contener números.
+                            </small>
+                        </div>
+
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase;">Edad</span>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: #0d6efd;">
+                                {% if usuario.edad %}{{ usuario.edad }} años{% else %}--{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Perfil Asignado</div>
+                        <div class="value">
+                            <select id="u-rol" {% if usuario %}disabled{% endif %} style="font-weight: 600; color: #0d6efd;">
+                                <option value="" disabled selected>-- Seleccione un Perfil --</option>
+                                {% for rol in roles %}
+                                    <option value="{{ rol.id_rol }}" {% if usuario.id_rol == rol.id_rol %}selected{% endif %}>
+                                        {{ rol.nombre_rol }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Tipo de Cliente</div>
+                        <div class="value">
+                            <select id="u-tipo-cliente" {% if usuario %}disabled{% endif %}>
+                                <option value="Natural" {% if usuario.tipo_cliente == 'Natural' %}selected{% endif %}>Persona Natural</option>
+                                <option value="Jurídica" {% if usuario.tipo_cliente == 'Jurídica' %}selected{% endif %}>Persona Jurídica</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Nombre(s) <span style="color:red;">*</span></div>
+                        <div class="value">
+                            <input type="text" id="u-nombre" 
+                                   value="{{ usuario.nombre|default:'' }}" 
+                                   placeholder="Ej: Jose Antonio"
+                                   {% if usuario %} readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;" title="No se puede editar después de creado" {% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Apellido(s) <span style="color:red;">*</span></div>
+                        <div class="value">
+                            <input type="text" id="u-apellido" 
+                                   value="{{ usuario.apellido|default:'' }}" 
+                                   placeholder="Ej: Perez Garcia"
+                                   {% if usuario %} readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;" title="No se puede editar después de creado" {% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">F. Nacimiento / Constitución</div>
+                        <div class="value">
+                            <input type="date" id="u-fecha-nacimiento" value="{{ usuario.fecha_nacimiento_constitucion|date:'Y-m-d' }}" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Sexo</div>
+                        <div class="value">
+                            <select id="u-sexo" {% if usuario %}disabled{% endif %}>
+                                <option value="Masculino" {% if usuario.sexo == 'Masculino' %}selected{% endif %}>Masculino</option>
+                                <option value="Femenino" {% if usuario.sexo == 'Femenino' %}selected{% endif %}>Femenino</option>
+                                <option value="N/A" {% if usuario.sexo == 'N/A' %}selected{% endif %}>No Aplica</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Nacionalidad / País</div>
+                        <div class="value">
+                            <input type="text" id="u-nacionalidad" value="{{ usuario.nacionalidad_pais|default:'' }}" placeholder="Ej: Venezolana" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Actividad Económica</div>
+                        <div class="value">
+                            <input type="text" id="u-actividad" value="{{ usuario.actividad_economica|default:'' }}" placeholder="Ej: Comercio" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Profesión / Oficio</div>
+                        <div class="value">
+                            <input type="text" id="u-profesion" value="{{ usuario.profesion|default:'' }}" placeholder="Ej: Ingeniero" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Tipo de Persona (Seguros)</div>
+                        <div class="value">
+                            <select id="u-tipo-persona" {% if usuario %}disabled{% endif %}>
+                                <option value="Titular" {% if usuario.tipo_persona_seguros == 'Titular' %}selected{% endif %}>Titular</option>
+                                <option value="Beneficiario" {% if usuario.tipo_persona_seguros == 'Beneficiario' %}selected{% endif %}>Beneficiario</option>
+                                <option value="Tomador" {% if usuario.tipo_persona_seguros == 'Tomador' %}selected{% endif %}>Tomador</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <div class="label">Dirección Fiscal Completa</div>
+                        <div class="value">
+                            <textarea id="u-direccion" rows="2" style="width: 100%; border: 1px solid #d0d7de; border-radius: 4px; padding: 8px; font-family: inherit;" placeholder="País, Estado, Localidad, Avenida, Edif/Casa..." {% if usuario %}readonly{% endif %}>{{ usuario.direccion_fiscal|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Teléfono Móvil</div>
+                        <div class="value">
+                            <input type="text" id="u-movil" value="{{ usuario.telefono_movil|default:'' }}" placeholder="Ej: 0414-1234567" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Teléfono Oficina</div>
+                        <div class="value">
+                            <input type="text" id="u-oficina" value="{{ usuario.telefono_oficina|default:'' }}" placeholder="Ej: 0212-1234567" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Correo Electrónico</div>
+                        <div class="value">
+                            <input type="email" id="u-email" 
+                                   value="{{ usuario.email|default:'' }}" 
+                                   placeholder="Ej: correo@zynapxe.com"
+                                   {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <div class="label">Cuenta Bancaria</div>
+                        <div class="value">
+                            <input type="text" id="u-cuenta" value="{{ usuario.cuenta_bancaria|default:'' }}" maxlength="20" placeholder="20 dígitos" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Ingreso Promedio</div>
+                        <div class="value">
+                            <input type="number" step="0.01" id="u-ingreso" value="{{ usuario.ingreso_promedio|default:'' }}" placeholder="Ej: 500.00" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <div class="label">Contraseña</div>
+                        <div class="value">
+                            <div style="position: relative;">
+                                <input type="password" id="u-password" 
+                                       placeholder="{% if usuario %}Dejar en blanco para no cambiar{% else %}Escribir contraseña{% endif %}"
+                                       style="padding: 6px 30px 6px 8px; width: 100%; border: 1px solid #d0d7de; border-radius: 4px;"
+                                       {% if usuario %}readonly{% endif %}
+                                       oninput="evaluarPassword()">
+                                <i class="bi bi-eye" id="toggle-pwd" onclick="togglePasswordVisibility('u-password', 'toggle-pwd')" 
+                                   style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; font-size: 1.1rem;"></i>
+                            </div>
+                                   
+                            <div class="password-strength-meter" id="strength-meter-container" style="display: none; margin-top: 8px;">
+                                <div class="strength-bar-bg" style="width: 100%; height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden;">
+                                    <div id="strength-bar" style="height: 100%; width: 0%; transition: all 0.3s ease;"></div>
+                                </div>
+                                <small id="strength-text" style="font-size: 0.8rem; font-weight: 600; margin-top: 4px; display: block;"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="row-confirmar" {% if usuario %}style="display: none;"{% endif %}>
+                        <div class="label">Confirmar Contraseña</div>
+                        <div class="value">
+                            <div style="position: relative;">
+                                <input type="password" id="u-confirm-password" 
+                                       placeholder="Repite la contraseña"
+                                       style="padding: 6px 30px 6px 8px; width: 100%; border: 1px solid #d0d7de; border-radius: 4px;"
+                                       {% if usuario %}readonly{% endif %}
+                                       oninput="validarCoincidencia()">
+                                <i class="bi bi-eye" id="toggle-confirm-pwd" onclick="togglePasswordVisibility('u-confirm-password', 'toggle-confirm-pwd')" 
+                                   style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; font-size: 1.1rem;"></i>
+                            </div>
+                                   
+                            <small id="pass-match-msg" style="display: none; font-size: 0.8rem; margin-top: 5px; font-weight: 600;"></small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Estatus</div>
+                        <div class="value">
+                            <select id="u-estado" {% if usuario %}disabled{% endif %}>
+                                <option value="activo" {% if usuario.estado == 'activo' or not usuario %}selected{% endif %}>Activo</option>
+                                <option value="inactivo" {% if usuario.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col">
+                <section>
+                    <h2>Parámetros JSON de Salida</h2>
+                    <textarea class="json-area" id="json-preview" readonly>
+{% if usuario %}
+Modo Edición: Presiona el lápiz (✎) para desbloquear los campos.
+{% else %}
+Modo Creación: Los campos están abiertos. Llena los datos para continuar.
+{% endif %}
+                    </textarea>
+                <div class="image-upload-section">
+                        <div class="image-upload-label">
+                            <i class="bi bi-image"></i> Imagen de perfil
+                        </div>
+                        <input type="file" id="u-image" accept="image/*" style="margin-bottom: 10px;">
+                        <div>
+                            <img id="avatar-preview" class="image-preview" 
+                                 src="{% if usuario and usuario.imagen_perfil %}{{ usuario.imagen_perfil }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23dee2e6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E{% endif %}" 
+                                 alt="Vista previa de imagen">
+                        </div>
+                        <small class="text-muted">Formatos permitidos: JPG, PNG, GIF (máx. 2MB)</small>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <div style="display: flex; justify-content: center; width: 100%; margin-top: 20px; margin-bottom: 20px;">
+    <button class="btn-guardar-flotante" id="btn-save" 
+        {% if not usuario %}style="display: block; position: static; transform: none;"{% else %}style="display: none; position: static; transform: none;"{% endif %}>
+        Guardar cambios
+    </button>
+</div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ==========================================
+// 1. VARIABLES GLOBALES Y CONFIGURACIÓN
+// ==========================================
+const editIcon = document.getElementById('edit-trigger');
+const saveBtn = document.getElementById('btn-save');
+const container = document.getElementById('main-container');
+// Ajustamos el selector para incluir textareas
+const inputs = document.querySelectorAll('input:not([type="hidden"]):not(:disabled), select, textarea:not(.json-area)');
+const infoArea = document.getElementById('json-preview');
+const esEdicion = "{{ usuario|yesno:'true,false' }}" === "true";
+
+// Variables para contraseña
+const passInput = document.getElementById('u-password');
+const confirmInput = document.getElementById('u-confirm-password');
+const meterContainer = document.getElementById('strength-meter-container');
+const strengthBar = document.getElementById('strength-bar');
+const strengthText = document.getElementById('strength-text');
+const matchMsg = document.getElementById('pass-match-msg');
+const saveBtnDOM = document.getElementById('btn-save');
+
+// Variables para imagen de perfil
+const imageInput = document.getElementById('u-image');
+const avatarPreview = document.getElementById('avatar-preview');
+
+if (!esEdicion) {
+    container.classList.add('editing');
+}
+
+// ==========================================
+// 2. FUNCIONES DE UTILIDAD
+// ==========================================
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Previsualización de imagen al seleccionar
+if (imageInput) {
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                avatarPreview.src = e.target.result;
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+}
+
+// ==========================================
+// 3. EVENTOS (LISTENERS)
+// ==========================================
+
+// Habilitar edición
+editIcon.addEventListener('click', () => {
+    container.classList.add('editing');
+    inputs.forEach(el => {
+        const rowConfirm = document.getElementById('row-confirmar');
+        if (rowConfirm) rowConfirm.style.display = 'flex';
+        
+        // PROTECCIÓN: Si estamos editando, no desbloqueamos nombre
+        if (esEdicion && (el.id === 'u-cedula' || el.id === 'u-nombre' || el.id === 'u-apellido')) {
+            return; 
+        }
+        
+        el.removeAttribute('readonly');
+        el.removeAttribute('disabled');
+    });
+    // Habilitar el campo de imagen si existe
+    if (imageInput) imageInput.removeAttribute('disabled');
+    saveBtn.style.display = 'block';
+    infoArea.value = "Modo edición habilitado.\nEl nombre y documento están protegidos.";
+});
+
+// Botón Guardar (Actualizado con todos los campos)
+saveBtn.addEventListener('click', () => {
+    const pass = document.getElementById('u-password').value;
+    const confirmPass = document.getElementById('u-confirm-password').value;
+    const errorMsg = document.getElementById('pass-match-msg');
+    const textoOriginal = saveBtn.innerHTML;
+
+    // VALIDACIÓN DE COINCIDENCIA DE CONTRASEÑAS
+    if (!esEdicion || pass.length > 0) {
+        if (pass !== confirmPass) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Las contraseñas no coinciden';
+            errorMsg.style.color = '#dc3545';
+            document.getElementById('u-confirm-password').style.borderColor = '#dc3545';
+            alert("❌ Error: Las contraseñas no coinciden. Por favor, verifícalas.");
+            return; 
+        }
+    }
+
+    errorMsg.style.display = 'none';
+    document.getElementById('u-confirm-password').style.borderColor = '#d0d7de';
+
+    // ARMADO DE DATOS BÁSICOS
+    const nombreVal = document.getElementById('u-nombre').value.trim();
+    const apellidoVal = document.getElementById('u-apellido').value.trim();
+    const nombreCompletoFinal = nombreVal + ' ' + apellidoVal;
+    
+    let usernameGenerado = "";
+    if (nombreVal && apellidoVal) {
+        usernameGenerado = (nombreVal.charAt(0) + apellidoVal.split(' ')[0]).toLowerCase();
+    } else {
+        usernameGenerado = "user" + Math.floor(Math.random() * 10000);
+    }
+
+    const formData = new FormData();
+    
+    // --- DATOS DE IDENTIFICACIÓN ---
+    formData.append('cedula', document.getElementById('u-tipo-cedula').value + '-' + document.getElementById('u-cedula').value);
+    formData.append('tipo_cliente', document.getElementById('u-tipo-cliente').value);
+    formData.append('nombre_completo', nombreCompletoFinal);
+    // IMPORTANTE: Si tu modelo guarda nombres y apellidos separados, añade estos también:
+    formData.append('nombres', nombreVal);
+    formData.append('apellidos', apellidoVal);
+    
+    formData.append('fecha_nacimiento_constitucion', document.getElementById('u-fecha-nacimiento').value);
+    formData.append('sexo', document.getElementById('u-sexo').value);
+    formData.append('nacionalidad_pais', document.getElementById('u-nacionalidad').value);
+    formData.append('actividad_economica', document.getElementById('u-actividad').value);
+    formData.append('profesion', document.getElementById('u-profesion').value);
+    formData.append('tipo_persona_seguros', document.getElementById('u-tipo-persona').value);
+
+    // --- DATOS DE CONTACTO ---
+    formData.append('direccion_fiscal', document.getElementById('u-direccion').value);
+    formData.append('telefono_movil', document.getElementById('u-movil').value);
+    formData.append('telefono_oficina', document.getElementById('u-oficina').value);
+    formData.append('email', document.getElementById('u-email').value);
+
+    // --- INFORMACIÓN FINANCIERA ---
+    formData.append('cuenta_bancaria', document.getElementById('u-cuenta').value);
+    formData.append('ingreso_promedio', document.getElementById('u-ingreso').value);
+
+    // --- SISTEMA ---
+    formData.append('username', usernameGenerado);
+    formData.append('estado', document.getElementById('u-estado').value);
+    formData.append('id_rol', document.getElementById('u-rol').value);
+    formData.append('password', pass);
+
+    // Adjuntar la imagen si el usuario seleccionó una
+    if (imageInput && imageInput.files.length > 0) {
+        formData.append('imagen_perfil', imageInput.files[0]);
+    }
+    
+    // PETICIÓN FETCH
+    fetch('/app/api/guardar-usuario/', { 
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            container.classList.remove('editing');
+            inputs.forEach(el => {
+                el.setAttribute('readonly', true);
+                el.setAttribute('disabled', true);
+            });
+            if (imageInput) imageInput.setAttribute('disabled', true);
+            
+            saveBtn.innerHTML = '¡GUARDADO!';
+            saveBtn.style.backgroundColor = '#28a745';
+            
+            setTimeout(() => {
+                window.location.href = "{% url 'usuarios' %}"; 
+            }, 1500);
+        } else {
+            alert("Hubo un error al guardar: " + data.mensaje);
+            saveBtn.innerHTML = textoOriginal;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("Error de conexión al intentar guardar.");
+        saveBtn.innerHTML = textoOriginal;
+    });
+});
+
+// ==========================================
+// 4. FUNCIONES DE VALIDACIÓN
+// ==========================================
+
+// Evaluar fuerza de contraseña
+function evaluarPassword() {
+    const pwd = passInput.value;
+    
+    if (pwd.length === 0) {
+        meterContainer.style.display = 'none';
+        validarCoincidencia();
+        return;
+    }
+
+    meterContainer.style.display = 'block';
+    
+    let fuerza = 0;
+    if (pwd.length > 5) fuerza += 1;
+    if (pwd.length > 8) fuerza += 1;
+    if (/[A-Z]/.test(pwd)) fuerza += 1;
+    if (/[0-9]/.test(pwd)) fuerza += 1;
+    if (/[^A-Za-z0-9]/.test(pwd)) fuerza += 1;
+
+    if (fuerza <= 2) {
+        strengthBar.style.width = '33%';
+        strengthBar.style.backgroundColor = '#dc3545'; 
+        strengthText.textContent = 'Débil';
+        strengthText.style.color = '#dc3545';
+    } else if (fuerza === 3 || fuerza === 4) {
+        strengthBar.style.width = '66%';
+        strengthBar.style.backgroundColor = '#ffc107'; 
+        strengthText.textContent = 'Aceptable';
+        strengthText.style.color = '#ffc107';
+    } else {
+        strengthBar.style.width = '100%';
+        strengthBar.style.backgroundColor = '#28a745'; 
+        strengthText.textContent = 'Fuerte';
+        strengthText.style.color = '#28a745';
+    }
+
+    validarCoincidencia();
+}
+
+// Validar coincidencia de contraseñas
+function validarCoincidencia() {
+    const pwd = passInput.value;
+    const confirmPwd = confirmInput.value;
+
+    if (confirmPwd.length === 0 && pwd.length > 0) {
+        matchMsg.style.display = 'block';
+        matchMsg.textContent = 'Falta confirmar la contraseña';
+        matchMsg.style.color = '#ffc107';
+        saveBtnDOM.disabled = true;
+        return;
+    }
+
+    if (pwd.length > 0 && confirmPwd.length > 0) {
+        matchMsg.style.display = 'block';
+        if (pwd === confirmPwd) {
+            matchMsg.innerHTML = '<i class="bi bi-check-circle-fill"></i> Las contraseñas coinciden';
+            matchMsg.style.color = '#28a745';
+            saveBtnDOM.disabled = false; 
+        } else {
+            matchMsg.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Las contraseñas no coinciden';
+            matchMsg.style.color = '#dc3545';
+            saveBtnDOM.disabled = true; 
+        }
+    } else {
+        matchMsg.style.display = 'none';
+        if (!esEdicion) saveBtnDOM.disabled = true;
+        if (esEdicion) saveBtnDOM.disabled = false;
+    }
+}
+
+// Validar cédula solo números
+function validarCedulaNumerica() {
+    const cedulaInput = document.getElementById('u-cedula');
+    const cedulaContainer = document.getElementById('cedula-container'); 
+    const errorMsg = document.getElementById('cedula-error-msg');
+    const saveBtn = document.getElementById('btn-save');
+    
+    const soloNumeros = /^[0-9]*$/;
+
+    if (!soloNumeros.test(cedulaInput.value)) {
+        errorMsg.style.display = 'block';
+        cedulaContainer.style.borderColor = '#dc3545'; 
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = '0.6';
+        saveBtn.style.cursor = 'not-allowed';
+    } else {
+        errorMsg.style.display = 'none';
+        cedulaContainer.style.borderColor = '#ced4da'; 
+        validarCoincidencia(); 
+    }
+}
+
+// ==========================================
+// 5. MOSTRAR / OCULTAR CONTRASEÑA
+// ==========================================
+function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    
+    if (input.hasAttribute('readonly') || input.hasAttribute('disabled')) return;
+
+    if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash'); 
+    } else {
+        input.type = "password";
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye'); 
+    }
+}
+
+// ==========================================
+// Inicialización (deshabilitar campo imagen si es edición)
+// ==========================================
+if (esEdicion && imageInput) {
+    imageInput.setAttribute('disabled', true);
+}
+</script>
+{% endblock %}
