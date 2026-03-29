@@ -248,7 +248,18 @@ def api_listar_usuarios(request):
             'username': u.username,
             'email': u.email,
             'ultimo_login': u.ultimo_login.strftime('%d/%m/%Y %H:%M') if u.ultimo_login else 'Sin ingreso',
-            'estado': u.estatus if hasattr(u, 'estatus') else 'ACTIVO'
+            'estado': u.estatus if hasattr(u, 'estatus') else 'ACTIVO',
+            # ==========================================
+            # NUEVOS CAMPOS PARA EL BUSCADOR AVANZADO
+            # ==========================================
+            'tipo_cliente': getattr(u, 'tipo_cliente', ''),
+            'sexo': getattr(u, 'sexo', ''),
+            'nacionalidad': getattr(u, 'nacionalidad_pais', ''),
+            'actividad': getattr(u, 'actividad_economica', ''),
+            'profesion': getattr(u, 'profesion', ''),
+            'telefono_movil': getattr(u, 'telefono_movil', ''),
+            'banco': getattr(u, 'banco', ''),
+            'cuenta_bancaria': getattr(u, 'cuenta_bancaria', '')
         })
     return JsonResponse({'usuarios': data})
 
@@ -262,7 +273,8 @@ def api_guardar_usuario(request):
         email = request.POST.get('email')
         password_plana = request.POST.get('password')
         estado_val = request.POST.get('estado', 'ACTIVO').upper()
-        rol_id_seleccionado = request.POST.get('id_rol') 
+        rol_id_seleccionado = request.POST.get('id_rol')
+        banco = request.POST.get('banco') 
         
         # Obtenemos la imagen
         imagen_perfil = request.FILES.get('imagen_perfil')
@@ -281,7 +293,8 @@ def api_guardar_usuario(request):
 
             usuario.nombre_completo = nombre_completo 
             usuario.email = email
-            usuario.estatus = estado_val 
+            usuario.estatus = estado_val
+            usuario.banco = banco 
             
             if rol_id_seleccionado:
                 usuario.id_rol = Roles.objects.get(id_rol=rol_id_seleccionado)
@@ -332,6 +345,7 @@ def api_guardar_usuario(request):
                 fecha_creacion=timezone.now(),
                 intentos_fallidos=0,
                 bloqueado=0,
+                banco=banco,
                 password_hash=make_password(password_plana) 
             )
             

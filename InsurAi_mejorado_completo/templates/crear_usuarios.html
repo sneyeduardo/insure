@@ -19,8 +19,8 @@
         </div>
         
         <div class="logo-box">
-            <i class="bi bi-person-fill" style="font-size: 4rem; color: #6c757d; margin-top: 5px;"></i>
-        </div>
+    <i class="bi bi-person-fill" style="font-size: 4rem; color: #0d6efd; margin-top: 5px;"></i>
+</div>
 
         <header class="header">
             <div class="header-actions" id="edit-trigger" {% if not usuario %}style="display: none;"{% endif %}>
@@ -64,16 +64,16 @@
                                 </select>
 
                                 <input type="text" id="u-cedula" 
-                                    maxlength="10" 
-                                    value="{{ usuario.cedula|default:'' }}" 
-                                    placeholder="12345678"
-                                    oninput="validarCedulaNumerica()"
-                                    {% if usuario %}
-                                        style="font-size: 1.2rem; font-weight: 700; font-family: monospace; width: 100%; border: none; padding: 5px 10px; background-color: transparent; cursor: not-allowed; color: #6c757d; outline: none;"
-                                        readonly 
-                                    {% else %}
-                                        style="font-size: 1.2rem; font-weight: 700; font-family: monospace; width: 100%; border: none; padding: 5px 10px; background-color: transparent; color: #212529; outline: none;"
-                                    {% endif %}>
+    maxlength="10" 
+    value="{{ usuario.cedula|default:'' }}" 
+    placeholder="12345678"
+    oninput="this.value = this.value.replace(/[^0-9]/g, ''); validarCedulaNumerica();"
+    {% if usuario %}
+        style="font-size: 1.2rem; font-weight: 700; font-family: monospace; width: 100%; border: none; padding: 5px 10px; background-color: transparent; cursor: not-allowed; color: #6c757d; outline: none;"
+        readonly 
+    {% else %}
+        style="font-size: 1.2rem; font-weight: 700; font-family: monospace; width: 100%; border: none; padding: 5px 10px; background-color: transparent; color: #212529; outline: none;"
+    {% endif %}>
                             </div>
                             
                             <small id="cedula-error-msg" style="display: none; color: #dc3545; font-weight: 600; margin-top: 5px;">
@@ -104,7 +104,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="label">Tipo de Cliente</div>
+                        <div class="label">Tipo de Cliente<span style="color:red;">*</span></div>
                         <div class="value">
                             <select id="u-tipo-cliente" {% if usuario %}disabled{% endif %}>
                                 <option value="Natural" {% if usuario.tipo_cliente == 'Natural' %}selected{% endif %}>Persona Natural</option>
@@ -134,7 +134,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="label">F. Nacimiento / Constitución</div>
+                        <div class="label" style="white-space: nowrap; margin-right: 15px;">F. Nacimiento / Constitución</div>
                         <div class="value">
                             <input type="date" id="u-fecha-nacimiento" value="{{ usuario.fecha_nacimiento_constitucion|date:'Y-m-d' }}" {% if usuario %}readonly{% endif %}>
                         </div>
@@ -152,69 +152,217 @@
                     </div>
 
                     <div class="row">
-                        <div class="label">Nacionalidad / País</div>
-                        <div class="value">
-                            <input type="text" id="u-nacionalidad" value="{{ usuario.nacionalidad_pais|default:'' }}" placeholder="Ej: Venezolana" {% if usuario %}readonly{% endif %}>
-                        </div>
-                    </div>
+    <div class="label" style="white-space: nowrap; margin-right: 15px;">Nacionalidad / País</div>
+    <div class="value">
+        <select id="u-nacionalidad" {% if usuario %}disabled{% endif %}>
+            <option value="" disabled {% if not usuario.nacionalidad_pais %}selected{% endif %}>-- Seleccione un país --</option>
+            
+            <option value="Venezuela" {% if usuario.nacionalidad_pais == 'Venezuela' %}selected{% endif %}>🇻🇪 Venezuela</option>
+            
+            <option value="Alemania" {% if usuario.nacionalidad_pais == 'Alemania' %}selected{% endif %}>🇩🇪 Alemania</option>
+            <option value="Argentina" {% if usuario.nacionalidad_pais == 'Argentina' %}selected{% endif %}>🇦🇷 Argentina</option>
+            <option value="Bolivia" {% if usuario.nacionalidad_pais == 'Bolivia' %}selected{% endif %}>🇧🇴 Bolivia</option>
+            <option value="Brasil" {% if usuario.nacionalidad_pais == 'Brasil' %}selected{% endif %}>🇧🇷 Brasil</option>
+            <option value="Canadá" {% if usuario.nacionalidad_pais == 'Canadá' %}selected{% endif %}>🇨🇦 Canadá</option>
+            <option value="Chile" {% if usuario.nacionalidad_pais == 'Chile' %}selected{% endif %}>🇨🇱 Chile</option>
+            <option value="China" {% if usuario.nacionalidad_pais == 'China' %}selected{% endif %}>🇨🇳 China</option>
+            <option value="Colombia" {% if usuario.nacionalidad_pais == 'Colombia' %}selected{% endif %}>🇨🇴 Colombia</option>
+            <option value="Costa Rica" {% if usuario.nacionalidad_pais == 'Costa Rica' %}selected{% endif %}>🇨🇷 Costa Rica</option>
+            <option value="Cuba" {% if usuario.nacionalidad_pais == 'Cuba' %}selected{% endif %}>🇨🇺 Cuba</option>
+            <option value="Ecuador" {% if usuario.nacionalidad_pais == 'Ecuador' %}selected{% endif %}>🇪🇨 Ecuador</option>
+            <option value="El Salvador" {% if usuario.nacionalidad_pais == 'El Salvador' %}selected{% endif %}>🇸🇻 El Salvador</option>
+            <option value="España" {% if usuario.nacionalidad_pais == 'España' %}selected{% endif %}>🇪🇸 España</option>
+            <option value="Estados Unidos" {% if usuario.nacionalidad_pais == 'Estados Unidos' %}selected{% endif %}>🇺🇸 Estados Unidos</option>
+            <option value="Francia" {% if usuario.nacionalidad_pais == 'Francia' %}selected{% endif %}>🇫🇷 Francia</option>
+            <option value="Guatemala" {% if usuario.nacionalidad_pais == 'Guatemala' %}selected{% endif %}>🇬🇹 Guatemala</option>
+            <option value="Honduras" {% if usuario.nacionalidad_pais == 'Honduras' %}selected{% endif %}>🇭🇳 Honduras</option>
+            <option value="Italia" {% if usuario.nacionalidad_pais == 'Italia' %}selected{% endif %}>🇮🇹 Italia</option>
+            <option value="Japón" {% if usuario.nacionalidad_pais == 'Japón' %}selected{% endif %}>🇯🇵 Japón</option>
+            <option value="México" {% if usuario.nacionalidad_pais == 'México' %}selected{% endif %}>🇲🇽 México</option>
+            <option value="Nicaragua" {% if usuario.nacionalidad_pais == 'Nicaragua' %}selected{% endif %}>🇳🇮 Nicaragua</option>
+            <option value="Panamá" {% if usuario.nacionalidad_pais == 'Panamá' %}selected{% endif %}>🇵🇦 Panamá</option>
+            <option value="Paraguay" {% if usuario.nacionalidad_pais == 'Paraguay' %}selected{% endif %}>🇵🇾 Paraguay</option>
+            <option value="Perú" {% if usuario.nacionalidad_pais == 'Perú' %}selected{% endif %}>🇵🇪 Perú</option>
+            <option value="Portugal" {% if usuario.nacionalidad_pais == 'Portugal' %}selected{% endif %}>🇵🇹 Portugal</option>
+            <option value="Reino Unido" {% if usuario.nacionalidad_pais == 'Reino Unido' %}selected{% endif %}>🇬🇧 Reino Unido</option>
+            <option value="República Dominicana" {% if usuario.nacionalidad_pais == 'República Dominicana' %}selected{% endif %}>🇩🇴 República Dominicana</option>
+            <option value="Uruguay" {% if usuario.nacionalidad_pais == 'Uruguay' %}selected{% endif %}>🇺🇾 Uruguay</option>
+            <option value="Otro" {% if usuario.nacionalidad_pais == 'Otro' %}selected{% endif %}>🌍 Otro País</option>
+        </select>
+    </div>
+</div>
 
                     <div class="row">
-                        <div class="label">Actividad Económica</div>
-                        <div class="value">
-                            <input type="text" id="u-actividad" value="{{ usuario.actividad_economica|default:'' }}" placeholder="Ej: Comercio" {% if usuario %}readonly{% endif %}>
-                        </div>
-                    </div>
+    <div class="label" style="white-space: nowrap; margin-right: 15px;">Actividad Económica</div>
+    <div class="value">
+        <select id="u-actividad" {% if usuario %}disabled{% endif %}>
+            <option value="" disabled selected>-- Seleccione una actividad --</option>
+            <option value="Agricultura_Ganaderia" {% if usuario.actividad_economica == 'Agricultura_Ganaderia' %}selected{% endif %}>Agricultura y Ganadería</option>
+            <option value="Comercio_Mayor_Menor" {% if usuario.actividad_economica == 'Comercio_Mayor_Menor' %}selected{% endif %}>Comercio (Al mayor y detal)</option>
+            <option value="Construccion" {% if usuario.actividad_economica == 'Construccion' %}selected{% endif %}>Construcción e Ingeniería</option>
+            <option value="Educacion" {% if usuario.actividad_economica == 'Educacion' %}selected{% endif %}>Educación</option>
+            <option value="Finanzas_Seguros" {% if usuario.actividad_economica == 'Finanzas_Seguros' %}selected{% endif %}>Finanzas y Seguros</option>
+            <option value="Manufactura_Industria" {% if usuario.actividad_economica == 'Manufactura_Industria' %}selected{% endif %}>Manufactura e Industria</option>
+            <option value="Salud_Medicina" {% if usuario.actividad_economica == 'Salud_Medicina' %}selected{% endif %}>Salud y Medicina</option>
+            <option value="Servicios_Profesionales" {% if usuario.actividad_economica == 'Servicios_Profesionales' %}selected{% endif %}>Servicios Profesionales / Consultoría</option>
+            <option value="Tecnologia_IT" {% if usuario.actividad_economica == 'Tecnologia_IT' %}selected{% endif %}>Tecnología y Telecomunicaciones</option>
+            <option value="Transporte_Logistica" {% if usuario.actividad_economica == 'Transporte_Logistica' %}selected{% endif %}>Transporte y Logística</option>
+            <option value="Turismo_Hoteleria" {% if usuario.actividad_economica == 'Turismo_Hoteleria' %}selected{% endif %}>Turismo y Hotelería</option>
+            <option value="Empleado_Publico" {% if usuario.actividad_economica == 'Empleado_Publico' %}selected{% endif %}>Sector Público / Gobierno</option>
+            <option value="Estudiante_AmaCasa" {% if usuario.actividad_economica == 'Estudiante_AmaCasa' %}selected{% endif %}>Estudiante / Ama de casa</option>
+            <option value="Otro" {% if usuario.actividad_economica == 'Otro' %}selected{% endif %}>Otra Actividad</option>
+        </select>
+    </div>
+</div>
+
+<div class="row">
+    <div class="label" style="white-space: nowrap; margin-right: 15px;">Profesión / Oficio</div>
+    <div class="value">
+        <select id="u-profesion" {% if usuario %}disabled{% endif %}>
+            <option value="" disabled selected>-- Seleccione una profesión --</option>
+            <option value="Abogado" {% if usuario.profesion == 'Abogado' %}selected{% endif %}>Abogado(a)</option>
+            <option value="Administrador" {% if usuario.profesion == 'Administrador' %}selected{% endif %}>Administrador(a)</option>
+            <option value="Arquitecto" {% if usuario.profesion == 'Arquitecto' %}selected{% endif %}>Arquitecto(a)</option>
+            <option value="Bioanalista" {% if usuario.profesion == 'Bioanalista' %}selected{% endif %}>Bioanalista</option>
+            <option value="Chef_Cocinero" {% if usuario.profesion == 'Chef_Cocinero' %}selected{% endif %}>Chef / Cocinero(a)</option>
+            <option value="Comerciante" {% if usuario.profesion == 'Comerciante' %}selected{% endif %}>Comerciante</option>
+            <option value="Contador_Publico" {% if usuario.profesion == 'Contador_Publico' %}selected{% endif %}>Contador(a) Público</option>
+            <option value="Comunicador_Social" {% if usuario.profesion == 'Comunicador_Social' %}selected{% endif %}>Comunicador Social / Periodista</option>
+            <option value="Docente_Maestro" {% if usuario.profesion == 'Docente_Maestro' %}selected{% endif %}>Docente / Maestro(a)</option>
+            <option value="Economista" {% if usuario.profesion == 'Economista' %}selected{% endif %}>Economista</option>
+            <option value="Enfermero" {% if usuario.profesion == 'Enfermero' %}selected{% endif %}>Enfermero(a)</option>
+            <option value="Estudiante" {% if usuario.profesion == 'Estudiante' %}selected{% endif %}>Estudiante</option>
+            <option value="Farmaceutico" {% if usuario.profesion == 'Farmaceutico' %}selected{% endif %}>Farmacéutico(a)</option>
+            <option value="Ingeniero" {% if usuario.profesion == 'Ingeniero' %}selected{% endif %}>Ingeniero(a)</option>
+            <option value="Jubilado_Pensionado" {% if usuario.profesion == 'Jubilado_Pensionado' %}selected{% endif %}>Jubilado(a) / Pensionado(a)</option>
+            <option value="Mecanico" {% if usuario.profesion == 'Mecanico' %}selected{% endif %}>Mecánico</option>
+            <option value="Medico_Cirujano" {% if usuario.profesion == 'Medico_Cirujano' %}selected{% endif %}>Médico(a) / Cirujano(a)</option>
+            <option value="Militar_Policial" {% if usuario.profesion == 'Militar_Policial' %}selected{% endif %}>Militar / Funcionario Policial</option>
+            <option value="Odontologo" {% if usuario.profesion == 'Odontologo' %}selected{% endif %}>Odontólogo(a)</option>
+            <option value="Oficios_Hogar" {% if usuario.profesion == 'Oficios_Hogar' %}selected{% endif %}>Oficios del Hogar</option>
+            <option value="Psicologo" {% if usuario.profesion == 'Psicologo' %}selected{% endif %}>Psicólogo(a)</option>
+            <option value="TSU" {% if usuario.profesion == 'TSU' %}selected{% endif %}>TSU (Técnico Superior Universitario)</option>
+            <option value="Transportista_Chofer" {% if usuario.profesion == 'Transportista_Chofer' %}selected{% endif %}>Transportista / Chofer</option>
+            <option value="Veterinario" {% if usuario.profesion == 'Veterinario' %}selected{% endif %}>Veterinario(a)</option>
+            <option value="Otro" {% if usuario.profesion == 'Otro' %}selected{% endif %}>Otro / No especificado</option>
+        </select>
+    </div>
+</div>
 
                     <div class="row">
-                        <div class="label">Profesión / Oficio</div>
-                        <div class="value">
-                            <input type="text" id="u-profesion" value="{{ usuario.profesion|default:'' }}" placeholder="Ej: Ingeniero" {% if usuario %}readonly{% endif %}>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="label">Tipo de Persona (Seguros)</div>
-                        <div class="value">
-                            <select id="u-tipo-persona" {% if usuario %}disabled{% endif %}>
-                                <option value="Titular" {% if usuario.tipo_persona_seguros == 'Titular' %}selected{% endif %}>Titular</option>
-                                <option value="Beneficiario" {% if usuario.tipo_persona_seguros == 'Beneficiario' %}selected{% endif %}>Beneficiario</option>
-                                <option value="Tomador" {% if usuario.tipo_persona_seguros == 'Tomador' %}selected{% endif %}>Tomador</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                        <div class="label">Dirección Fiscal Completa</div>
+                        <div class="label" style="white-space: nowrap; margin-right: 15px;">Dirección Fiscal Completa</div>
                         <div class="value">
                             <textarea id="u-direccion" rows="2" style="width: 100%; border: 1px solid #d0d7de; border-radius: 4px; padding: 8px; font-family: inherit;" placeholder="País, Estado, Localidad, Avenida, Edif/Casa..." {% if usuario %}readonly{% endif %}>{{ usuario.direccion_fiscal|default:'' }}</textarea>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="label">Teléfono Móvil</div>
-                        <div class="value">
-                            <input type="text" id="u-movil" value="{{ usuario.telefono_movil|default:'' }}" placeholder="Ej: 0414-1234567" {% if usuario %}readonly{% endif %}>
-                        </div>
-                    </div>
+    <div class="row">
+    <div class="label">Teléfono Móvil</div>
+    <div class="value">
+        <div style="display: flex; align-items: stretch; width: 100%;">
+            <select id="u-movil-codigo" {% if usuario %}disabled{% endif %} 
+                style="width: 85px; flex-shrink: 0; border: 1px solid #d0d7de; border-right: none; border-radius: 4px 0 0 4px; padding: 4px 5px; background-color: #f8f9fa; outline: none; cursor: pointer; font-size: 0.9rem; height: 35px;">
+                <option value="+58" selected>🇻🇪 +58</option>
+                
+                <option value="+54">🇦🇷 +54</option>
+                <option value="+591">🇧🇴 +591</option>
+                <option value="+55">🇧🇷 +55</option>
+                <option value="+1">🇨🇦 +1</option>
+                <option value="+56">🇨🇱 +56</option>
+                <option value="+57">🇨🇴 +57</option>
+                <option value="+506">🇨🇷 +506</option>
+                <option value="+53">🇨🇺 +53</option>
+                <option value="+593">🇪🇨 +593</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+502">🇬🇹 +502</option>
+                <option value="+504">🇭🇳 +504</option>
+                <option value="+52">🇲🇽 +52</option>
+                <option value="+505">🇳🇮 +505</option>
+                <option value="+507">🇵🇦 +507</option>
+                <option value="+595">🇵🇾 +595</option>
+                <option value="+51">🇵🇪 +51</option>
+                <option value="+1">🇵🇷 +1</option>
+                <option value="+1">🇩🇴 +1</option>
+                <option value="+598">🇺🇾 +598</option>
+                
+                <option value="+49">🇩🇪 +49</option>
+                <option value="+34">🇪🇸 +34</option>
+                <option value="+33">🇫🇷 +33</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+39">🇮🇹 +39</option>
+                <option value="+351">🇵🇹 +351</option>
+                <option value="+41">🇨🇭 +41</option>
+                
+                <option value="+61">🇦🇺 +61</option>
+                <option value="+86">🇨🇳 +86</option>
+                <option value="+81">🇯🇵 +81</option>
+            </select>
+            <input type="text" id="u-movil" value="{{ usuario.telefono_movil|default:'' }}" 
+                placeholder="4141234567" maxlength="10" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                {% if usuario %}readonly{% endif %} 
+                style="flex: 1; border: 1px solid #d0d7de; border-radius: 0 4px 4px 0; padding: 6px 10px; outline: none; font-size: 1rem; height: 35px;">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="label">Teléfono Oficina</div>
+    <div class="value">
+        <div style="display: flex; align-items: stretch; width: 100%;">
+            <span style="background-color: #e9ecef; border: 1px solid #d0d7de; border-right: none; padding: 6px 12px; border-radius: 4px 0 0 4px; color: #495057; font-weight: 600; display: flex; align-items: center; user-select: none;">0212</span>
+            <input type="text" id="u-oficina" value="{{ usuario.telefono_oficina|default:'' }}" placeholder="1234567" maxlength="7" oninput="this.value = this.value.replace(/[^0-9]/g, '')" {% if usuario %}readonly{% endif %} style="flex: 1; border: 1px solid #d0d7de; border-radius: 0 4px 4px 0; padding: 6px 10px; outline: none; font-size: 1rem;">
+        </div>
+    </div>
+</div>
 
                     <div class="row">
-                        <div class="label">Teléfono Oficina</div>
-                        <div class="value">
-                            <input type="text" id="u-oficina" value="{{ usuario.telefono_oficina|default:'' }}" placeholder="Ej: 0212-1234567" {% if usuario %}readonly{% endif %}>
-                        </div>
-                    </div>
+    <div class="label" style="white-space: nowrap; margin-right: 15px;">Correo Electrónico <span style="color:red;">*</span></div>
+    <div class="value">
+        <input type="email" id="u-email" 
+               value="{{ usuario.email|default:'' }}" 
+               placeholder="Ej: usuario@gmail.com"
+               oninput="validarEmail()"
+               {% if usuario %}readonly{% endif %}>
+        <small id="email-error-msg" style="display: none; color: #dc3545; font-weight: 600; margin-top: 5px;">
+            <i class="bi bi-exclamation-octagon-fill"></i> Por favor, ingresa un correo válido (ej: usuario@gmail.com).
+        </small>
+    </div>
+</div>
 
                     <div class="row">
-                        <div class="label">Correo Electrónico</div>
-                        <div class="value">
-                            <input type="email" id="u-email" 
-                                   value="{{ usuario.email|default:'' }}" 
-                                   placeholder="Ej: correo@zynapxe.com"
-                                   {% if usuario %}readonly{% endif %}>
-                        </div>
-                    </div>
+    <div class="label">Banco</div>
+    <div class="value">
+        <select id="u-banco" {% if usuario %}disabled{% endif %}>
+            <option value="" disabled {% if not usuario.banco %}selected{% endif %}>-- Seleccione un Banco --</option>
+            <option value="0102 - Banco de Venezuela" {% if usuario.banco == '0102 - Banco de Venezuela' %}selected{% endif %}>0102 - Banco de Venezuela</option>
+            <option value="0104 - Banco Venezolano de Crédito" {% if usuario.banco == '0104 - Banco Venezolano de Crédito' %}selected{% endif %}>0104 - Banco Venezolano de Crédito</option>
+            <option value="0105 - Banco Mercantil" {% if usuario.banco == '0105 - Banco Mercantil' %}selected{% endif %}>0105 - Banco Mercantil</option>
+            <option value="0108 - Banco Provincial" {% if usuario.banco == '0108 - Banco Provincial' %}selected{% endif %}>0108 - Banco Provincial</option>
+            <option value="0114 - Bancaribe" {% if usuario.banco == '0114 - Bancaribe' %}selected{% endif %}>0114 - Bancaribe</option>
+            <option value="0115 - Banco Exterior" {% if usuario.banco == '0115 - Banco Exterior' %}selected{% endif %}>0115 - Banco Exterior</option>
+            <option value="0128 - Banco Caroní" {% if usuario.banco == '0128 - Banco Caroní' %}selected{% endif %}>0128 - Banco Caroní</option>
+            <option value="0134 - Banesco" {% if usuario.banco == '0134 - Banesco' %}selected{% endif %}>0134 - Banesco</option>
+            <option value="0138 - Banco Plaza" {% if usuario.banco == '0138 - Banco Plaza' %}selected{% endif %}>0138 - Banco Plaza</option>
+            <option value="0151 - BFC Banco Fondo Común" {% if usuario.banco == '0151 - BFC Banco Fondo Común' %}selected{% endif %}>0151 - BFC Banco Fondo Común</option>
+            <option value="0156 - 100% Banco" {% if usuario.banco == '0156 - 100% Banco' %}selected{% endif %}>0156 - 100% Banco</option>
+            <option value="0157 - Banco del Sur" {% if usuario.banco == '0157 - Banco del Sur' %}selected{% endif %}>0157 - Banco del Sur</option>
+            <option value="0163 - Banco del Tesoro" {% if usuario.banco == '0163 - Banco del Tesoro' %}selected{% endif %}>0163 - Banco del Tesoro</option>
+            <option value="0166 - Banco Agrícola" {% if usuario.banco == '0166 - Banco Agrícola' %}selected{% endif %}>0166 - Banco Agrícola de Venezuela</option>
+            <option value="0168 - Bancrecer" {% if usuario.banco == '0168 - Bancrecer' %}selected{% endif %}>0168 - Bancrecer</option>
+            <option value="0169 - Mi Banco" {% if usuario.banco == '0169 - Mi Banco' %}selected{% endif %}>0169 - Mi Banco</option>
+            <option value="0171 - Banco Activo" {% if usuario.banco == '0171 - Banco Activo' %}selected{% endif %}>0171 - Banco Activo</option>
+            <option value="0172 - Bancamiga" {% if usuario.banco == '0172 - Bancamiga' %}selected{% endif %}>0172 - Bancamiga</option>
+            <option value="0174 - Banplus" {% if usuario.banco == '0174 - Banplus' %}selected{% endif %}>0174 - Banplus</option>
+            <option value="0175 - Banco Bicentenario" {% if usuario.banco == '0175 - Banco Bicentenario' %}selected{% endif %}>0175 - Banco Bicentenario</option>
+            <option value="0177 - Banfanb" {% if usuario.banco == '0177 - Banfanb' %}selected{% endif %}>0177 - Banfanb</option>
+            <option value="0191 - BNC" {% if usuario.banco == '0191 - BNC' %}selected{% endif %}>0191 - BNC Nacional de Crédito</option>
+        </select>
+    </div>
+</div>
 
-                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <div class="row">
                         <div class="label">Cuenta Bancaria</div>
                         <div class="value">
                             <input type="text" id="u-cuenta" value="{{ usuario.cuenta_bancaria|default:'' }}" maxlength="20" placeholder="20 dígitos" {% if usuario %}readonly{% endif %}>
@@ -228,7 +376,7 @@
                         </div>
                     </div>
                     
-                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <div class="row">
                         <div class="label">Contraseña</div>
                         <div class="value">
                             <div style="position: relative;">
@@ -251,7 +399,7 @@
                     </div>
 
                     <div class="row" id="row-confirmar" {% if usuario %}style="display: none;"{% endif %}>
-                        <div class="label">Confirmar Contraseña</div>
+                        <div class="label" style="white-space: nowrap; margin-right: 15px;">Confirmar Contraseña</div>
                         <div class="value">
                             <div style="position: relative;">
                                 <input type="password" id="u-confirm-password" 
@@ -450,12 +598,21 @@ saveBtn.addEventListener('click', () => {
     formData.append('nacionalidad_pais', document.getElementById('u-nacionalidad').value);
     formData.append('actividad_economica', document.getElementById('u-actividad').value);
     formData.append('profesion', document.getElementById('u-profesion').value);
-    formData.append('tipo_persona_seguros', document.getElementById('u-tipo-persona').value);
+    // ⚠️ ELIMINADO: tipo_persona_seguros ya no está aquí
 
     // --- DATOS DE CONTACTO ---
     formData.append('direccion_fiscal', document.getElementById('u-direccion').value);
-    formData.append('telefono_movil', document.getElementById('u-movil').value);
-    formData.append('telefono_oficina', document.getElementById('u-oficina').value);
+    
+    // ✅ NUEVO: Unimos código de país + número móvil (Solo si escribió algo)
+    let movilNum = document.getElementById('u-movil').value.trim();
+    let movilFull = movilNum ? document.getElementById('u-movil-codigo').value + movilNum : '';
+    formData.append('telefono_movil', movilFull);
+
+    // ✅ NUEVO: Unimos el prefijo 0212 + número de oficina (Solo si escribió algo)
+    let ofcNum = document.getElementById('u-oficina').value.trim();
+    let ofcFull = ofcNum ? "0212" + ofcNum : '';
+    formData.append('telefono_oficina', ofcFull);
+    
     formData.append('email', document.getElementById('u-email').value);
 
     // --- INFORMACIÓN FINANCIERA ---
@@ -631,5 +788,31 @@ function togglePasswordVisibility(inputId, iconId) {
 if (esEdicion && imageInput) {
     imageInput.setAttribute('disabled', true);
 }
+// ==========================================
+// 6. ADAPTAR TELÉFONOS EN MODO EDICIÓN
+// ==========================================
+document.addEventListener("DOMContentLoaded", function() {
+    if (esEdicion) {
+        // Separar Teléfono Móvil
+        let movilInput = document.getElementById('u-movil');
+        let movilSelect = document.getElementById('u-movil-codigo');
+        if (movilInput && movilInput.value) {
+            let val = movilInput.value;
+            // Busca si el valor coincide con alguna de nuestras banderas (+58, +1, etc)
+            Array.from(movilSelect.options).forEach(opt => {
+                if (val.startsWith(opt.value)) {
+                    movilSelect.value = opt.value; // Selecciona la bandera
+                    movilInput.value = val.substring(opt.value.length); // Deja solo el número
+                }
+            });
+        }
+
+        // Separar Teléfono Oficina
+        let ofcInput = document.getElementById('u-oficina');
+        if (ofcInput && ofcInput.value && ofcInput.value.startsWith('0212')) {
+            ofcInput.value = ofcInput.value.substring(4); // Le quita el 0212 al input
+        }
+    }
+});
 </script>
 {% endblock %}

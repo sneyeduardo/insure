@@ -392,6 +392,7 @@ class Usuarios(models.Model):
     fecha_creacion = models.DateTimeField(blank=True, null=True)
     estatus = models.CharField(max_length=20, default='ACTIVO')
     imagen_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True)
+    banco = models.CharField(max_length=100, null=True, blank=True)
     
     class Meta:
         managed = False

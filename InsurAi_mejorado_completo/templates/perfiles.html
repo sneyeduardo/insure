@@ -302,7 +302,8 @@ function renderizarTabla() {
 
     personasPaginadas.forEach(persona => {
         // --- NUEVO: Formateamos el ID (Ej: 1 -> PRF-001) ---
-        const idFormateado = "PRF-" + String(persona.id).padStart(3, '0');
+        // Ahora solo mostramos el número original
+        const idFormateado = persona.id;
 
         let estadoFinal = persona.estado;
         if (estadoFinal === true) estadoFinal = 'ACTIVO';
@@ -771,8 +772,7 @@ function exportarAExcel(event) {
 
     personasFiltradas.forEach(p => {
         // --- NUEVO: Formateamos el ID para el Excel también ---
-        let idFormateado = p.id ? "PRF-" + String(p.id).padStart(3, '0') : "PRF-000";
-        let id = `"${idFormateado}"`;
+        let id = `"${p.id || '0'}"`;
         
         let nombre = `"${p.nombre || 'Sin nombre'}"`;
         let descripcion = `"${p.apellido || 'Sin descripción'}"`; 

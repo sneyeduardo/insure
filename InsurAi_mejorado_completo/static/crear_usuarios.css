@@ -72,7 +72,7 @@ body {
 /* Logo Circular - z-index alto */
 .logo-box {
     position: absolute;
-    top: -55px; /* o -60px dependiendo del archivo */
+    top: -60px; /* o -60px dependiendo del archivo */
     left: 30px;
     width: 110px; /* o 100px */
     height: 110px;
