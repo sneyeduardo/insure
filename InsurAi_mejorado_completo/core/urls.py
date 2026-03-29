@@ -1,5 +1,11 @@
 from django.urls import path
 from . import views
+from django.contrib import admin
+from django.urls import path, include
+
+# 1. Asegúrate de tener estas dos importaciones
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # ==========================================
@@ -42,4 +48,4 @@ urlpatterns = [
     
     # Otras APIs
     path('api/enviar-correo/', views.enviar_correo_compartir, name='enviar_correo_compartir'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

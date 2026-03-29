@@ -145,10 +145,14 @@
                     <a href="#" class="avatar-dropdown-item">Editar Perfil</a>
                 </div>
                 
-                <div id="avatarMenuBtn" class="sidebar-user-avatar-circle">
-                    {{ request.session.nombre_completo|make_list|first|upper|default:"?" }}
-                </div>
-            </div>
+                <div id="avatarMenuBtn" class="sidebar-user-avatar-circle" style="overflow: hidden;">
+        {% if request.session.imagen_perfil %}
+            <img src="{{ request.session.imagen_perfil }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+        {% else %}
+            {{ request.session.nombre_completo|make_list|first|upper|default:"?" }}
+        {% endif %}
+    </div>
+</div>
             
             <div class="avatar-card">
                 <div class="username">{{ request.session.nombre_completo|upper|default:"ADMINISTRADOR" }}</div>

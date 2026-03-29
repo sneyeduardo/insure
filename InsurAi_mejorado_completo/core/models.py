@@ -111,7 +111,26 @@ class Clientes(models.Model):
     sexo = models.CharField(max_length=1, blank=True, null=True)
     fecha_registro = models.DateTimeField(blank=True, null=True)
     activo = models.IntegerField(blank=True, null=True)
+    # --- Datos Faltantes de Identificación ---
+    nacionalidad = models.CharField(max_length=50, blank=True, null=True) 
+    # Opcional: Si quieres enlazarlo a tu catálogo -> id_pais_residencia = models.ForeignKey(CatPaises, models.DO_NOTHING, db_column='id_pais_residencia', blank=True, null=True)
+    id_pais_residencia = models.ForeignKey(CatPaises, models.DO_NOTHING, db_column='id_pais_residencia', blank=True, null=True)
+    actividad_economica = models.CharField(max_length=100, blank=True, null=True)
+    
+    tipo_persona = models.CharField(max_length=20, blank=True, null=True) # Para: Tomador/Titular/Beneficiario
 
+    # --- Datos Faltantes Financieros ---
+    cuenta_bancaria = models.CharField(max_length=50, blank=True, null=True)
+    ingreso_promedio = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    @property
+    def edad(self):
+        from datetime import date
+        if not self.fecha_nacimiento:
+            return None
+        hoy = date.today()
+        # Esto devuelve True (1) si aún no ha cumplido años este año, o False (0) si ya los cumplió
+        cumpleanos_paso = ((hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
+        return hoy.year - self.fecha_nacimiento.year - cumpleanos_paso 
     class Meta:
         managed = False
         db_table = 'clientes'
@@ -354,12 +373,25 @@ class Usuarios(models.Model):
     password_hash = models.CharField(max_length=255)
     email = models.CharField(unique=True, max_length=100)
     nombre_completo = models.CharField(max_length=100)
+    tipo_cliente = models.CharField(max_length=20, blank=True, null=True)
+    fecha_nacimiento_constitucion = models.DateField(blank=True, null=True)
+    sexo = models.CharField(max_length=20, blank=True, null=True)
+    nacionalidad_pais = models.CharField(max_length=100, blank=True, null=True)
+    actividad_economica = models.CharField(max_length=100, blank=True, null=True)
+    profesion = models.CharField(max_length=100, blank=True, null=True)
+    tipo_persona_seguros = models.CharField(max_length=50, blank=True, null=True)
+    direccion_fiscal = models.TextField(blank=True, null=True)
+    telefono_movil = models.CharField(max_length=25, blank=True, null=True)
+    telefono_oficina = models.CharField(max_length=25, blank=True, null=True)
+    cuenta_bancaria = models.CharField(max_length=50, blank=True, null=True)
+    ingreso_promedio = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     ultimo_login = models.DateTimeField(blank=True, null=True)
     intentos_fallidos = models.IntegerField(blank=True, null=True)
     bloqueado = models.IntegerField(blank=True, null=True)
     reset_token = models.CharField(max_length=100, blank=True, null=True)
     fecha_creacion = models.DateTimeField(blank=True, null=True)
     estatus = models.CharField(max_length=20, default='ACTIVO')
+    imagen_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True)
     
     class Meta:
         managed = False

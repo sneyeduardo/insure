@@ -56,8 +56,11 @@
                                     {% else %}
                                         style="font-size: 1.2rem; font-weight: 700; padding: 5px 8px; border: none; border-right: 1px solid #ced4da; background: transparent; outline: none; color: #212529; cursor: pointer;"
                                     {% endif %}>
-                                    <option value="V">V</option>
-                                    <option value="E">E</option>
+                                    <option value="V" {% if 'V' in usuario.cedula %}selected{% endif %}>V</option>
+                                    <option value="E" {% if 'E' in usuario.cedula %}selected{% endif %}>E</option>
+                                    <option value="J" {% if 'J' in usuario.cedula %}selected{% endif %}>J</option>
+                                    <option value="G" {% if 'G' in usuario.cedula %}selected{% endif %}>G</option>
+                                    <option value="P" {% if 'P' in usuario.cedula %}selected{% endif %}>P</option>
                                 </select>
 
                                 <input type="text" id="u-cedula" 
@@ -79,13 +82,9 @@
                         </div>
 
                         <div style="text-align: right;">
-                            <span style="font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase;">Fecha de Registro</span>
-                            <div style="font-size: 0.95rem; font-weight: 500; color: #495057;">
-                                {% if usuario %}
-                                    {{ usuario.fecha_creacion|date:"d/m/Y H:i" }}
-                                {% else %}
-                                    -- / -- / ----
-                                {% endif %}
+                            <span style="font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase;">Edad</span>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: #0d6efd;">
+                                {% if usuario.edad %}{{ usuario.edad }} años{% else %}--{% endif %}
                             </div>
                         </div>
                     </div>
@@ -105,16 +104,22 @@
                     </div>
 
                     <div class="row">
+                        <div class="label">Tipo de Cliente</div>
+                        <div class="value">
+                            <select id="u-tipo-cliente" {% if usuario %}disabled{% endif %}>
+                                <option value="Natural" {% if usuario.tipo_cliente == 'Natural' %}selected{% endif %}>Persona Natural</option>
+                                <option value="Jurídica" {% if usuario.tipo_cliente == 'Jurídica' %}selected{% endif %}>Persona Jurídica</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="label">Nombre(s) <span style="color:red;">*</span></div>
                         <div class="value">
                             <input type="text" id="u-nombre" 
                                    value="{{ usuario.nombre|default:'' }}" 
                                    placeholder="Ej: Jose Antonio"
-                                   {% if usuario %}
-                                   readonly 
-                                   style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;" 
-                                   title="No se puede editar después de creado"
-                                   {% endif %}>
+                                   {% if usuario %} readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;" title="No se puede editar después de creado" {% endif %}>
                         </div>
                     </div>
 
@@ -124,11 +129,78 @@
                             <input type="text" id="u-apellido" 
                                    value="{{ usuario.apellido|default:'' }}" 
                                    placeholder="Ej: Perez Garcia"
-                                   {% if usuario %}
-                                   readonly 
-                                   style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;" 
-                                   title="No se puede editar después de creado"
-                                   {% endif %}>
+                                   {% if usuario %} readonly style="background-color: #e9ecef; cursor: not-allowed; color: #6c757d;" title="No se puede editar después de creado" {% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">F. Nacimiento / Constitución</div>
+                        <div class="value">
+                            <input type="date" id="u-fecha-nacimiento" value="{{ usuario.fecha_nacimiento_constitucion|date:'Y-m-d' }}" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Sexo</div>
+                        <div class="value">
+                            <select id="u-sexo" {% if usuario %}disabled{% endif %}>
+                                <option value="Masculino" {% if usuario.sexo == 'Masculino' %}selected{% endif %}>Masculino</option>
+                                <option value="Femenino" {% if usuario.sexo == 'Femenino' %}selected{% endif %}>Femenino</option>
+                                <option value="N/A" {% if usuario.sexo == 'N/A' %}selected{% endif %}>No Aplica</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Nacionalidad / País</div>
+                        <div class="value">
+                            <input type="text" id="u-nacionalidad" value="{{ usuario.nacionalidad_pais|default:'' }}" placeholder="Ej: Venezolana" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Actividad Económica</div>
+                        <div class="value">
+                            <input type="text" id="u-actividad" value="{{ usuario.actividad_economica|default:'' }}" placeholder="Ej: Comercio" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Profesión / Oficio</div>
+                        <div class="value">
+                            <input type="text" id="u-profesion" value="{{ usuario.profesion|default:'' }}" placeholder="Ej: Ingeniero" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Tipo de Persona (Seguros)</div>
+                        <div class="value">
+                            <select id="u-tipo-persona" {% if usuario %}disabled{% endif %}>
+                                <option value="Titular" {% if usuario.tipo_persona_seguros == 'Titular' %}selected{% endif %}>Titular</option>
+                                <option value="Beneficiario" {% if usuario.tipo_persona_seguros == 'Beneficiario' %}selected{% endif %}>Beneficiario</option>
+                                <option value="Tomador" {% if usuario.tipo_persona_seguros == 'Tomador' %}selected{% endif %}>Tomador</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <div class="label">Dirección Fiscal Completa</div>
+                        <div class="value">
+                            <textarea id="u-direccion" rows="2" style="width: 100%; border: 1px solid #d0d7de; border-radius: 4px; padding: 8px; font-family: inherit;" placeholder="País, Estado, Localidad, Avenida, Edif/Casa..." {% if usuario %}readonly{% endif %}>{{ usuario.direccion_fiscal|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Teléfono Móvil</div>
+                        <div class="value">
+                            <input type="text" id="u-movil" value="{{ usuario.telefono_movil|default:'' }}" placeholder="Ej: 0414-1234567" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Teléfono Oficina</div>
+                        <div class="value">
+                            <input type="text" id="u-oficina" value="{{ usuario.telefono_oficina|default:'' }}" placeholder="Ej: 0212-1234567" {% if usuario %}readonly{% endif %}>
                         </div>
                     </div>
 
@@ -141,8 +213,22 @@
                                    {% if usuario %}readonly{% endif %}>
                         </div>
                     </div>
-                    
+
+                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <div class="label">Cuenta Bancaria</div>
+                        <div class="value">
+                            <input type="text" id="u-cuenta" value="{{ usuario.cuenta_bancaria|default:'' }}" maxlength="20" placeholder="20 dígitos" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+
                     <div class="row">
+                        <div class="label">Ingreso Promedio</div>
+                        <div class="value">
+                            <input type="number" step="0.01" id="u-ingreso" value="{{ usuario.ingreso_promedio|default:'' }}" placeholder="Ej: 500.00" {% if usuario %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <div class="row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
                         <div class="label">Contraseña</div>
                         <div class="value">
                             <div style="position: relative;">
@@ -226,13 +312,14 @@ Modo Creación: Los campos están abiertos. Llena los datos para continuar.
 
 {% block extra_js %}
 <script>
-    // ==========================================
+// ==========================================
 // 1. VARIABLES GLOBALES Y CONFIGURACIÓN
 // ==========================================
 const editIcon = document.getElementById('edit-trigger');
 const saveBtn = document.getElementById('btn-save');
 const container = document.getElementById('main-container');
-const inputs = document.querySelectorAll('input:not([type="hidden"]):not(:disabled), select');
+// Ajustamos el selector para incluir textareas
+const inputs = document.querySelectorAll('input:not([type="hidden"]):not(:disabled), select, textarea:not(.json-area)');
 const infoArea = document.getElementById('json-preview');
 const esEdicion = "{{ usuario|yesno:'true,false' }}" === "true";
 
@@ -245,9 +332,7 @@ const strengthText = document.getElementById('strength-text');
 const matchMsg = document.getElementById('pass-match-msg');
 const saveBtnDOM = document.getElementById('btn-save');
 
-// ==========================================
-// NUEVO: Variables para imagen de perfil
-// ==========================================
+// Variables para imagen de perfil
 const imageInput = document.getElementById('u-image');
 const avatarPreview = document.getElementById('avatar-preview');
 
@@ -273,9 +358,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// ==========================================
-// NUEVO: Previsualización de imagen al seleccionar
-// ==========================================
+// Previsualización de imagen al seleccionar
 if (imageInput) {
     imageInput.addEventListener('change', function() {
         if (this.files && this.files[0]) {
@@ -299,7 +382,7 @@ editIcon.addEventListener('click', () => {
         const rowConfirm = document.getElementById('row-confirmar');
         if (rowConfirm) rowConfirm.style.display = 'flex';
         
-        // PROTECCIÓN: Si estamos editando, no desbloqueamos nombre ni username
+        // PROTECCIÓN: Si estamos editando, no desbloqueamos nombre
         if (esEdicion && (el.id === 'u-cedula' || el.id === 'u-nombre' || el.id === 'u-apellido')) {
             return; 
         }
@@ -307,13 +390,13 @@ editIcon.addEventListener('click', () => {
         el.removeAttribute('readonly');
         el.removeAttribute('disabled');
     });
-    // NUEVO: Habilitar el campo de imagen si existe
+    // Habilitar el campo de imagen si existe
     if (imageInput) imageInput.removeAttribute('disabled');
     saveBtn.style.display = 'block';
-    infoArea.value = "Modo edición habilitado.\nEl nombre y username están protegidos.";
+    infoArea.value = "Modo edición habilitado.\nEl nombre y documento están protegidos.";
 });
 
-// Botón Guardar (MODIFICADO para usar FormData e incluir imagen)
+// Botón Guardar (Actualizado con todos los campos)
 saveBtn.addEventListener('click', () => {
     const pass = document.getElementById('u-password').value;
     const confirmPass = document.getElementById('u-confirm-password').value;
@@ -335,7 +418,7 @@ saveBtn.addEventListener('click', () => {
     errorMsg.style.display = 'none';
     document.getElementById('u-confirm-password').style.borderColor = '#d0d7de';
 
-    // ARMADO DE DATOS
+    // ARMADO DE DATOS BÁSICOS
     const nombreVal = document.getElementById('u-nombre').value.trim();
     const apellidoVal = document.getElementById('u-apellido').value.trim();
     const nombreCompletoFinal = nombreVal + ' ' + apellidoVal;
@@ -347,22 +430,45 @@ saveBtn.addEventListener('click', () => {
         usernameGenerado = "user" + Math.floor(Math.random() * 10000);
     }
 
-    // NUEVO: Usamos FormData en lugar de JSON para permitir subir archivos
     const formData = new FormData();
+    
+    // --- DATOS DE IDENTIFICACIÓN ---
     formData.append('cedula', document.getElementById('u-tipo-cedula').value + '-' + document.getElementById('u-cedula').value);
+    formData.append('tipo_cliente', document.getElementById('u-tipo-cliente').value);
     formData.append('nombre_completo', nombreCompletoFinal);
-    formData.append('username', usernameGenerado);
+    // IMPORTANTE: Si tu modelo guarda nombres y apellidos separados, añade estos también:
+    formData.append('nombres', nombreVal);
+    formData.append('apellidos', apellidoVal);
+    
+    formData.append('fecha_nacimiento_constitucion', document.getElementById('u-fecha-nacimiento').value);
+    formData.append('sexo', document.getElementById('u-sexo').value);
+    formData.append('nacionalidad_pais', document.getElementById('u-nacionalidad').value);
+    formData.append('actividad_economica', document.getElementById('u-actividad').value);
+    formData.append('profesion', document.getElementById('u-profesion').value);
+    formData.append('tipo_persona_seguros', document.getElementById('u-tipo-persona').value);
+
+    // --- DATOS DE CONTACTO ---
+    formData.append('direccion_fiscal', document.getElementById('u-direccion').value);
+    formData.append('telefono_movil', document.getElementById('u-movil').value);
+    formData.append('telefono_oficina', document.getElementById('u-oficina').value);
     formData.append('email', document.getElementById('u-email').value);
+
+    // --- INFORMACIÓN FINANCIERA ---
+    formData.append('cuenta_bancaria', document.getElementById('u-cuenta').value);
+    formData.append('ingreso_promedio', document.getElementById('u-ingreso').value);
+
+    // --- SISTEMA ---
+    formData.append('username', usernameGenerado);
     formData.append('estado', document.getElementById('u-estado').value);
     formData.append('id_rol', document.getElementById('u-rol').value);
     formData.append('password', pass);
 
-    // NUEVO: Adjuntar la imagen si el usuario seleccionó una
+    // Adjuntar la imagen si el usuario seleccionó una
     if (imageInput && imageInput.files.length > 0) {
         formData.append('imagen_perfil', imageInput.files[0]);
     }
     
-    // PETICIÓN FETCH con FormData (sin Content-Type, el navegador lo asigna)
+    // PETICIÓN FETCH
     fetch('/app/api/guardar-usuario/', { 
         method: 'POST',
         headers: {
@@ -378,7 +484,6 @@ saveBtn.addEventListener('click', () => {
                 el.setAttribute('readonly', true);
                 el.setAttribute('disabled', true);
             });
-            // NUEVO: Deshabilitar también el campo imagen
             if (imageInput) imageInput.setAttribute('disabled', true);
             
             saveBtn.innerHTML = '¡GUARDADO!';
@@ -502,22 +607,21 @@ function togglePasswordVisibility(inputId, iconId) {
     const input = document.getElementById(inputId);
     const icon = document.getElementById(iconId);
     
-    // Protegemos para que no funcione si el campo está bloqueado (modo lectura)
     if (input.hasAttribute('readonly') || input.hasAttribute('disabled')) return;
 
     if (input.type === "password") {
         input.type = "text";
         icon.classList.remove('bi-eye');
-        icon.classList.add('bi-eye-slash'); // Cambia a ojo tachado
+        icon.classList.add('bi-eye-slash'); 
     } else {
         input.type = "password";
         icon.classList.remove('bi-eye-slash');
-        icon.classList.add('bi-eye'); // Cambia a ojo normal
+        icon.classList.add('bi-eye'); 
     }
 }
 
 // ==========================================
-// NUEVO: Inicialización (deshabilitar campo imagen si es edición)
+// Inicialización (deshabilitar campo imagen si es edición)
 // ==========================================
 if (esEdicion && imageInput) {
     imageInput.setAttribute('disabled', true);

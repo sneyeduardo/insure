@@ -126,9 +126,15 @@ def login_view(request):
                     request.session['username'] = user_obj.username
                     request.session['nombre_completo'] = user_obj.nombre_completo
                     
+                    # Guardar la imagen en la sesión si existe
+                    if hasattr(user_obj, 'imagen_perfil') and user_obj.imagen_perfil:
+                        request.session['imagen_perfil'] = user_obj.imagen_perfil.url
+                    else:
+                        request.session['imagen_perfil'] = None
+                    
                     user_obj.ultimo_login = timezone.now()
                     user_obj.save()
-
+                
                     return redirect('dashboard') 
                 else:
                     messages.error(request, '⚠️ Tu cuenta está inactiva o bloqueada.')
@@ -249,14 +255,17 @@ def api_listar_usuarios(request):
 @require_http_methods(["POST"])
 def api_guardar_usuario(request):
     try:
-        data = json.loads(request.body)
-        cedula_f = data.get('cedula', '').strip()
-        nombre_completo = data.get('nombre_completo')
-        username_f = data.get('username').strip()
-        email = data.get('email')
-        password_plana = data.get('password')
-        estado_val = data.get('estado', 'ACTIVO').upper()
-        rol_id_seleccionado = data.get('id_rol') 
+        # 1. LEER DATOS DESDE FormData
+        cedula_f = request.POST.get('cedula', '').strip()
+        nombre_completo = request.POST.get('nombre_completo')
+        username_f = request.POST.get('username', '').strip()
+        email = request.POST.get('email')
+        password_plana = request.POST.get('password')
+        estado_val = request.POST.get('estado', 'ACTIVO').upper()
+        rol_id_seleccionado = request.POST.get('id_rol') 
+        
+        # Obtenemos la imagen
+        imagen_perfil = request.FILES.get('imagen_perfil')
 
         referer = request.META.get('HTTP_REFERER', '')
         es_edicion = 'editar' in referer
@@ -279,8 +288,24 @@ def api_guardar_usuario(request):
 
             if password_plana:
                 usuario.password_hash = make_password(password_plana)
+                
+            # 2. GUARDAR LA IMAGEN SI SE ENVIÓ UNA NUEVA
+            if imagen_perfil:
+                usuario.imagen_perfil = imagen_perfil
             
             usuario.save()
+            
+            # ==========================================
+            # FIX DEFINITIVO: Volvemos a buscar el usuario en la BD
+            # ==========================================
+            usuario = Usuarios.objects.get(cedula=usuario.cedula)
+            
+            # 3. TRUCO DE UX: Actualizar la sesión si el usuario editado es el logueado
+            if request.session.get('usuario_id') == usuario.cedula:
+                request.session['nombre_completo'] = usuario.nombre_completo
+                if usuario.imagen_perfil:
+                    request.session['imagen_perfil'] = usuario.imagen_perfil.url
+
             msg = "Usuario actualizado con éxito"
             
         else:
@@ -297,7 +322,7 @@ def api_guardar_usuario(request):
             if not password_plana:
                 return JsonResponse({'status': 'error', 'mensaje': 'La contraseña es obligatoria para nuevos usuarios'})
 
-            Usuarios.objects.create(
+            nuevo_usuario = Usuarios.objects.create(
                 cedula=cedula_f,
                 nombre_completo=nombre_completo,
                 email=email,
@@ -309,6 +334,17 @@ def api_guardar_usuario(request):
                 bloqueado=0,
                 password_hash=make_password(password_plana) 
             )
+            
+            # Guardar la imagen si se subió al momento de crearlo
+            if imagen_perfil:
+                nuevo_usuario.imagen_perfil = imagen_perfil
+                nuevo_usuario.save()
+                
+                # ==========================================
+                # FIX DEFINITIVO: Volvemos a buscar en la BD
+                # ==========================================
+                nuevo_usuario = Usuarios.objects.get(cedula=nuevo_usuario.cedula) 
+
             msg = "Usuario creado con éxito"
             
         return JsonResponse({'status': 'success', 'mensaje': msg})
@@ -316,6 +352,7 @@ def api_guardar_usuario(request):
     except Roles.DoesNotExist:
         return JsonResponse({'status': 'error', 'mensaje': 'El rol seleccionado no existe.'})
     except Exception as e:
+        print(f"Error interno en api_guardar_usuario: {str(e)}")
         return JsonResponse({'status': 'error', 'mensaje': str(e)})
 
 @require_http_methods(["POST"])
