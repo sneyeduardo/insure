@@ -50,18 +50,19 @@
                                 {% endif %}>
                                 
                                 <select id="u-tipo-cedula" 
-                                    {% if usuario %} disabled {% endif %}
-                                    {% if usuario %}
-                                        style="font-size: 1.2rem; font-weight: 700; padding: 5px 8px; border: none; border-right: 1px solid #ced4da; background: transparent; outline: none; color: #6c757d; cursor: not-allowed;"
-                                    {% else %}
-                                        style="font-size: 1.2rem; font-weight: 700; padding: 5px 8px; border: none; border-right: 1px solid #ced4da; background: transparent; outline: none; color: #212529; cursor: pointer;"
-                                    {% endif %}>
-                                    <option value="V" {% if 'V' in usuario.cedula %}selected{% endif %}>V</option>
-                                    <option value="E" {% if 'E' in usuario.cedula %}selected{% endif %}>E</option>
-                                    <option value="J" {% if 'J' in usuario.cedula %}selected{% endif %}>J</option>
-                                    <option value="G" {% if 'G' in usuario.cedula %}selected{% endif %}>G</option>
-                                    <option value="P" {% if 'P' in usuario.cedula %}selected{% endif %}>P</option>
-                                </select>
+    onchange="actualizarTipoCliente()"
+    {% if usuario %} disabled {% endif %}
+    {% if usuario %}
+        style="font-size: 1.2rem; font-weight: 700; padding: 5px 8px; border: none; border-right: 1px solid #ced4da; background: transparent; outline: none; color: #6c757d; cursor: not-allowed;"
+    {% else %}
+        style="font-size: 1.2rem; font-weight: 700; padding: 5px 8px; border: none; border-right: 1px solid #ced4da; background: transparent; outline: none; color: #212529; cursor: pointer;"
+    {% endif %}>
+    <option value="V" {% if 'V' in usuario.cedula %}selected{% endif %}>V</option>
+    <option value="E" {% if 'E' in usuario.cedula %}selected{% endif %}>E</option>
+    <option value="J" {% if 'J' in usuario.cedula %}selected{% endif %}>J</option>
+    <option value="G" {% if 'G' in usuario.cedula %}selected{% endif %}>G</option>
+    <option value="P" {% if 'P' in usuario.cedula %}selected{% endif %}>P</option>
+</select>
 
                                 <input type="text" id="u-cedula" 
     maxlength="10" 
@@ -104,14 +105,15 @@
                     </div>
 
                     <div class="row">
-                        <div class="label">Tipo de Cliente<span style="color:red;">*</span></div>
-                        <div class="value">
-                            <select id="u-tipo-cliente" {% if usuario %}disabled{% endif %}>
-                                <option value="Natural" {% if usuario.tipo_cliente == 'Natural' %}selected{% endif %}>Persona Natural</option>
-                                <option value="Jurídica" {% if usuario.tipo_cliente == 'Jurídica' %}selected{% endif %}>Persona Jurídica</option>
-                            </select>
-                        </div>
-                    </div>
+    <div class="label">Tipo de Persona <span style="color:red;">*</span></div>
+    <div class="value">
+        <select id="u-tipo-cliente" disabled style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-color: #e9ecef; cursor: not-allowed; color: #495057; font-weight: 600; border: 1px solid #d0d7de; border-radius: 4px; padding: 6px 10px; width: 100%;">
+            <option value="Natural" {% if usuario.tipo_cliente == 'Natural' %}selected{% endif %}>Persona Natural</option>
+            <option value="Jurídica" {% if usuario.tipo_cliente == 'Jurídica' %}selected{% endif %}>Persona Jurídica</option>
+        </select>
+        <small style="display: block; color: #6c757d; font-size: 0.8rem; margin-top: 4px;">* Se asigna automáticamente según el documento.</small>
+    </div>
+</div>
 
                     <div class="row">
                         <div class="label">Nombre(s) <span style="color:red;">*</span></div>
@@ -134,11 +136,14 @@
                     </div>
 
                     <div class="row">
-                        <div class="label" style="white-space: nowrap; margin-right: 15px;">F. Nacimiento / Constitución</div>
-                        <div class="value">
-                            <input type="date" id="u-fecha-nacimiento" value="{{ usuario.fecha_nacimiento_constitucion|date:'Y-m-d' }}" {% if usuario %}readonly{% endif %}>
-                        </div>
-                    </div>
+    <div class="label" style="white-space: nowrap; margin-right: 15px;">Fecha de Nacimiento</div>
+    <div class="value">
+        <input type="date" id="u-fecha-nacimiento" 
+               onchange="calcularEdad()"
+               value="{{ usuario.fecha_nacimiento_constitucion|date:'Y-m-d' }}" 
+               {% if usuario %}readonly{% endif %}>
+    </div>
+</div>
 
                     <div class="row">
                         <div class="label">Sexo</div>
@@ -262,9 +267,9 @@
     <div class="value">
         <div style="display: flex; align-items: stretch; width: 100%;">
             <select id="u-movil-codigo" {% if usuario %}disabled{% endif %} 
+                onchange="togglePrefijoVenezolano()"
                 style="width: 85px; flex-shrink: 0; border: 1px solid #d0d7de; border-right: none; border-radius: 4px 0 0 4px; padding: 4px 5px; background-color: #f8f9fa; outline: none; cursor: pointer; font-size: 0.9rem; height: 35px;">
                 <option value="+58" selected>🇻🇪 +58</option>
-                
                 <option value="+54">🇦🇷 +54</option>
                 <option value="+591">🇧🇴 +591</option>
                 <option value="+55">🇧🇷 +55</option>
@@ -297,9 +302,20 @@
                 <option value="+61">🇦🇺 +61</option>
                 <option value="+86">🇨🇳 +86</option>
                 <option value="+81">🇯🇵 +81</option>
+                </select>
+
+            <select id="u-movil-prefijo" {% if usuario %}disabled{% endif %}
+                style="width: 75px; flex-shrink: 0; border: 1px solid #d0d7de; border-right: none; padding: 4px 5px; background-color: #f8f9fa; outline: none; cursor: pointer; font-size: 0.9rem; height: 35px;">
+                <option value="0412">0412</option>
+                <option value="0414">0414</option>
+                <option value="0424">0424</option>
+                <option value="0416">0416</option>
+                <option value="0426">0426</option>
+                <option value="0422">0422</option>
             </select>
+
             <input type="text" id="u-movil" value="{{ usuario.telefono_movil|default:'' }}" 
-                placeholder="4141234567" maxlength="10" 
+                placeholder="1234567" maxlength="7" 
                 oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
                 {% if usuario %}readonly{% endif %} 
                 style="flex: 1; border: 1px solid #d0d7de; border-radius: 0 4px 4px 0; padding: 6px 10px; outline: none; font-size: 1rem; height: 35px;">
@@ -308,7 +324,7 @@
 </div>
 
 <div class="row">
-    <div class="label">Teléfono Oficina</div>
+    <div class="label">Teléfono Fijo</div>
     <div class="value">
         <div style="display: flex; align-items: stretch; width: 100%;">
             <span style="background-color: #e9ecef; border: 1px solid #d0d7de; border-right: none; padding: 6px 12px; border-radius: 4px 0 0 4px; color: #495057; font-weight: 600; display: flex; align-items: center; user-select: none;">0212</span>
@@ -319,15 +335,16 @@
 
                     <div class="row">
     <div class="label" style="white-space: nowrap; margin-right: 15px;">Correo Electrónico <span style="color:red;">*</span></div>
-    <div class="value">
-        <input type="email" id="u-email" 
-               value="{{ usuario.email|default:'' }}" 
-               placeholder="Ej: usuario@gmail.com"
-               oninput="validarEmail()"
-               {% if usuario %}readonly{% endif %}>
-        <small id="email-error-msg" style="display: none; color: #dc3545; font-weight: 600; margin-top: 5px;">
-            <i class="bi bi-exclamation-octagon-fill"></i> Por favor, ingresa un correo válido (ej: usuario@gmail.com).
-        </small>
+    <div class="value" style="position: relative;"> <input type="email" id="u-email" value="{{ usuario.email|default:'' }}" 
+               placeholder="ejemplo@gmail.com" 
+               onkeyup="validarEmailFlotante()"
+               {% if usuario %}readonly{% endif %} 
+               style="width: 100%; border: 1px solid #d0d7de; border-radius: 4px; padding: 6px 10px; outline: none;">
+        
+        <div id="email-error-msg" style="display: none; position: absolute; top: 100%; left: 0; background-color: #dc3545; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; z-index: 10; margin-top: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+            <i class="bi bi-x-circle-fill me-1"></i> Formato no permitido. (Ej: usuario@gmail.com)
+            <div style="position: absolute; top: -6px; left: 20px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid #dc3545;"></div>
+        </div>
     </div>
 </div>
 
@@ -442,12 +459,14 @@ Modo Creación: Los campos están abiertos. Llena los datos para continuar.
                             <i class="bi bi-image"></i> Imagen de perfil
                         </div>
                         <input type="file" id="u-image" accept="image/*" style="margin-bottom: 10px;">
-                        <div>
-                            <img id="avatar-preview" class="image-preview" 
-                                 src="{% if usuario and usuario.imagen_perfil %}{{ usuario.imagen_perfil }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23dee2e6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E{% endif %}" 
-                                 alt="Vista previa de imagen">
-                        </div>
-                        <small class="text-muted">Formatos permitidos: JPG, PNG, GIF (máx. 2MB)</small>
+                        <div style="display: flex; justify-content: center; width: 100%;">
+    <img id="avatar-preview" class="image-preview" 
+         src="{% if usuario and usuario.imagen_perfil %}{{ usuario.imagen_perfil }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23dee2e6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E{% endif %}" 
+         alt="Vista previa de imagen">
+</div>
+                        <small style="display: block; text-align: center; color: #495057; font-size: 0.8rem; margin-top: 8px; font-weight: 500;">
+    Formatos permitidos: JPG, PNG, GIF (máx. 2MB)
+</small>
                     </div>
                 </section>
             </div>
@@ -555,6 +574,14 @@ saveBtn.addEventListener('click', () => {
     const confirmPass = document.getElementById('u-confirm-password').value;
     const errorMsg = document.getElementById('pass-match-msg');
     const textoOriginal = saveBtn.innerHTML;
+    const emailVal = document.getElementById('u-email').value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //
+    
+    if (emailVal.length > 0 && !emailRegex.test(emailVal)) {
+        alert("❌ Error: El correo electrónico tiene un formato no permitido. Por favor, corrígelo.");
+        document.getElementById('u-email').focus(); // Manda el cursor al correo para que lo arregle
+        return; // Detiene el guardado
+    }
 
     // VALIDACIÓN DE COINCIDENCIA DE CONTRASEÑAS
     if (!esEdicion || pass.length > 0) {
@@ -605,7 +632,13 @@ saveBtn.addEventListener('click', () => {
     
     // ✅ NUEVO: Unimos código de país + número móvil (Solo si escribió algo)
     let movilNum = document.getElementById('u-movil').value.trim();
-    let movilFull = movilNum ? document.getElementById('u-movil-codigo').value + movilNum : '';
+    let codPais = document.getElementById('u-movil-codigo').value;
+    let prefijoSelect = document.getElementById('u-movil-prefijo');
+    
+    // Si el select de prefijo está visible, tomamos su valor, si no, lo dejamos vacío
+    let prefijoVal = prefijoSelect.style.display !== 'none' ? prefijoSelect.value : '';
+    
+    let movilFull = movilNum ? codPais + prefijoVal + movilNum : '';
     formData.append('telefono_movil', movilFull);
 
     // ✅ NUEVO: Unimos el prefijo 0212 + número de oficina (Solo si escribió algo)
@@ -814,6 +847,134 @@ document.addEventListener("DOMContentLoaded", function() {
             ofcInput.value = ofcInput.value.substring(4); // Le quita el 0212 al input
         }
     }
+});
+// ==========================================
+// 6. ADAPTAR TELÉFONOS Y PREFIJOS
+// ==========================================
+
+// Función para mostrar/ocultar el mini menú de operadoras
+function togglePrefijoVenezolano() {
+    const codPais = document.getElementById('u-movil-codigo').value;
+    const prefijo = document.getElementById('u-movil-prefijo');
+    const inputMovil = document.getElementById('u-movil');
+
+    if (codPais === '+58') {
+        prefijo.style.display = 'block'; // Mostrar operadoras
+        inputMovil.maxLength = 7;        // Resto del número (1234567)
+        inputMovil.placeholder = "1234567";
+    } else {
+        prefijo.style.display = 'none';  // Ocultar operadoras
+        inputMovil.maxLength = 15;       // Número internacional completo
+        inputMovil.placeholder = "1234567890";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    togglePrefijoVenezolano(); // Ajustar vista inicial según el select
+
+    if (esEdicion) {
+        // Separar Teléfono Móvil
+        let movilInput = document.getElementById('u-movil');
+        let movilSelect = document.getElementById('u-movil-codigo');
+        let prefijoSelect = document.getElementById('u-movil-prefijo');
+
+        if (movilInput && movilInput.value) {
+            let val = movilInput.value;
+            
+            // 1. Separar el código de país
+            Array.from(movilSelect.options).forEach(opt => {
+                if (val.startsWith(opt.value)) {
+                    movilSelect.value = opt.value;
+                    let restoNumero = val.substring(opt.value.length); 
+                    
+                    // 2. Si es Venezuela (+58), separar también el prefijo (0414, etc)
+                    if (opt.value === '+58') {
+                        let posiblePrefijo = restoNumero.substring(0, 4);
+                        if (Array.from(prefijoSelect.options).some(p => p.value === posiblePrefijo)) {
+                            prefijoSelect.value = posiblePrefijo;
+                            restoNumero = restoNumero.substring(4); // Deja solo los 7 dígitos
+                        }
+                    }
+                    movilInput.value = restoNumero;
+                }
+            });
+            togglePrefijoVenezolano(); // Refrescar el diseño
+        }
+
+        // Separar Teléfono Oficina
+        let ofcInput = document.getElementById('u-oficina');
+        if (ofcInput && ofcInput.value && ofcInput.value.startsWith('0212')) {
+            ofcInput.value = ofcInput.value.substring(4); 
+        }
+    }
+});
+// ==========================================
+// VALIDACIÓN DE CORREO FLOTANTE
+// ==========================================
+function validarEmailFlotante() {
+    const emailInput = document.getElementById('u-email');
+    const errorMsg = document.getElementById('email-error-msg');
+    const email = emailInput.value.trim();
+
+    // Esta fórmula matemática (Regex) revisa que tenga texto + @ + texto + . + texto
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Si quieres que SEA ESTRICTAMENTE SOLO @gmail.com, cambia la línea de arriba por esta:
+    // const emailRegex = /^[^\s@]+@gmail\.com$/i;
+
+    if (email.length > 0 && !emailRegex.test(email)) {
+        // Si está mal escrito, mostramos el mensaje rojo y pintamos el borde
+        errorMsg.style.display = 'block';
+        emailInput.style.borderColor = '#dc3545';
+        emailInput.style.boxShadow = '0 0 0 0.2rem rgba(220, 53, 69, 0.25)';
+    } else {
+        // Si está bien (o está vacío), lo ocultamos
+        errorMsg.style.display = 'none';
+        emailInput.style.borderColor = '#d0d7de';
+        emailInput.style.boxShadow = 'none';
+    }
+}
+// ==========================================
+// CÁLCULO DE EDAD AUTOMÁTICO
+// ==========================================
+function calcularEdad() {
+    const fechaInput = document.getElementById('u-fecha-nacimiento').value;
+    const edadDisplay = document.getElementById('u-edad-display');
+    
+    // Si la caja de fecha está vacía, mostramos los guiones
+    if (!fechaInput) {
+        edadDisplay.textContent = '--';
+        edadDisplay.style.color = '#0d6efd';
+        return;
+    }
+
+    // Convertimos el texto a fechas matemáticas
+    const fechaNacimiento = new Date(fechaInput);
+    const hoy = new Date();
+    
+    // Restamos el año actual menos el año de nacimiento
+    let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+    const diferenciaMeses = hoy.getMonth() - fechaNacimiento.getMonth();
+    
+    // Si aún no ha llegado su mes de cumpleaños, o es el mes pero no ha llegado el día, le restamos 1 año
+    if (diferenciaMeses < 0 || (diferenciaMeses === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+        edad--;
+    }
+
+    // Si pone una fecha del futuro (Ej: 2050), mostramos error
+    if (edad < 0) {
+        edadDisplay.textContent = 'Inválida';
+        edadDisplay.style.color = '#dc3545'; // Rojo de error
+    } else {
+        // Mostramos la edad real en azul
+        edadDisplay.textContent = edad + ' años';
+        edadDisplay.style.color = '#0d6efd'; // Azul de Inzur
+    }
+}
+
+// Hacemos que se calcule automáticamente al cargar la página (útil si entras a Editar un usuario)
+document.addEventListener("DOMContentLoaded", function() {
+    calcularEdad();
 });
 </script>
 {% endblock %}

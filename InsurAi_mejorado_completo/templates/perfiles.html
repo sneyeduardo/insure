@@ -54,14 +54,28 @@
                         </div>
 
                         <div class="search-actions">
-                                <div class="dropdown search-dropdown">
-                                    <div class="btn-action plus" onclick="toggleSubmenuBusqueda(event)" style="cursor: pointer;">
-    <i class="bi bi-plus-lg action-icon icon-jefe"></i> </div>
+    <div class="dropdown search-dropdown" style="display: flex; gap: 10px;">
+        
+        <div class="btn-action refresh" onclick="limpiarFiltros()" title="Recargar datos" style="cursor: pointer;">
+            <i class="bi bi-eraser action-icon icon-jefe"></i>
+        </div>
+        
+        <div class="btn-action refresh" onclick="limpiarTodosLosFiltros()" title="Limpiar todos los filtros" style="cursor: pointer;">
+            <i class="bi bi-arrow-clockwise action-icon icon-jefe"></i>
+        </div>
+        
+        <div class="btn-action plus" onclick="toggleSubmenuBusqueda(event)" style="cursor: pointer;">
+            <i class="bi bi-plus-lg action-icon icon-jefe"></i> 
+        </div>
                                     <ul class="dropdown-menu search-dropdown-menu" id="searchOptionsMenu">
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('perfil')">Perfil</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('descripcion')">Descripción</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('fecha_creacion')">Fecha de creación</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('fecha_actualizacion')">Fecha de actualización</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('estatus')">Estatus</a></li>
 </ul>
 
@@ -104,11 +118,10 @@
             
             <div id="menu-tres-puntos" class="menu-desplegable-acciones">
     <a href="#" class="opcion-menu" onclick="exportarAExcel(event)"><i class="bi bi-file-earmark-excel"></i> Exportar a Excel</a>
-    <a href="#" class="opcion-menu" onclick="limpiarFiltros(event)"><i class="bi bi-eraser"></i> Limpiar Filtros</a>
     <a href="#" class="opcion-menu" onclick="abrirModalCompartir()"><i class="bi bi-share"></i> Compartir</a>
     <a href="#" class="opcion-menu" onclick="abrirModalCompartir()"><i class="bi bi-envelope"></i> Enviar por correo</a>
     <a href="#" class="opcion-menu" onclick="accionExportarPDF()"><i class="bi bi-file-pdf"></i> Exportar a PDF</a>
-    <a href="#" class="opcion-menu" onclick="accionImportar()"><i class="bi bi-cloud-arrow-up"></i> Importar datos</a>
+    <a href="#" class="opcion-menu" onclick="imprimirReporte()"><i class="bi bi-printer"></i> Imprimir Reporte</a>
     <a href="#" class="opcion-menu" onclick="accionConfigurarColumnas()"><i class="bi bi-layout-three-columns"></i> Configurar columnas</a>
 </div>
         </div>
@@ -123,7 +136,7 @@
                             <thead>
                                 <tr>
                                     <th style="width: 40px; text-align: center;">✔</th>
-                                    <th style="width: 50px; text-align: center;">ID</th>
+                                    <th style="width: 100px; text-align: center;">ID</th>
                                     <th>Perfil</th>
                                     <th>Descripcion</th>
                                     <th>Fecha de creacion</th>
@@ -309,7 +322,7 @@ function renderizarTabla() {
     personasPaginadas.forEach(persona => {
         // --- NUEVO: Formateamos el ID (Ej: 1 -> PRF-001) ---
         // Ahora solo mostramos el número original
-        const idFormateado = persona.id;
+        const idFormateado = "PRF-" + String(persona.id).padStart(3, '0');
 
         let estadoFinal = persona.estado;
         if (estadoFinal === true) estadoFinal = 'ACTIVO';
@@ -354,7 +367,7 @@ function renderizarTabla() {
                 <input type="checkbox" class="check-perfil" value="${persona.id}" onchange="verificarSeleccion()" 
                        style="width: 18px !important; height: 18px !important; display: inline-block !important; opacity: 1 !important; visibility: visible !important; appearance: checkbox !important; z-index: 100 !important; cursor: pointer;">
             </td>
-            <td style="text-align: center; font-weight: bold; color: #6c757d; font-family: monospace; font-size: 1.05rem;">
+            <td style="text-align: center; font-weight: bold; color: #6c757d; font-family: monospace; font-size: 1.05rem; white-space: nowrap;">
                 ${idFormateado}
             </td>
             <td>
@@ -1164,5 +1177,133 @@ document.addEventListener('click', function(e) {
         }
     });
 });
+// ==========================================
+// LIMPIAR TODOS LOS FILTROS VISUALES
+// ==========================================
+function limpiarTodosLosFiltros() {
+    const contenedorFiltros = document.querySelector('.filters-grid');
+    if (!contenedorFiltros) return;
+
+    // 1. Limpiamos las cajas de texto y selects que estén en la pantalla
+    const inputs = contenedorFiltros.querySelectorAll('input');
+    const selects = contenedorFiltros.querySelectorAll('select');
+
+    inputs.forEach(input => input.value = '');
+    selects.forEach(select => select.selectedIndex = 0);
+
+    // 2. Efecto visual de giro en el botón
+    const icono = document.querySelector('.btn-action.refresh i');
+    if (icono) {
+        icono.style.transition = "transform 0.5s ease";
+        icono.style.transform = "rotate(360deg)";
+        setTimeout(() => { icono.style.transform = "rotate(0deg)"; }, 500);
+    }
+
+    // 3. Volvemos a aplicar los filtros (como están vacíos, mostrará toda la lista)
+    aplicarFiltros();
+}
+// ==========================================
+// IMPRIMIR REPORTE DE PERFILES
+// ==========================================
+// ==========================================
+// IMPRIMIR REPORTE DE PERFILES
+// ==========================================
+function imprimirReporte() {
+    // Ocultar el menú de tres puntos si está abierto (ajustado para el dropdown de Bootstrap)
+    const dropdown = document.querySelector('.options-dropdown .dropdown-menu');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+    
+    // Validamos que haya datos
+    if (personasFiltradas.length === 0) {
+        alert("No hay perfiles para imprimir con los filtros actuales.");
+        return;
+    }
+
+    // Creamos una ventana emergente para imprimir
+    let printWindow = window.open('', '_blank');
+    let htmlContent = `
+        <html>
+        <head>
+            <title>Reporte de Perfiles de Sistema - InzurAi+</title>
+            <style>
+                /* Forzamos a que la impresora lo ponga en Horizontal */
+                @page { size: landscape; margin: 10mm; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; padding: 0; color: #333; }
+                .header-container { text-align: center; margin-bottom: 25px; }
+                h1 { color: #52247d; font-size: 22px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+                p.subtitle { color: #6c757d; margin-top: 0; font-size: 12px; }
+                
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th, td { border: 1px solid #dee2e6; padding: 12px 10px; text-align: left; vertical-align: middle; }
+                th { background-color: #f8f9fa; color: #52247d; font-weight: bold; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #52247d; }
+                
+                .dato-principal { font-weight: bold; font-size: 13px; color: #000; display: block; margin-bottom: 3px; }
+                .dato-secundario { color: #6c757d; font-size: 11px; display: block; line-height: 1.4; }
+                
+                .status-activo { color: #155724; font-weight: bold; background-color: #d4edda; text-align: center; border-radius: 4px; padding: 5px; display: inline-block; width: 80px; box-sizing: border-box;}
+                .status-inactivo { color: #721c24; font-weight: bold; background-color: #f8d7da; text-align: center; border-radius: 4px; padding: 5px; display: inline-block; width: 80px; box-sizing: border-box;}
+            </style>
+        </head>
+        <body>
+            <div class="header-container">
+                <h1>Reporte de Perfiles de Sistema</h1>
+                <p class="subtitle">Módulo de Seguridad y Accesos - Zynapxe AI Engineers<br>Generado el: ${new Date().toLocaleString('es-VE')}</p>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Código de Perfil</th>
+                        <th style="width: 65%;">Descripción del Perfil</th>
+                        <th style="width: 20%; text-align: center;">Estado Actual</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    // Llenamos la tabla con los datos de personasFiltradas (que en este caso son los perfiles)
+    personasFiltradas.forEach(p => {
+        // Aseguramos de que el estado sea un string ('ACTIVO' o 'INACTIVO')
+        let estadoStr = p.estado === true ? 'ACTIVO' : (p.estado === false ? 'INACTIVO' : String(p.estado).toUpperCase());
+        let statusClass = estadoStr === 'ACTIVO' ? 'status-activo' : 'status-inactivo';
+        
+        htmlContent += `
+            <tr>
+                <td>
+                    <span class="dato-principal">${p.id || 'N/A'}</span>
+                </td>
+                
+                <td>
+                    <span class="dato-principal">${p.nombre || p.descripcion || 'Sin descripción'}</span>
+                    <span class="dato-secundario">Nivel de acceso configurado en InzurAi+</span>
+                </td>
+                
+                <td style="text-align: center;">
+                    <div class="${statusClass}">${estadoStr}</div>
+                </td>
+            </tr>
+        `;
+    });
+
+    htmlContent += `
+                </tbody>
+            </table>
+            <p style="text-align: right; margin-top: 20px; font-size: 12px; font-weight: bold; color: #52247d;">
+                Total de perfiles impresos: ${personasFiltradas.length}
+            </p>
+        </body>
+        </html>
+    `;
+
+    // Escribimos el HTML en la nueva ventana y lanzamos la impresión
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    // Le damos un pequeño tiempo para que el navegador renderice antes de imprimir
+    setTimeout(() => {
+        printWindow.print();
+    }, 800);
+}
     </script>
     {% endblock %}

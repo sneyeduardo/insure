@@ -1281,7 +1281,7 @@ body {
     font-size: 15px;
     color: #333;
     background: transparent;
-    margin-right: 10px;
+    margin-right: 100px;
     /* Espacio entre el texto y el botón */
 }
 
@@ -1376,6 +1376,7 @@ body .footer-updates {
     padding: 5px 20px !important;
     gap: 5px !important;
     min-height: auto !important;
+    overflow: hidden !important;
 }
 
 /* Permite mover los submenus de izquierda a derecha */
@@ -1720,4 +1721,32 @@ body .footer-updates {
 
 .update-card h4 {
     color: white;
+}
+.container-fluid.d-flex {
+    height: 100vh;
+    overflow: hidden;
+}
+
+        /* 3. El Sidebar se ancla a la izquierda */
+.sidebar {
+    height: 100vh;
+    flex-shrink: 0; /* Evita que el sidebar se encoja */
+    overflow-y: auto; /* Le da su propio scroll si abres muchos menús */
+    overflow-x: hidden;
+}
+
+        /* (Opcional) Hacer el scroll del sidebar más elegante */
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+
+        /* 4. El Contenido Principal es el único que escrollea */
+.main-content-wrapper {
+    height: 100vh;
+    flex-grow: 1; /* Ocupa el resto de la pantalla */
+    overflow-y: auto; /* ✅ ESTE ES EL SCROLL DE TUS CRUD Y DASHBOARD */
+    overflow-x: hidden;
+    background-color: #f4f7f6; /* Fondo general del sistema */
+    scroll-behavior: smooth;
+    display: flex; /* Añadimos esto */
+    flex-direction: column; /* Añadimos esto */
 }
