@@ -1046,3 +1046,9 @@ body .footer-updates {
      display: flex; /* Añadimos esto */
     flex-direction: column; /* Añadimos esto */
 }
+.content-dashboard-main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;      /* Le dice al contenedor que se estire para llenar la pantalla */
+    min-height: 100%;  /* Garantiza que cubra todo el alto disponible */
+}
