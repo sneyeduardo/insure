@@ -37,7 +37,7 @@ html {
     /* Degradado similar a la imagen original */
     background: #E8E0DF;
     background-attachment: fixed;
-    overflow-x: hidden;
+    overflow: hidden !important;
 }
 
 .container {
@@ -590,23 +590,7 @@ body {
 
 /* Boton de buscar, lo voy a quitar mientras tanto */
 
-.search-btn:hover {
-    background-color: #e65c00;
-    /* Un naranja un poco más oscuro al pasar el mouse */
-}
 
-.search-bar-stripe::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0px;
-    /* AQUÍ CONTROLAS LA SEPARACIÓN: más número = más lejos */
-    width: 100%;
-    height: 1px;
-    /* Grosor de la línea */
-    background-color: #ff4500;
-    /* Color rojo/naranja */
-}
 
 .search-btn {
     background-color: #ffffff;
@@ -626,21 +610,7 @@ body {
 }
 
 /* ESTILOS NUEVOS PARA EL BOTÓN "BUSCAR" */
-.search-btn {
-    background-color: #ff6b00;
-    /* Naranja consistente con tu diseño */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    /* Tamaño del botón */
-    border-radius: 20px;
-    /* Bordes redondeados */
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    white-space: nowrap;
-    /* Evita que el texto se rompa en dos líneas */
-}
+
 
 
 
@@ -1033,22 +1003,35 @@ body .footer-updates {
     height: 100vh;
     overflow: hidden;
 }
-
-        /* 3. El Sidebar se ancla a la izquierda */
-        /* 4. El Contenido Principal es el único que escrollea */
-.main-content-wrapper {
-    height: 100vh;
-    flex-grow: 1; /* Ocupa el resto de la pantalla */
-    overflow-y: auto; /* ✅ ESTE ES EL SCROLL DE TUS CRUD Y DASHBOARD */
-    overflow-x: hidden;
-    background-color: #f4f7f6; /* Fondo general del sistema */
-    scroll-behavior: smooth;
-     display: flex; /* Añadimos esto */
-    flex-direction: column; /* Añadimos esto */
+.container-fluid.d-flex {
+    height: 100vh !important;
+    overflow: hidden !important;
 }
+
+/* 3. El menú lateral se ancla al tamaño de la pantalla */
+
+
+/* 4. El lado derecho (Dashboard) también mide 100vh exactos y tiene su propio scroll */
+.main-content-wrapper {
+    height: 100vh !important;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto !important; /* SOLO las gráficas bajan, el menú se queda quieto */
+    overflow-x: hidden;
+    background-color: #E8E0DF;
+    scroll-behavior: smooth;
+}
+
+/* 5. La banda elástica que estira el contenido hacia abajo */
 .content-dashboard-main {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;      /* Le dice al contenedor que se estire para llenar la pantalla */
-    min-height: 100%;  /* Garantiza que cubra todo el alto disponible */
+    flex-grow: 1; /* Se estira mágicamente para llenar el espacio vacío */
+}
+
+/* 6. El Footer anclado al fondo */
+.content-dashboard-main footer {
+    margin-top: auto; /* Empuja el footer al fondo sin dañar el resto de la página */
+    z-index: 999;
 }
