@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'crear_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="content">
+    <div class="container" id="main-container">
+        <div class="top-bar-content" style="display: flex; align-items: center;">
+            <a href="{% url 'perfiles' %}" style="margin-right: 10px; font-size: 1.8rem; color: #333; text-decoration: none;" title="Volver">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            <h1 class="main-title">
+                {% if perfil %}Editar Perfil{% else %}Crear Perfil{% endif %}
+            </h1>
+        </div>
+        
+        <div class="logo-box">
+            <i class="bi bi-person-vcard-fill" style="font-size: 4rem; color: #0d6efd; margin-top: 5px;""></i>
+        </div>
+
+        <header class="header">
+            <div class="header-actions" id="edit-trigger" {% if not perfil %}style="display: none;"{% endif %}>
+                <span class="edit-icon" title="Habilitar edición"> ✎ </span>  
+            </div>
+        </header>
+
+        <nav class="tabs-nav">
+            <div class="tab">Propiedades</div>
+        </nav>
+
+        <div class="content-grid">
+            <div class="col">
+                <section>
+                    <h2>Información del Perfil</h2>
+                    
+                    <input type="hidden" id="u-id" value="{{ perfil.id_rol|default:'' }}">
+
+                    <div class="info-card" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase;">ID Sistema (PK)</span>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: #212529; font-family: monospace;">
+                                {% if perfil %}
+                                    PRF-{{ perfil.id_rol|stringformat:"03d" }}
+                                {% else %}
+                                    <span style="color: #adb5bd; font-style: italic;">Auto-generado al guardar</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.8rem; color: #6c757d; font-weight: 600; text-transform: uppercase;">Fecha de Registro</span>
+                            <div style="font-size: 0.95rem; font-weight: 500; color: #495057;">
+                                {% if perfil %}
+                                    {{ perfil.fecha_creacion|date:"d/m/Y H:i" }}
+                                {% else %}
+                                    -- / -- / ----
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Nombre del Perfil</div>
+                        <div class="value">
+                            <input type="text" id="p-nombre" 
+                                   value="{{ perfil.nombre_rol|default:'' }}" 
+                                   placeholder="Ej: Administrador"
+                                   {% if perfil %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Descripción</div>
+                        <div class="value">
+                            <input type="text" id="p-descripcion" 
+                                   value="{{ perfil.descripcion|default:'' }}" 
+                                   placeholder="Ej: Acceso total al sistema"
+                                   {% if perfil %}readonly{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="label">Estatus</div>
+                        <div class="value">
+                            <select id="u-estado" {% if perfil %}disabled{% endif %}>
+                                <option value="activo" {% if perfil.estatus == True or not perfil %}selected{% endif %}>Activo</option>
+                                <option value="inactivo" {% if perfil.estatus == False %}selected{% endif %}>Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col">
+                <section>
+                    <h2>Parámetros JSON de Salida</h2>
+                    <textarea class="json-area" id="json-preview" readonly>
+{% if perfil %}
+Modo Edición: Presiona el lápiz (✎) para desbloquear los campos.
+{% else %}
+Modo Creación: Los campos están abiertos. Llena los datos para continuar.
+{% endif %}
+                    </textarea>
+                </section>
+            </div>
+        </div> 
+    <div style="display: flex; justify-content: center; width: 100%; margin-top: 20px; margin-bottom: 20px;">
+    <button class="btn-guardar-flotante" id="btn-save" 
+        {% if not usuario %}style="display: block; position: static; transform: none;"{% else %}style="display: none; position: static; transform: none;"{% endif %}>
+        Guardar cambios
+    </button>
+</div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const editIcon = document.getElementById('edit-trigger');
+const saveBtn = document.getElementById('btn-save');
+const container = document.getElementById('main-container');
+// Seleccionamos inputs que no sean readonly o disabled para el modo edición
+const inputs = document.querySelectorAll('#main-container input:not([type="hidden"]), #main-container select');
+const infoArea = document.getElementById('json-preview');
+
+const esEdicion = document.getElementById('u-id').value !== "";
+
+// AL CARGAR: Si es creación, habilitamos todo visualmente
+if (!esEdicion && container) {
+    container.classList.add('editing');
+}
+
+if(editIcon) {
+    editIcon.addEventListener('click', () => {
+        container.classList.add('editing');
+        inputs.forEach(el => {
+            if (esEdicion && el.id === 'p-nombre') return; 
+            el.removeAttribute('readonly');
+            el.removeAttribute('disabled');
+        });
+        saveBtn.style.display = 'block';
+        infoArea.value = "Modo edición habilitado.";
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+saveBtn.addEventListener('click', (e) => {
+    e.preventDefault(); 
+    
+    try {
+        const idVal = document.getElementById('u-id').value;
+        const nombreVal = document.getElementById('p-nombre').value; 
+        const descVal = document.getElementById('p-descripcion').value; 
+        const estadoVal = document.getElementById('u-estado').value;
+
+        // IMPORTANTE: Sincronizamos con las llaves que espera tu views.py
+        const datosPerfil = {
+            id: idVal,
+            nombre: nombreVal, // Tu views.py hace data.get('nombre')
+            descripcion: descVal, 
+            estado: estadoVal   // Tu views.py hace data.get('estado')
+        };
+
+        const textoOriginal = saveBtn.innerHTML;
+        saveBtn.innerHTML = 'GUARDANDO...';
+
+        fetch("/app/api/guardar-perfil/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(datosPerfil)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                saveBtn.innerHTML = '¡GUARDADO!';
+                saveBtn.style.backgroundColor = '#28a745';
+                setTimeout(() => { window.location.href = "{% url 'perfiles' %}"; }, 1000);
+            } else {
+                alert("Error: " + data.mensaje);
+                saveBtn.innerHTML = textoOriginal;
+            }
+        })
+        .catch(error => {
+            alert("Error de conexión.");
+            saveBtn.innerHTML = textoOriginal;
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+});
+</script>
+{% endblock %}
