@@ -145,10 +145,10 @@
 </div>
             
             <div class="avatar-card">
-                <div class="username">{{ request.session.nombre_completo|upper|default:"ADMINISTRADOR" }}</div>
-                <span class="user-date" id="fecha-actual"></span>
-                <div class="user-role">@{{ request.session.username|default:"admin" }}</div>
-            </div>
+            <div class="username">{{ request.session.nombre_completo|title|default:"Administrador" }}</div>
+            <span class="user-date" id="fecha-actual"></span>
+            <div class="user-role">@{{ request.session.username|default:"admin" }}</div>
+        </div>
         </div>
     </aside>
     <main class="main-content-wrapper">

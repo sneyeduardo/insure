@@ -263,7 +263,12 @@ def api_listar_usuarios(request):
             'email': u.email,
             'ultimo_login': u.ultimo_login.strftime('%d/%m/%Y %H:%M') if u.ultimo_login else 'Sin ingreso',
             'estado': u.estatus if hasattr(u, 'estatus') else 'ACTIVO',
-            # --- CAMPOS PARA FILTROS Y REPORTES ---
+            
+            # --- CAMPO CORREGIDO PARA EL FILTRO ---
+            # Enviamos la fecha en formato DD/MM/YYYY para que el JS la procese
+            'fecha_creacion': u.fecha_creacion.strftime('%d/%m/%Y %H:%M') if u.fecha_creacion else '',
+            
+            # --- RESTO DE CAMPOS ---
             'tipo_cliente': getattr(u, 'tipo_cliente', 'N/A'),
             'sexo': getattr(u, 'sexo', 'N/A'),
             'nacionalidad': getattr(u, 'nacionalidad_pais', 'N/A'),

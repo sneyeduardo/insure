@@ -53,698 +53,6 @@ html {
     margin-left: 0;
 }
 
-/* Sidebar */
-.sidebar {
-    /* Mantén el width, background, padding, y flex-direction que ya tienes... */
-    width: 250px;
-    /* (O 300px según el archivo) */
-    background: linear-gradient(to bottom, var(--sidebar-bg), var(--sidebar-bg-light));
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    flex-direction: column;
-    overflow: visible !important;
-
-    /* REGLAS PARA QUE OCUPE TODO EL ESPACIO */
-    min-height: 100vh !important;
-    height: auto !important;
-    position: relative !important;
-    flex-shrink: 0 !important;
-    /* Evita que se aplaste horizontalmente */
-    z-index: 1 !important;
-}
-
-/* linea roja */
-
-.sidebar-red-line {
-    width: 100%;
-    height: 1.5px;
-    background-color: #ff0000;
-    margin: 118px 0 400px 0;
-    /* Reducido de 100px a 30px */
-    position: absolute;
-}
-
-/* Submenú Soporte: despliegue a la derecha del sidebar (estilo referencia) */
-.soporte-menu-trigger {
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.soporte-chevron {
-    width: 0;
-    height: 0;
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 10px solid rgba(255, 255, 255, 0.7);
-    margin-left: auto;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.soporte-li.submenu-open .soporte-chevron {
-    opacity: 1;
-}
-
-.acc-list li.soporte-li.submenu-open {
-    background: rgba(255, 255, 255, 0.08);
-    border-left: 0px solid var(--accent-white);
-
-}
-
-/* ── Paneles flotantes Soporte / Documentación ───────────────────────── */
-
-.soporte-menu-panel,
-.doc-menu-panel {
-    display: none;
-    position: fixed;
-    left: 10px;
-    /* mismo ancho que el sidebar */
-    width: 200px;
-    background: rgba(102, 56, 145, 0.97);
-    border-left: 2px solid rgba(255, 255, 255, 0.25);
-    border-radius: 0 6px 6px 0;
-    box-shadow: 10px 0 20px rgba(0, 0, 0, 0.45);
-    z-index: 99999;
-
-}
-
-.soporte-menu-panel.show,
-.doc-menu-panel.show {
-    display: block !important;
-}
-
-/* Encabezado de cada panel */
-.submenu-panel-header {
-    padding: 10px 18px 8px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.soporte-submenu-list {
-    list-style: none;
-    margin: 0;
-    padding: 0px 0;
-}
-
-.soporte-submenu-list li {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.soporte-submenu-list li:last-child {
-    border-bottom: none;
-}
-
-.soporte-submenu-list a {
-    display: block;
-    padding: 12px 18px;
-    color: var(--accent-white);
-    font-size: 0.95rem;
-    text-decoration: none;
-    transition: background 0.2s ease;
-}
-
-.soporte-submenu-list a:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff !important;
-}
-
-/* Submenú Documentación: mismo comportamiento que Soporte, a la derecha del sidebar */
-
-.doc-menu-trigger {
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.doc-chevron {
-    width: 0;
-    height: 0;
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 6px solid rgba(104, 104, 104, 0.7);
-    margin-left: auto;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.doc-li.submenu-open .doc-chevron {
-    opacity: 1;
-}
-
-.acc-list li.doc-li.submenu-open {
-    background: rgba(73, 73, 73, 0.08);
-    border-left: 4px solid var(--accent-white);
-}
-
-.doc-submenu-list {
-    list-style: none;
-    margin: 0;
-    padding: 12px 0;
-}
-
-.doc-submenu-list li {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.doc-submenu-list li:last-child {
-    border-bottom: none;
-}
-
-.doc-submenu-list a {
-    display: block;
-    padding: 10px 18px;
-    color: var(--accent-white);
-    font-size: 0.95rem;
-    text-decoration: none;
-    transition: background 0.2s ease;
-}
-
-.doc-submenu-list a:hover {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-/* LOGO INICIAL */
-
-.logo-section {
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    /* Pega la caja negra a la izquierda */
-}
-
-.caja-negra-logo {
-    background-color: #000000;
-
-    /* Controla el tamaño exacto de tu fondo negro aquí */
-    width: 260px;
-    /* Por ejemplo, 250px cubre todo el ancho del sidebar */
-    height: 120px;
-    /* Alto de tu franja negra */
-
-    /* Esto mantiene el logo perfectamente centrado adentro, sin importar el tamaño */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-
-    /* Si necesitas mover toda la caja negra hacia arriba o abajo, usa esto: */
-    margin-top: 0px;
-    margin-left: 0px;
-}
-
-.logo-img {
-    /* Controla qué tan grande o pequeño se ve el logo adentro del fondo negro */
-    width: 250px;
-    height: auto;
-
-    background-color: transparent;
-    /* Ya no tiene fondo propio */
-    margin: 0;
-    padding: 0;
-    clip-path: none;
-    /* Adiós tijeras, ya no hacen falta */
-    box-shadow: none;
-    margin-top: -15px;
-}
-
-/* Accordion (menús laterales) */
-.accordion {
-    padding: 0 30px 30px 20px;
-    margin-top: 60px !important;
-    position: relative;
-    flex: 1;
-    /* Toma el espacio disponible */
-    overflow: visible !important;
-    /* Si los menús son muy largos, aparece scroll solo aquí */
-}
-
-.accordion::-webkit-scrollbar {
-    width: 4px;
-}
-
-.accordion::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-}
-
-/* tamano del menu separacion */
-.acc-item {
-    margin-bottom: 0px;
-
-}
-
-.acc-header {
-    /* 1. La fórmula mágica: 100% del espacio + los 50px de relleno del sidebar */
-    width: calc(100% + 50px) !important;
-    /* 2. Lo rodamos exactamente 20px a la izquierda para tocar el borde */
-    margin-left: -20px !important;
-    margin-right: 0 !important;
-    /* Eliminamos el margen derecho para que no se salga */
-    /* 3. Mantenemos el espacio interno para que el texto "Cartera" no se pegue al borde */
-    padding: 12px 30px 12px 20px !important;
-    box-sizing: border-box !important;
-    /* Asegura que el padding no engorde la caja */
-    background: rgba(82, 36, 125);
-    text-align: left;
-    color: rgb(255, 255, 255);
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: background 0.2s ease;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    align-items: center;
-    border-bottom: none !important;
-    font-weight: 500;
-    /* Antes quizás estaba en 600 o bold. 500 es un punto medio elegante. */
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
-
-}
-
-.acc-header:hover {
-    opacity: 0.9;
-}
-
-.acc-header::after {
-    content: '';
-    flex: 1;
-    height: 3px;
-    margin-left: 5px;
-    background: rgba(255, 255, 255, 0.22);
-    border-radius: 2px;
-    display: none;
-}
-
-.acc-body {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.35s ease;
-    background: transparent;
-    /* Esto hace que tome el mismo fondo del sidebar */
-}
-
-/* la flechita */
-.acc-item.open .acc-body {
-    max-height: 1000px;
-    /* Aumentado para seguridad */
-    border-left-color: rgba(255, 255, 255, 0.12);
-    overflow: visible !important;
-    /* CRÍTICO: Permite que el submenú salga del sidebar */
-}
-
-.acc-list {
-    list-style: none;
-    margin: 0;
-    padding: 2px 18px;
-}
-
-/* 1. Quitamos el borde tradicional del elemento */
-.acc-list li {
-    position: relative;
-    padding: 12px 5px 12px 10px;
-    /* Cambiamos el 25px a 5px para pegarlos más al borde derecho */
-    color: rgba(255, 255, 255, 0.7);
-    border-bottom: none;
-    display: flex;
-    justify-content: flex-end;
-    /* Esto los empuja a la derecha */
-    align-items: center;
-    gap: 15px;
-    /* Baja este valor (estaba en 30px) para que el texto y el ícono no estén tan separados */
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-/* 2. Dibujamos la nueva línea de punta a punta */
-/* Línea divisoria para TODOS los items (estén activos o no) */
-.acc-list li::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0px;
-    /* Ajusta este valor para que coincida con el inicio del texto */
-    right: -50px;
-    /* Llega hasta el borde derecho */
-    width: auto;
-    height: 1px;
-    background-color: rgba(255, 255, 255, 0.2);
-    z-index: 1;
-}
-
-/* Quitar la línea del último item (como estaba antes) */
-
-
-/* Estilos para item activo - mantener el fondo y la flecha */
-/* Item activo - fondo oscuro de lado a lado */
-.acc-list li.active {
-    background-color: #2b2b2b;
-    color: #ffffff;
-    position: relative;
-    z-index: 2;
-    /* Extender el fondo de lado a lado */
-    margin-left: -38px;
-    /* Esto extiende hacia la izquierda */
-    margin-right: -48px;
-    /* Esto extiende hacia la derecha */
-    width: auto;
-    /* El padding IZQUIERDO debe ser MAYOR para que el texto NO se mueva */
-    padding: 8px 20px 8px 48px !important;
-    /* Aumentamos padding-left a 48px */
-    /* El padding-right se mantiene igual */
-}
-
-/* Flecha del item activo - debe sobresalir */
-.acc-list li.active::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 100%;
-    width: 0;
-    height: 0;
-    border-top: 26px solid transparent;
-    border-bottom: 26px solid transparent;
-    border-left: 30px solid #2b2b2b;
-    filter: drop-shadow(4px 0 3px rgba(0, 0, 0, 0.2));
-    z-index: 3;
-    right: -35px;
-    /* La flecha sobresale */
-}
-
-/* Línea divisoria en items activos */
-.acc-list li.active::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 36px;
-    /* Ajustado para que coincida con el padding-left del texto */
-    right: 0;
-    width: auto;
-    height: 1px;
-    background-color: rgba(255, 255, 255, 0.2);
-    z-index: 4;
-}
-
-/*flecha*/
-
-.acc-list li.active {
-    background-color: #2b2b2b;
-    color: #ffffff;
-    border-left: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-
-}
-
-.acc-list li.active::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: -20px;
-    width: 0;
-    height: 0;
-    border-top: 22px solid transparent;
-    border-bottom: 24px solid transparent;
-    border-left: 20px solid #2b2b2b;
-    z-index: 10;
-}
-
-.acc-list li .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 28px;
-    border-radius: 50%;
-    border: 200px solid rgba(255, 255, 255, 0.4);
-    font-size: 0.85rem;
-    transition: all 0.3s ease;
-}
-
-.acc-list li.active .icon {
-    border-color: #ffffff;
-}
-
-.acc-list.two-cols {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 12px;
-}
-
-/* Enlaces dentro del acordeón (ej. Administración) mismo estilo que el resto */
-.acc-list .acc-link {
-    color: inherit;
-    text-decoration: none;
-    display: block;
-    flex: 0 1 auto !important;
-    /* <--- Esto fuerza a que el texto ocupe solo lo necesario y no se estire */
-    font-size: 14px;
-}
-
-.acc-list li:hover .acc-link,
-.acc-list .acc-link:hover {
-    color: inherit;
-}
-
-.acc-header .bi {
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-/* Avatar sidebar abajo  */
-
-.avatar-box {
-    position: absolute;
-    text-align: center;
-    flex-shrink: 0;
-    margin-bottom: 0 !important;
-    margin-top: 0;
-    bottom: 0 !important;
-    /* La pega al fondo del sidebar */
-    left: 0;
-    width: 100%;
-    /* Ocupa todo el ancho del sidebar */
-    background-color: #000000;
-    padding: 2px 0 0px 0 !important;
-    z-index: 100
-}
-
-.avatar-box .red-line {
-    position: absolute;
-    top: 0px;
-    left: 0;
-    width: 100%;
-    height: 1.5px;
-    background: #ff0000;
-    display: block;
-
-}
-
-.avatar-wrap {
-    margin-top: -20px;
-    position: relative;
-    z-index: 2;
-    width: 70px;
-    height: 70px;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.avatar-trigger-wrap {
-    position: relative;
-}
-
-.avatar-btn {
-    padding: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-    display: block;
-    line-height: 0;
-}
-
-.avatar-dropdown {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: calc(100% + 8px);
-    min-width: 180px;
-    background: var(--sidebar-bg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.25);
-    z-index: 1060;
-    display: none;
-    overflow: hidden;
-    bottom: calc(100% + 8px);
-    top: auto;
-    background-color: #2b2b2b !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: 0 8px 16px rgba(255, 255, 255, 0.5) !important;
-}
-
-.avatar-dropdown.show {
-    display: block;
-}
-
-.avatar-dropdown-item {
-    display: block;
-    padding: 10px 16px;
-    color: var(--accent-white);
-    font-size: 0.9rem;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    transition: background 0.2s ease;
-}
-
-.avatar-dropdown-item:last-child {
-    border-bottom: none;
-}
-
-.avatar-dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.avatar-img {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    border: 2px solid rgb(255, 255, 255);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-    background: #6b4b9a;
-    /* fallback color */
-    object-fit: cover;
-    display: block;
-    aspect-ratio: 1 / 1;
-    top: auto;
-    margin-top: -40px;
-
-}
-
-.avatar-card {
-    background: rgb(0, 0, 0);
-    color: #ffffff;
-    margin: 15px 30px 0 30px;
-    /* Le damos el margen lateral solo a la tarjeta */
-    padding: 20px 10px;
-    border-radius: 0;
-    /* Bordes rectos como en la imagen de referencia */
-    font-size: 0.85rem;
-    margin-top: -50px;
-    transform: translateX(-1px);
-}
-
-.avatar-card .username {
-    font-weight: bold;
-    margin-bottom: 2px;
-    font-size: 0.95rem;
-
-}
-
-.avatar-card .user-date {
-    font-size: 0.8rem;
-    color: #ffffff;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.avatar-card .user-role {
-    font-size: 0.8rem;
-    color: #ffffff;
-    font-weight: bold;
-}
-
-.main-nav li {
-    padding: 18px 40px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-}
-
-.main-nav li:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.main-nav li.active {
-    background: #252525;
-    border-left: none;
-}
-
-.main-nav li.active::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: -20px;
-    transform: translateY(-50%);
-    border-top: 28px solid transparent;
-    border-bottom: 28px solid transparent;
-    border-left: 20px solid #252525;
-    z-index: 10;
-}
-
-.main-nav li .icon {
-    position: relative;
-    z-index: 11;
-}
-
-/* Login Box */
-
-.login-box input {
-    display: block;
-    width: 100%;
-    margin: 5px 0;
-    padding: 8px;
-    background: rgba(89, 0, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 3px;
-}
-
-.login-btn {
-    background: var(--accent-white);
-    color: #333;
-    border: none;
-    padding: 8px;
-    margin-top: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-/* Hero Section */
-.hero {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 20px;
-}
-
-.content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
 /* Dashboards: tarjetas blancas con esquinas curvas */
 .dashboards {
     padding: 30px 40px;
@@ -988,19 +296,16 @@ body .footer-updates .update-card {
 /* bloques de arriba cuadrados, codigo repetido*/
 
 .grid-item {
-    padding: 10px 15PX;
+    padding: 12px 10px; /* Reducimos el espacio interno (arriba/abajo) */
     text-align: center;
     background: #ED704E;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /* Transición suave para el color de fondo y la sombra */
     position: relative;
-    /* Esta transición le da un pequeño efecto de "rebote" elástico muy natural */
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background 0.4s ease;
     cursor: pointer;
-    height: 100%;
 }
 
 .grid-item:hover {
@@ -1034,19 +339,10 @@ body .footer-updates .update-card {
     max-width: none !important;
 }
 
-.item-icon {
-    font-size: 2.5rem;
-    margin-bottom: 5px;
-    /* Reducido de 15px a 5px */
-}
+
 
 /* NUEVO: Forzar que las imágenes sean más pequeñas para que el bloque no se estire a lo alto */
 
-.item-icon img {
-    width: 140px !important;
-    /* El HTML tiene width="180", esto lo sobrescribe para hacerlo más compacto */
-    height: auto;
-}
 
 /* 4. Ajustar los márgenes de los textos para ahorrar espacio vertical */
 
@@ -1060,9 +356,16 @@ body .footer-updates .update-card {
 }
 
 .grid-item h3 {
-    font-size: 1rem;
+    font-size: 1.10rem;
     text-transform: capitalize;
-    margin: 1px 0;
+    margin: 2px 0; /* Casi sin margen */
+    color: white; 
+}
+.grid-item p {
+    font-size: 0.80rem;
+    margin: 10; /* ESTO ES CLAVE: quita el espacio muerto de abajo */
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.2;
 }
 
 /* EL CONTENEDOR DE LA FRANJA NARANJA */
@@ -1634,23 +937,27 @@ body .footer-updates {
     line-height: 1.
 }
 
+/* ==========================================
+   TAMAÑO DEL CÍRCULO Y EL ÍCONO
+   ========================================== */
 .custom-icon {
-    font-size: 3rem;
-    /* Tamaño del icono */
+    /* 1. Agrandamos el ícono de adentro (usamos !important para ganarle al HTML) */
+    font-size: 2.2rem !important; 
+    
     color: #495057;
-    /* Color gris oscuro como el de tus imágenes */
     background-color: #fff;
     border-radius: 50%;
-    /* Hace que sea un círculo */
-    padding: 10px;
+    padding: 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    /* Sombra suave */
-    width: 80px;
-    /* Ajusta según necesites */
-    height: 80px;
+    
+    /* 2. Agrandamos el círculo blanco (antes estaba en 50px) */
+    width: 65px;  
+    height: 65px; 
+    
+    margin: 0 auto;
 }
 
 /* Estilo para que todos los iconos del footer sean blancos */
@@ -1728,17 +1035,6 @@ body .footer-updates {
 }
 
         /* 3. El Sidebar se ancla a la izquierda */
-.sidebar {
-    height: 100vh;
-    flex-shrink: 0; /* Evita que el sidebar se encoja */
-    overflow-y: auto; /* Le da su propio scroll si abres muchos menús */
-    overflow-x: hidden;
-}
-
-        /* (Opcional) Hacer el scroll del sidebar más elegante */
-.sidebar::-webkit-scrollbar { width: 5px; }
-.sidebar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-
         /* 4. El Contenido Principal es el único que escrollea */
 .main-content-wrapper {
     height: 100vh;
@@ -1747,6 +1043,6 @@ body .footer-updates {
     overflow-x: hidden;
     background-color: #f4f7f6; /* Fondo general del sistema */
     scroll-behavior: smooth;
-    display: flex; /* Añadimos esto */
+     display: flex; /* Añadimos esto */
     flex-direction: column; /* Añadimos esto */
 }

@@ -380,7 +380,8 @@ body, html {
     left: 0;
     width: 100%;
     background-color: #000000;
-    padding: 2px 0 23px 0;
+    /* Cambiamos el padding inferior de 23px a 8px para pegar el contenido abajo */
+    padding: 2px 0 8px 0; 
     z-index: 100;
 }
 
@@ -470,33 +471,35 @@ body, html {
 }
 
 .avatar-card {
-    background: rgb(0, 0, 0);
     color: #ffffff;
-    margin: 10px 30px 0 30px;
-    padding: 10px 10px;
-    border-radius: 0;
+    margin: 0 15px;
+    padding: 0;
     font-size: 0.85rem;
-    margin-top: -40px;
+    /* Quitamos el -90px. Un margen pequeño o negativo leve lo acomoda perfecto bajo la foto */
+    margin-top: -27px; 
     transform: translateX(-1px);
 }
 
 .avatar-card .username {
     font-weight: bold;
-    margin-bottom: px;
+    margin-bottom: 2px; /* Reducimos la separación */
     font-size: 0.95rem;
+    line-height: 1.1;
 }
 
 .avatar-card .user-date {
-    font-size: 0.8rem;
-    color: #ffffff;
-    font-weight: bold;
-    margin-bottom: 10px;
+    font-size: 0.75rem;
+    color: #a0a0a0; /* Un gris clarito para la fecha se ve más elegante */
+    font-weight: normal; 
+    margin-bottom: 2px;
+    display: block;
 }
 
 .avatar-card .user-role {
     font-size: 0.8rem;
     color: #ffffff;
     font-weight: bold;
+    line-height: 1;
 }
 
 /* ===== MAIN CONTENT ===== */

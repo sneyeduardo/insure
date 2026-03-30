@@ -70,7 +70,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('cedula')">Cédula</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('tipo_cliente')">Tipo de Cliente</a></li>
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('tipo_cliente')">Tipo de Persona</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('sexo')">Sexo</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -91,6 +91,9 @@
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('email')">Email</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('estatus')">Estatus</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); addSearchFilter('fecha_creacion')">Fecha de creación</a></li>
+    
 </ul>
                                 </div>
                                 
@@ -256,7 +259,8 @@ function cargarUsuariosDesdeDB() {
                     cuenta_bancaria: u.cuenta_bancaria,
                     direccion: u.direccion,
                     ingreso: u.ingreso,
-                    fecha_nac: u.fecha_nac
+                    fecha_nac: u.fecha_nac,
+                    fecha_creacion: u.fecha_creacion || u.fecha_registro || '' // ✅ NUEVO
                 }));
                 personasFiltradas = [...personas];
                 renderizarTabla(); 
@@ -451,6 +455,15 @@ function addSearchFilter(tipo) {
             labelText = 'Último login';
             inputHtml = `<input type="text" id="val-${tipo}" placeholder="Seleccionar fecha..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" onchange="aplicarFiltros()">`;
             break;
+        case 'fecha_creacion':
+            labelText = 'Fecha de Creación';
+            inputHtml = `
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="val-${tipo}-desde" placeholder="Desde" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" onchange="aplicarFiltros()" style="width: 50%;">
+                    <input type="text" id="val-${tipo}-hasta" placeholder="Hasta" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" onchange="aplicarFiltros()" style="width: 50%;">
+                </div>
+            `;
+            break;
         default: // nacionalidad, actividad, profesion, telefono_movil, banco, cuenta_bancaria, email
             let titulos = {
                 'nacionalidad': 'Nacionalidad', 'actividad': 'Actividad Económica', 'profesion': 'Profesión',
@@ -494,15 +507,23 @@ function aplicarFiltros() {
         let valorDesde = "";
         let valorHasta = "";
 
-        if (tipo === 'ultimo_login') {
+        // Verificamos si es un filtro de rango de fechas
+        if (tipo === 'fecha_creacion') {
+            const inputDesde = document.getElementById(`val-${tipo}-desde`);
+            const inputHasta = document.getElementById(`val-${tipo}-hasta`);
+            if (inputDesde) valorDesde = inputDesde.value; 
+            if (inputHasta) valorHasta = inputHasta.value; 
+            if (!valorDesde && !valorHasta) return;
+            
+        } else if (tipo === 'ultimo_login') {
             const inputElement = document.getElementById(`val-${tipo}`);
-            if (inputElement) valorDesde = inputElement.value; // Simplificado para login
+            if (inputElement) valorDesde = inputElement.value;
             if (!valorDesde) return;
+            
         } else {
             const inputElement = document.getElementById(`val-${tipo}`);
             if (!inputElement) return;
 
-            // Dividimos por comas para búsqueda múltiple
             valoresBuscados = inputElement.value.toLowerCase().split(',').map(v => v.trim()).filter(v => v !== '');
             if (valoresBuscados.length === 0) return; 
         }
@@ -510,20 +531,59 @@ function aplicarFiltros() {
         personasFiltradas = personasFiltradas.filter(persona => {
             switch(tipo) {
                 case 'nombre':
-                    // Busca por el nombre completo
                     return valoresBuscados.some(val => persona.nombre_completo && persona.nombre_completo.toLowerCase() === val.toLowerCase());
+                
                 case 'estatus':
                     let estadoActual = persona.estado === true ? 'ACTIVO' : (persona.estado === false ? 'INACTIVO' : persona.estado);
                     return valoresBuscados.some(val => estadoActual.toLowerCase() === val);
-                case 'ultimo_login':
-                    if (!persona.ultimo_login || persona.ultimo_login === 'Sin ingreso') return false;
-                    // Extrae DD/MM/YYYY y convierte a YYYY-MM-DD para comparar
-                    let fechaRegistro = persona.ultimo_login.split(' ')[0].split('/').reverse().join('-');
-                    return fechaRegistro === valorDesde;
-                // Para todos los demás campos de texto
-                default: 
-                    const valorPersona = persona[tipo] ? String(persona[tipo]).toLowerCase() : "";
-                    return valoresBuscados.some(val => valorPersona.includes(val));
+                
+                // ✅ LÓGICA DE FILTRADO PARA FECHA DE CREACIÓN
+                // ✅ LÓGICA DE FILTRADO PARA FECHA (TRADUCTOR UNIVERSAL)
+                case 'fecha_creacion':
+                    // Cubrimos TODOS los nombres posibles que Django le pueda dar a la fecha
+                    let fechaBase = persona.fecha_creacion || persona.fecha_registro || persona.date_joined || persona.ingreso;
+                    
+                    // Si Django de verdad no mandó nada, lo dejamos pasar temporalmente (para que no desaparezcan todos)
+                    // o lo bloqueamos. En este caso si no hay fecha, no podemos filtrar, así que retorna false.
+                    if (!fechaBase || fechaBase === 'Sin ingreso' || fechaBase === '') {
+                        console.log("⚠️ Alerta: El usuario " + persona.nombre + " no recibió ninguna fecha desde la Base de Datos.");
+                        return false; 
+                    }
+                    
+                    let fechaFormatHTML = "";
+                    let soloFecha = String(fechaBase).split(' ')[0].split('T')[0];
+
+                    if (soloFecha.includes('/')) {
+                        let p = soloFecha.split('/');
+                        if (p[2].length === 4) { // Si viene como DD/MM/YYYY
+                            fechaFormatHTML = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+                        } else if (p[0].length === 4) { // Si viene como YYYY/MM/DD
+                            fechaFormatHTML = `${p[0]}-${p[1].padStart(2, '0')}-${p[2].padStart(2, '0')}`;
+                        }
+                    } else if (soloFecha.includes('-')) {
+                        let p = soloFecha.split('-');
+                        if (p[2].length === 4) { // Si viene como DD-MM-YYYY
+                            fechaFormatHTML = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+                        } else if (p[0].length === 4) { // Si viene como YYYY-MM-DD
+                            fechaFormatHTML = `${p[0]}-${p[1].padStart(2, '0')}-${p[2].padStart(2, '0')}`;
+                        }
+                    } else {
+                        // Último recurso: si Django lo manda en texto puro ("March 30, 2026")
+                        let d = new Date(fechaBase);
+                        if (!isNaN(d)) {
+                            fechaFormatHTML = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                        } else {
+                            return false;
+                        }
+                    }
+
+                    // Comparamos
+                    let cumpleDesde = true;
+                    let cumpleHasta = true;
+                    if (valorDesde) cumpleDesde = (fechaFormatHTML >= valorDesde);
+                    if (valorHasta) cumpleHasta = (fechaFormatHTML <= valorHasta);
+
+                    return cumpleDesde && cumpleHasta;
             }
         });
     });
