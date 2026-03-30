@@ -394,7 +394,7 @@
                     </div>
                     
                     <div class="row">
-                        <div class="label">Contraseña</div>
+                        <div class="label">Contraseña<span style="color:red;">*</span></div>
                         <div class="value">
                             <div style="position: relative;">
                                 <input type="password" id="u-password" 
@@ -416,7 +416,7 @@
                     </div>
 
                     <div class="row" id="row-confirmar" {% if usuario %}style="display: none;"{% endif %}>
-                        <div class="label" style="white-space: nowrap; margin-right: 15px;">Confirmar Contraseña</div>
+                        <div class="label" style="white-space: nowrap; margin-right: 15px;">Confirmar Contraseña<span style="color:red;">*</span></div>
                         <div class="value">
                             <div style="position: relative;">
                                 <input type="password" id="u-confirm-password" 
@@ -975,6 +975,28 @@ function calcularEdad() {
 // Hacemos que se calcule automáticamente al cargar la página (útil si entras a Editar un usuario)
 document.addEventListener("DOMContentLoaded", function() {
     calcularEdad();
+});
+// ==========================================
+// AUTO-COMPLETAR TIPO DE CLIENTE (NATURAL/JURÍDICA)
+// ==========================================
+function actualizarTipoCliente() {
+    const prefijo = document.getElementById('u-tipo-cedula').value;
+    const tipoCliente = document.getElementById('u-tipo-cliente');
+    
+    // V, E, P son Persona Natural. J, G son Persona Jurídica.
+    if (prefijo === 'V' || prefijo === 'E' || prefijo === 'P') {
+        tipoCliente.value = 'Natural';
+    } else if (prefijo === 'J' || prefijo === 'G') {
+        tipoCliente.value = 'Jurídica';
+    }
+}
+
+// Hacemos que se ejecute apenas cargue la página para que inicie correctamente
+document.addEventListener("DOMContentLoaded", function() {
+    // Si estamos creando un usuario nuevo, que asigne el tipo automáticamente
+    if (!esEdicion) {
+        actualizarTipoCliente(); 
+    }
 });
 </script>
 {% endblock %}
