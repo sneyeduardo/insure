@@ -57,7 +57,7 @@
                         <div class="search-actions">
                                 <div class="dropdown search-dropdown">
 
-                                    <div class="btn-action refresh" onclick="limpiarFiltros()" title="Recargar datos" style="cursor: pointer;">
+                                    <div class="btn-action" onclick="limpiarFiltros()" title="Recargar datos" style="cursor: pointer;">
             <i class="bi bi-eraser action-icon icon-jefe"></i>
         </div>
                                     <div class="btn-action refresh" onclick="limpiarTodosLosFiltros()" title="Limpiar filtros">
@@ -427,25 +427,123 @@ function addSearchFilter(tipo) {
             `;
             break;
         case 'cedula':
-            labelText = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+            labelText = 'Cédula';
             inputHtml = `
-                <div class="autocomplete-wrapper" style="position: relative; width: 100%;">
-                    <input type="text" id="val-${tipo}" placeholder="Buscar ${tipo}..." 
-                           oninput="mostrarSugerencias(this.value, '${tipo}')" autocomplete="off"
-                           style="width: 100%;">
-                    <div id="sugerencias-${tipo}" class="dropdown-menu search-dropdown-menu" 
-                         style="display: none; position: absolute; top: 100%; left: 0; width: 100%; z-index: 1050; max-height: 200px; overflow-y: auto; margin-top: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="autocomplete-wrapper" style="position: relative; width: 100%; display: flex; align-items: center; border: 1px solid #d0d7de; border-radius: 8px; background-color: #ffffff; transition: box-shadow 0.2s, border-color 0.2s;" onfocusin="this.style.borderColor='#0969da'; this.style.boxShadow='0 0 0 3px rgba(9, 105, 218, 0.3)';" onfocusout="this.style.borderColor='#d0d7de'; this.style.boxShadow='none';">
+                    <input type="text" id="val-${tipo}" placeholder="Seleccionados..." 
+                           oninput="aplicarFiltros()" autocomplete="off"
+                           style="width: calc(100% - 38px); border: none; border-radius: 8px 0 0 8px; background-color: transparent; padding: 8px 12px; outline: none; font-style: italic; color: #57606a; font-size: 0.95rem; line-height: 1.5;" readonly>
+                    <button class="btn-lupa" onclick="abrirModalCedulas(event)" 
+                        onmouseover="this.querySelector('i').style.transform='scale(1.15)'; this.querySelector('i').style.color='#0a58ca'; this.style.backgroundColor='#f6f8fa';" 
+                        onmouseout="this.querySelector('i').style.transform='scale(1)'; this.querySelector('i').style.color='#0969da'; this.style.backgroundColor='transparent';"
+                        style="width: 38px; height: 38px; border: none; border-left: 1px solid #e1e4e8; background-color: transparent; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; padding: 0;">
+                        <i class="bi bi-search" style="color: #0969da; font-size: 1.1rem; transition: all 0.2s ease;"></i>
+                    </button>
+
+                    <div id="dropdown-multi-${tipo}" class="search-dropdown-menu animacion-aparecer" 
+                         style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); width: 280px; z-index: 1050; box-shadow: 0 10px 25px rgba(0,0,0,0.15); background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; flex-direction: column;">
+                        
+                        <div style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid #f1f1f1; padding-bottom: 8px;">
+                            <span style="font-weight: 600; color: #52247d; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Seleccionar Cédulas</span>
+                        </div>
+
+                        <div style="margin-bottom: 15px; position: relative;">
+                            <i class="bi bi-filter" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #adb5bd;"></i>
+                            <input type="text" id="buscador-interno-${tipo}" placeholder="Filtrar lista..." 
+                                   oninput="filtrarListaInterna(this.value, '${tipo}')" 
+                                   style="width: 100%; padding: 8px 10px 8px 35px; border: 1px solid #dee2e6; border-radius: 20px; font-size: 0.85rem; outline: none; text-align: center; background-color: #fcfcfc;">
+                        </div>
+                        
+                        <div id="lista-checkboxes-${tipo}" style="display: flex; flex-direction: column; gap: 0; overflow-y: auto; max-height: 200px; padding: 0;">
+                        </div>
+                        
+                        <div style="margin-top: 15px; display: flex; justify-content: center; border-top: 1px solid #f1f1f1; padding-top: 12px;">
+                            <button onclick="aplicarSeleccionMultiple('${tipo}')" 
+                                    style="background-color: #0d6efd; color: white; border: none; padding: 10px; border-radius: 25px; cursor: pointer; font-size: 0.85rem; font-weight: 600; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);">
+                                Aplicar Selección
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
             break;
-        case 'tipo_cliente':
-            labelText = 'Tipo de Cliente';
-            inputHtml = `<select id="val-${tipo}" onchange="aplicarFiltros()"><option value="">Todos</option><option value="Natural">Persona Natural</option><option value="Jurídica">Persona Jurídica</option></select>`;
-            break;
+        // ✅ BLOQUE COMBINADO PARA SEXO Y TIPO DE CLIENTE (MULTI-SELECT INTELIGENTE)
+        // ✅ SÚPER BLOQUE COMBINADO PARA TODOS LOS MULTI-SELECT DINÁMICOS
         case 'sexo':
-            labelText = 'Sexo';
-            inputHtml = `<select id="val-${tipo}" onchange="aplicarFiltros()"><option value="">Todos</option><option value="Masculino">Masculino</option><option value="Femenino">Femenino</option><option value="N/A">No Aplica</option></select>`;
+        case 'tipo_cliente':
+        case 'nacionalidad':
+        case 'actividad':
+        case 'profesion':
+        case 'telefono_movil':
+        case 'banco':
+        case 'cuenta_bancaria':
+        case 'email':
+            let labelMap = {
+                'sexo': 'Sexo',
+                'tipo_cliente': 'Tipo de Cliente',
+                'nacionalidad': 'Nacionalidad',
+                'actividad': 'Actividad Económica',
+                'profesion': 'Profesión / Oficio',
+                'telefono_movil': 'Teléfono Móvil',
+                'banco': 'Banco',
+                'cuenta_bancaria': 'Cuenta Bancaria',
+                'email': 'Email'
+            };
+            
+            let tituloMap = {
+                'sexo': 'Seleccionar Sexo',
+                'tipo_cliente': 'Seleccionar Tipo',
+                'nacionalidad': 'Seleccionar Nacionalidad',
+                'actividad': 'Seleccionar Actividad',
+                'profesion': 'Seleccionar Profesión',
+                'telefono_movil': 'Seleccionar Teléfono',
+                'banco': 'Seleccionar Banco',
+                'cuenta_bancaria': 'Seleccionar Cuenta',
+                'email': 'Seleccionar Email'
+            };
+            
+            labelText = labelMap[tipo];
+            let tituloModal = tituloMap[tipo];
+            
+            inputHtml = `
+                <div class="autocomplete-wrapper" style="position: relative; width: 100%; display: flex; align-items: center; border: 1px solid #d0d7de; border-radius: 8px; background-color: #ffffff; transition: box-shadow 0.2s, border-color 0.2s;" onfocusin="this.style.borderColor='#0969da'; this.style.boxShadow='0 0 0 3px rgba(9, 105, 218, 0.3)';" onfocusout="this.style.borderColor='#d0d7de'; this.style.boxShadow='none';">
+                    <input type="text" id="val-${tipo}" placeholder="Seleccionados..." 
+                           oninput="aplicarFiltros()" autocomplete="off"
+                           style="width: calc(100% - 38px); border: none; border-radius: 8px 0 0 8px; background-color: transparent; padding: 8px 12px; outline: none; font-style: italic; color: #57606a; font-size: 0.95rem; line-height: 1.5;" readonly>
+                    
+                    <button class="btn-lupa" onclick="abrirModalOpcionesDinamicas(event, '${tipo}', '${tituloModal}')" 
+                        onmouseover="this.querySelector('i').style.transform='scale(1.15)'; this.querySelector('i').style.color='#0a58ca'; this.style.backgroundColor='#f6f8fa';" 
+                        onmouseout="this.querySelector('i').style.transform='scale(1)'; this.querySelector('i').style.color='#0969da'; this.style.backgroundColor='transparent';"
+                        style="width: 38px; height: 38px; border: none; border-left: 1px solid #e1e4e8; background-color: transparent; border-radius: 0 8px 8px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; padding: 0;">
+                        <i class="bi bi-search" style="color: #0969da; font-size: 1.1rem; transition: all 0.2s ease;"></i>
+                    </button>
+
+                    <div id="dropdown-multi-${tipo}" class="search-dropdown-menu animacion-aparecer" 
+                         style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); width: 250px; z-index: 1050; box-shadow: 0 10px 25px rgba(0,0,0,0.15); background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; flex-direction: column;">
+                        
+                        <div style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid #f1f1f1; padding-bottom: 8px;">
+                            <span id="titulo-modal-${tipo}" style="font-weight: 600; color: #52247d; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">${tituloModal}</span>
+                        </div>
+
+                        <div style="margin-bottom: 15px; position: relative; padding: 0 5px;">
+                            <i class="bi bi-filter" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #adb5bd;"></i>
+                            <input type="text" id="buscador-interno-${tipo}" placeholder="Buscar..." 
+                                   oninput="filtrarListaInterna(this.value, '${tipo}')" 
+                                   style="width: 100%; padding: 8px 10px 8px 35px; border: 1px solid #dee2e6; border-radius: 20px; font-size: 0.85rem; outline: none; text-align: center; background-color: #fcfcfc;">
+                        </div>
+                        
+                        <div id="lista-checkboxes-${tipo}" style="display: flex; flex-direction: column; gap: 0; overflow-y: auto; max-height: 200px; padding: 0;">
+                        </div>
+                        
+                        <div style="margin-top: 15px; display: flex; justify-content: center; border-top: 1px solid #f1f1f1; padding-top: 12px;">
+                            <button onclick="aplicarSeleccionMultiple('${tipo}')" 
+                                    style="background-color: #0d6efd; color: white; border: none; padding: 10px; border-radius: 25px; cursor: pointer; font-size: 0.85rem; font-weight: 600; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);">
+                                Aplicar Selección
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
             break;
         case 'estatus':
             labelText = 'Estatus';
@@ -453,7 +551,12 @@ function addSearchFilter(tipo) {
             break;
         case 'ultimo_login':
             labelText = 'Último login';
-            inputHtml = `<input type="text" id="val-${tipo}" placeholder="Seleccionar fecha..." onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" onchange="aplicarFiltros()">`;
+            inputHtml = `
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="val-${tipo}-desde" placeholder="Desde" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" onchange="aplicarFiltros()" style="width: 50%;">
+                    <input type="text" id="val-${tipo}-hasta" placeholder="Hasta" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" onchange="aplicarFiltros()" style="width: 50%;">
+                </div>
+            `;
             break;
         case 'fecha_creacion':
             labelText = 'Fecha de Creación';
@@ -508,17 +611,12 @@ function aplicarFiltros() {
         let valorHasta = "";
 
         // Verificamos si es un filtro de rango de fechas
-        if (tipo === 'fecha_creacion') {
+        if (tipo === 'fecha_creacion' || tipo === 'ultimo_login') {
             const inputDesde = document.getElementById(`val-${tipo}-desde`);
             const inputHasta = document.getElementById(`val-${tipo}-hasta`);
             if (inputDesde) valorDesde = inputDesde.value; 
             if (inputHasta) valorHasta = inputHasta.value; 
             if (!valorDesde && !valorHasta) return;
-            
-        } else if (tipo === 'ultimo_login') {
-            const inputElement = document.getElementById(`val-${tipo}`);
-            if (inputElement) valorDesde = inputElement.value;
-            if (!valorDesde) return;
             
         } else {
             const inputElement = document.getElementById(`val-${tipo}`);
@@ -527,24 +625,23 @@ function aplicarFiltros() {
             valoresBuscados = inputElement.value.toLowerCase().split(',').map(v => v.trim()).filter(v => v !== '');
             if (valoresBuscados.length === 0) return; 
         }
+            
 
         personasFiltradas = personasFiltradas.filter(persona => {
             switch(tipo) {
                 case 'nombre':
                     return valoresBuscados.some(val => persona.nombre_completo && persona.nombre_completo.toLowerCase() === val.toLowerCase());
                 
+                // ✅ NUEVO CASO PARA MULTI-SELECCIÓN DE CÉDULA
+                case 'cedula':
+                    return valoresBuscados.some(val => persona.cedula && String(persona.cedula).toLowerCase() === val.toLowerCase());
+                
                 case 'estatus':
                     let estadoActual = persona.estado === true ? 'ACTIVO' : (persona.estado === false ? 'INACTIVO' : persona.estado);
                     return valoresBuscados.some(val => estadoActual.toLowerCase() === val);
                 
-                // ✅ LÓGICA DE FILTRADO PARA FECHA DE CREACIÓN
-                // ✅ LÓGICA DE FILTRADO PARA FECHA (TRADUCTOR UNIVERSAL)
                 case 'fecha_creacion':
-                    // Cubrimos TODOS los nombres posibles que Django le pueda dar a la fecha
                     let fechaBase = persona.fecha_creacion || persona.fecha_registro || persona.date_joined || persona.ingreso;
-                    
-                    // Si Django de verdad no mandó nada, lo dejamos pasar temporalmente (para que no desaparezcan todos)
-                    // o lo bloqueamos. En este caso si no hay fecha, no podemos filtrar, así que retorna false.
                     if (!fechaBase || fechaBase === 'Sin ingreso' || fechaBase === '') {
                         console.log("⚠️ Alerta: El usuario " + persona.nombre + " no recibió ninguna fecha desde la Base de Datos.");
                         return false; 
@@ -555,20 +652,19 @@ function aplicarFiltros() {
 
                     if (soloFecha.includes('/')) {
                         let p = soloFecha.split('/');
-                        if (p[2].length === 4) { // Si viene como DD/MM/YYYY
+                        if (p[2].length === 4) { 
                             fechaFormatHTML = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-                        } else if (p[0].length === 4) { // Si viene como YYYY/MM/DD
+                        } else if (p[0].length === 4) { 
                             fechaFormatHTML = `${p[0]}-${p[1].padStart(2, '0')}-${p[2].padStart(2, '0')}`;
                         }
                     } else if (soloFecha.includes('-')) {
                         let p = soloFecha.split('-');
-                        if (p[2].length === 4) { // Si viene como DD-MM-YYYY
+                        if (p[2].length === 4) { 
                             fechaFormatHTML = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-                        } else if (p[0].length === 4) { // Si viene como YYYY-MM-DD
+                        } else if (p[0].length === 4) { 
                             fechaFormatHTML = `${p[0]}-${p[1].padStart(2, '0')}-${p[2].padStart(2, '0')}`;
                         }
                     } else {
-                        // Último recurso: si Django lo manda en texto puro ("March 30, 2026")
                         let d = new Date(fechaBase);
                         if (!isNaN(d)) {
                             fechaFormatHTML = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -577,13 +673,36 @@ function aplicarFiltros() {
                         }
                     }
 
-                    // Comparamos
                     let cumpleDesde = true;
                     let cumpleHasta = true;
                     if (valorDesde) cumpleDesde = (fechaFormatHTML >= valorDesde);
                     if (valorHasta) cumpleHasta = (fechaFormatHTML <= valorHasta);
+                
+                    // ✅ LÓGICA DE FILTRADO PARA RANGO DE ÚLTIMO LOGIN
+                case 'ultimo_login':
+                    if (!persona.ultimo_login || persona.ultimo_login === 'Sin ingreso') return false;
+                    
+                    // Separamos la fecha de la hora (viene como DD/MM/YYYY HH:MM)
+                    let soloFechaLogin = persona.ultimo_login.split(' ')[0];
+                    let pLogin = soloFechaLogin.split('/');
+                    
+                    // Lo convertimos al formato matemático YYYY-MM-DD
+                    let fechaLoginFormatHTML = `${pLogin[2]}-${pLogin[1].padStart(2, '0')}-${pLogin[0].padStart(2, '0')}`;
+                    
+                    let cumpleDesdeLogin = true;
+                    let cumpleHastaLogin = true;
+
+                    if (valorDesde) cumpleDesdeLogin = (fechaLoginFormatHTML >= valorDesde);
+                    if (valorHasta) cumpleHastaLogin = (fechaLoginFormatHTML <= valorHasta);
+
+                    return cumpleDesdeLogin && cumpleHastaLogin;
 
                     return cumpleDesde && cumpleHasta;
+                
+                // ✅ CASO POR DEFECTO REPARADO (Para Email, Banco, Sexo, etc.)
+                default: 
+                    const valorPersona = persona[tipo] ? String(persona[tipo]).toLowerCase() : "";
+                    return valoresBuscados.some(val => valorPersona.includes(val));
             }
         });
     });
@@ -1125,5 +1244,143 @@ document.addEventListener('click', function(e) {
         }
     });
 });
+// ==========================================
+// LÓGICA PARA MULTI-SELECT DE CÉDULA
+// ==========================================
+function abrirModalCedulas(event) {
+    event.stopPropagation();
+    const tipo = 'cedula';
+    const dropdown = document.getElementById(`dropdown-multi-${tipo}`);
+    
+    // Si ya está abierto, lo cerramos
+    if (dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    // Cerrar otros dropdowns si existen
+    document.querySelectorAll('[id^="dropdown-multi-"]').forEach(el => el.style.display = 'none');
+
+    // Extraer cédulas únicas (sin repetidos ni vacíos)
+    let cedulasUnicas = [...new Set(personas.map(p => p.cedula))].filter(Boolean);
+    cedulasUnicas.sort(); // Ordenar numéricamente
+
+    const contenedorLista = document.getElementById(`lista-checkboxes-${tipo}`);
+    contenedorLista.innerHTML = '';
+
+    const inputPrincipal = document.getElementById(`val-${tipo}`);
+    const seleccionadosPrevios = inputPrincipal.value.split(',').map(v => v.trim()).filter(Boolean);
+
+    // Generar los checkboxes
+    cedulasUnicas.forEach(cedula => {
+        const isChecked = seleccionadosPrevios.includes(cedula) ? 'checked' : '';
+        
+        const div = document.createElement('div');
+        div.className = 'checkbox-item-multi';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'flex-start'; 
+        div.style.padding = '10px 15px'; 
+        div.style.borderBottom = '1px solid #f8f9fa'; 
+        div.style.cursor = 'pointer';
+        div.style.transition = 'background 0.2s';
+        
+        div.onmouseover = () => div.style.backgroundColor = '#f1f3f5';
+        div.onmouseout = () => div.style.backgroundColor = 'transparent';
+
+        div.innerHTML = `
+            <div style="display: flex; align-items: center; width: 100%;">
+                <input type="checkbox" id="chk-${tipo}-${cedula}" value="${cedula}" class="chk-multi-${tipo}" ${isChecked} 
+                       style="width: 18px; height: 18px; cursor: pointer; margin: 0 15px 0 0; accent-color: #0d6efd; flex-shrink: 0;">
+                
+                <label for="chk-${tipo}-${cedula}" style="cursor: pointer; margin: 0; font-size: 0.9rem; color: #333; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;">
+                    ${cedula}
+                </label>
+            </div>
+        `;
+
+        div.onclick = function(e) {
+            if (e.target.tagName !== 'INPUT') {
+                const cb = this.querySelector('input');
+                cb.checked = !cb.checked;
+            }
+        };
+
+        contenedorLista.appendChild(div);
+    });
+
+    document.getElementById(`buscador-interno-${tipo}`).value = '';
+    dropdown.style.display = 'block';
+}
+// ==========================================
+// LÓGICA PARA MULTI-SELECT DINÁMICO (Sexo, Tipo de Cliente, etc)
+// ==========================================
+function abrirModalOpcionesDinamicas(event, tipo, titulo) {
+    event.stopPropagation();
+    const dropdown = document.getElementById(`dropdown-multi-${tipo}`);
+    
+    // Si ya está abierto, lo cerramos
+    if (dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    // Cerrar otros dropdowns si existen
+    document.querySelectorAll('[id^="dropdown-multi-"]').forEach(el => el.style.display = 'none');
+
+    // 1. Extraer opciones únicas automáticamente de los usuarios registrados
+    let opcionesUnicas = [...new Set(personas.map(p => p[tipo]))].filter(val => val && val !== 'N/A' && val.trim() !== '');
+    opcionesUnicas.sort(); // Ordenar alfabéticamente
+
+    const contenedorLista = document.getElementById(`lista-checkboxes-${tipo}`);
+    contenedorLista.innerHTML = '';
+
+    const inputPrincipal = document.getElementById(`val-${tipo}`);
+    const seleccionadosPrevios = inputPrincipal.value.split(',').map(v => v.trim()).filter(Boolean);
+
+    // 2. Generar los checkboxes dinámicamente
+    if (opcionesUnicas.length === 0) {
+        contenedorLista.innerHTML = '<div style="text-align:center; color:#6c757d; font-size:0.85rem; padding: 10px;">No hay datos registrados aún.</div>';
+    } else {
+        opcionesUnicas.forEach(opcion => {
+            const isChecked = seleccionadosPrevios.includes(opcion) ? 'checked' : '';
+            
+            const div = document.createElement('div');
+            div.className = 'checkbox-item-multi';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'flex-start'; 
+            div.style.padding = '10px 15px'; 
+            div.style.borderBottom = '1px solid #f8f9fa'; 
+            div.style.cursor = 'pointer';
+            div.style.transition = 'background 0.2s';
+            
+            div.onmouseover = () => div.style.backgroundColor = '#f1f3f5';
+            div.onmouseout = () => div.style.backgroundColor = 'transparent';
+
+            div.innerHTML = `
+                <div style="display: flex; align-items: center; width: 100%;">
+                    <input type="checkbox" id="chk-${tipo}-${opcion}" value="${opcion}" class="chk-multi-${tipo}" ${isChecked} 
+                           style="width: 18px; height: 18px; cursor: pointer; margin: 0 15px 0 0; accent-color: #0d6efd; flex-shrink: 0;">
+                    
+                    <label for="chk-${tipo}-${opcion}" style="cursor: pointer; margin: 0; font-size: 0.9rem; color: #333; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; font-weight: 500;">
+                        ${opcion}
+                    </label>
+                </div>
+            `;
+
+            div.onclick = function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const cb = this.querySelector('input');
+                    cb.checked = !cb.checked;
+                }
+            };
+
+            contenedorLista.appendChild(div);
+        });
+    }
+
+    dropdown.style.display = 'block';
+}
     </script>
 {% endblock %}
