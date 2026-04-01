@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PerfilUsuario
+from .models import PerfilesUsuario
 from .models import ( # pyright: ignore[reportMissingImports]
     CatPaises, CatEstados, CatCiudades, CatEstatusPoliza, CatEstatusSiniestro, # pyright: ignore[reportUnknownVariableType]
     CatMarcas, CatModelos, CatMetodosPago, CatMonedas, # pyright: ignore[reportUnknownVariableType]
@@ -88,7 +88,7 @@ class UsuariosAdmin(admin.ModelAdmin): # pyright: ignore[reportMissingTypeArgume
     # Evitar que la contraseña encriptada se muestre a simple vista
     exclude = ('password_hash', 'reset_token')
     
-@admin.register(PerfilUsuario)
+@admin.register(PerfilesUsuario)
 class PerfilUsuarioAdmin(admin.ModelAdmin):
     list_display = ('id_perfil', 'nombre_perfil', 'estatus', 'fecha_creacion')
     search_fields = ('nombre_perfil',)

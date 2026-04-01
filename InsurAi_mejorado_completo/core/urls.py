@@ -48,4 +48,5 @@ urlpatterns = [
     
     # Otras APIs
     path('api/enviar-correo/', views.enviar_correo_compartir, name='enviar_correo_compartir'),
+    path('api/obtener-catalogos/', views.api_obtener_catalogos, name='api_obtener_catalogos'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

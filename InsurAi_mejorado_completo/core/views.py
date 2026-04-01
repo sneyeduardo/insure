@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Polizas, Clientes, Siniestros
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import JsonResponse
@@ -10,7 +9,6 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password, check_password
 from functools import wraps
-from .models import Usuarios, Roles
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.core.mail import send_mail
@@ -19,9 +17,14 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import requests
 from django.conf import settings
+
+# ---> AQUÍ ESTÁ LA MAGIA: Importamos Decimal y TODOS tus modelos <---
 from decimal import Decimal, InvalidOperation
-from django.utils import timezone
-from django.contrib.auth.hashers import make_password
+from .models import (
+    Usuarios, Roles, Sexos, CatPaises, ActividadesEconomicas, 
+    Profesiones, Bancos, Cedulas, TelefonosMoviles,
+    Polizas, Clientes, Siniestros,TiposPersona
+)
 
 # ==========================================
 # DECORADOR DE SEGURIDAD
@@ -323,6 +326,34 @@ def api_guardar_usuario(request):
 
         imagen_perfil = request.FILES.get('imagen_perfil')
         
+        # =========================================================
+        # NUEVO: GUARDAR EN TABLAS DE CATÁLOGOS (Si no existen)
+        # =========================================================
+        if cedula_f:
+            Cedulas.objects.get_or_create(cedula=cedula_f)
+            
+        if movil:
+            TelefonosMoviles.objects.get_or_create(telefono_movil=movil)
+            
+        if nacionalidad:
+            CatPaises.objects.get_or_create(nombre=nacionalidad)
+            
+        if banco:
+            Bancos.objects.get_or_create(nombre=banco)
+            
+        if actividad:
+            ActividadesEconomicas.objects.get_or_create(nombre=actividad)
+            
+        if profesion:
+            Profesiones.objects.get_or_create(nombre=profesion)
+            
+        if sexo:
+            Sexos.objects.get_or_create(descripcion=sexo)
+            
+        if tipo_cliente:
+            TiposPersona.objects.get_or_create(descripcion=tipo_cliente) 
+        # =========================================================
+
         # LÓGICA DE DETECCIÓN MEJORADA
         # Si el usuario ya existe en la BD, lo tratamos como edición
         usuario = Usuarios.objects.filter(cedula=cedula_f).first()
@@ -389,7 +420,6 @@ def api_guardar_usuario(request):
         return JsonResponse({'status': 'success', 'mensaje': msg})
     except Exception as e:
         return JsonResponse({'status': 'error', 'mensaje': str(e)})
-    
 @require_http_methods(["POST"])
 def api_actualizar_estados_usuarios(request):
     try:
@@ -530,33 +560,60 @@ def enviar_correo_compartir(request):
             return JsonResponse({'status': 'error', 'mensaje': f'Error interno: {str(e)}'})
             
     return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
+@require_http_methods(["POST"])
 def api_eliminar_usuario(request):
-    if request.method == 'POST':
-        try:
-            # Leemos los IDs que vienen del fetch en JavaScript
-            data = json.loads(request.body)
-            ids = data.get('ids', [])
-            
-            if not ids:
-                return JsonResponse({'status': 'error', 'mensaje': 'No se seleccionaron usuarios.'})
-            
-            # Borramos todos los usuarios cuyas cédulas estén en la lista
-            Usuarios.objects.filter(cedula__in=ids).delete()
-            
-            return JsonResponse({'status': 'success', 'mensaje': f'{len(ids)} usuario(s) eliminado(s) correctamente.'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'mensaje': str(e)})
-    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido.'})
-def api_actualizar_estados_usuarios(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            cambios = data.get('cambios', {}) # Es un diccionario {cedula: estado}
-            
-            for cedula, nuevo_estado in cambios.items():
-                Usuarios.objects.filter(cedula=cedula).update(estatus=nuevo_estado)
-            
-            return JsonResponse({'status': 'success'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'mensaje': str(e)})
-    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido.'})
+    try:
+        data = json.loads(request.body)
+        ids = data.get('ids', []) # Estos ids son las cédulas
+        
+        if not ids:
+            return JsonResponse({'status': 'error', 'mensaje': 'No seleccionaste ningún usuario'})
+
+        # 1. Buscamos a los usuarios ANTES de borrarlos para saber cuáles eran sus teléfonos
+        usuarios_a_borrar = Usuarios.objects.filter(cedula__in=ids)
+        
+        # Guardamos en una lista los teléfonos que no estén vacíos
+        telefonos_a_borrar = [u.telefono_movil for u in usuarios_a_borrar if u.telefono_movil]
+
+        # 2. Borramos a los usuarios de la tabla principal
+        usuarios_a_borrar.delete() 
+
+        # 3. Limpiamos la tabla de Cédulas
+        Cedulas.objects.filter(cedula__in=ids).delete()
+        
+        # 4. Limpiamos la tabla de Teléfonos (si es que tenían teléfono registrado)
+        if telefonos_a_borrar:
+            TelefonosMoviles.objects.filter(telefono_movil__in=telefonos_a_borrar).delete()
+
+        return JsonResponse({
+            'status': 'success', 
+            'mensaje': f'Se eliminaron {len(ids)} usuarios y se limpiaron sus registros vinculados'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'mensaje': str(e)})
+    
+@require_http_methods(["GET"])
+def api_obtener_catalogos(request):
+    try:
+        # Extraemos las listas completas de cada tabla maestra
+        paises = list(CatPaises.objects.values_list('nombre', flat=True))
+        bancos = list(Bancos.objects.values_list('nombre', flat=True))
+        profesiones = list(Profesiones.objects.values_list('nombre', flat=True))
+        actividades = list(ActividadesEconomicas.objects.values_list('nombre', flat=True))
+        sexos = list(Sexos.objects.values_list('descripcion', flat=True))
+        tipos_persona = list(TiposPersona.objects.values_list('descripcion', flat=True))
+        
+        return JsonResponse({
+            'status': 'success',
+            'catalogos': {
+                'nacionalidad': paises,
+                'banco': bancos,
+                'profesion': profesiones,
+                'actividad': actividades,
+                'sexo': sexos,
+                'tipo_cliente': tipos_persona
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'mensaje': str(e)})

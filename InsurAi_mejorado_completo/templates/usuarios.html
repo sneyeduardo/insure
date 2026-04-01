@@ -212,9 +212,12 @@ const itemsPorPagina = 5;
 let estadosPendientes = {};
 var filtrosActivos = new Set();
 
-// Ejecutamos la búsqueda a la base de datos apenas cargue la página
+// NUEVO: Variable para guardar todos los catálogos
+let catalogosGlobales = {};
+
 document.addEventListener("DOMContentLoaded", function() {
     cargarUsuariosDesdeDB();
+    cargarCatalogosDesdeDB(); // <-- NUEVO: Llamamos a los catálogos al iniciar
 });
 
 // ==========================================
@@ -1315,6 +1318,9 @@ function abrirModalCedulas(event) {
 // ==========================================
 // LÓGICA PARA MULTI-SELECT DINÁMICO (Sexo, Tipo de Cliente, etc)
 // ==========================================
+// ==========================================
+// LÓGICA PARA MULTI-SELECT DINÁMICO (Sexo, Tipo de Cliente, etc)
+// ==========================================
 function abrirModalOpcionesDinamicas(event, tipo, titulo) {
     event.stopPropagation();
     const dropdown = document.getElementById(`dropdown-multi-${tipo}`);
@@ -1328,8 +1334,17 @@ function abrirModalOpcionesDinamicas(event, tipo, titulo) {
     // Cerrar otros dropdowns si existen
     document.querySelectorAll('[id^="dropdown-multi-"]').forEach(el => el.style.display = 'none');
 
-    // 1. Extraer opciones únicas automáticamente de los usuarios registrados
-    let opcionesUnicas = [...new Set(personas.map(p => p[tipo]))].filter(val => val && val !== 'N/A' && val.trim() !== '');
+    // 1. LÓGICA MEJORADA: Buscar primero en los catálogos de la Base de Datos
+    let opcionesUnicas = [];
+    
+    // Si el tipo (ej: 'banco', 'nacionalidad') existe en la BD, usamos toda esa lista
+    if (catalogosGlobales[tipo] && catalogosGlobales[tipo].length > 0) {
+        opcionesUnicas = catalogosGlobales[tipo];
+    } else {
+        // Fallback: Si es 'email', 'cuenta_bancaria' o 'telefono_movil', lo sacamos de los usuarios actuales
+        opcionesUnicas = [...new Set(personas.map(p => p[tipo]))].filter(val => val && val !== 'N/A' && val.trim() !== '');
+    }
+    
     opcionesUnicas.sort(); // Ordenar alfabéticamente
 
     const contenedorLista = document.getElementById(`lista-checkboxes-${tipo}`);
@@ -1381,6 +1396,16 @@ function abrirModalOpcionesDinamicas(event, tipo, titulo) {
     }
 
     dropdown.style.display = 'block';
+}
+function cargarCatalogosDesdeDB() {
+    fetch("/app/api/obtener-catalogos/")
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                catalogosGlobales = data.catalogos;
+            }
+        })
+        .catch(error => console.error("Error cargando catálogos:", error));
 }
     </script>
 {% endblock %}
