@@ -675,6 +675,15 @@ saveBtn.addEventListener('click', () => {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
+            
+            // =========================================================
+            // MAGIA: Clonar la foto a los menús instantáneamente
+            // =========================================================
+            if (imageInput && imageInput.files.length > 0) {
+                document.querySelectorAll('#avatarMenuBtn img, .user-avatar img').forEach(img => img.src = avatarPreview.src);
+            }
+            // =========================================================
+
             container.classList.remove('editing');
             inputs.forEach(el => {
                 el.setAttribute('readonly', true);

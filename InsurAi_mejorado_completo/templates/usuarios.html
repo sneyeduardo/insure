@@ -29,13 +29,14 @@
                     <div class="user-section">
     <span class="user-name" id="userDisplay">{{ request.session.nombre_completo|default:"Administrador" }}</span>
     
-    <div class="user-avatar" style="overflow: hidden;">
-        {% if request.session.imagen_perfil %}
-            <img src="{{ request.session.imagen_perfil }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
-        {% else %}
-            {{ request.session.nombre_completo|make_list|first|upper|default:"A" }}
-        {% endif %}
-    </div>
+    <div class="user-avatar" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #0d6efd; color: white; width: 40px; height: 40px; border-radius: 50%;">
+                        {% if request.session.imagen_perfil and request.session.imagen_perfil != 'None' %}
+                            <img src="{{ request.session.imagen_perfil }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <span style="display: none; font-size: 1.2rem; font-weight: bold;">{{ request.session.nombre_completo|make_list|first|upper|default:"A" }}</span>
+                        {% else %}
+                            <span style="font-size: 1.2rem; font-weight: bold;">{{ request.session.nombre_completo|make_list|first|upper|default:"A" }}</span>
+                        {% endif %}
+                    </div>
 </div>
                 </div>
 
@@ -403,7 +404,7 @@ function addSearchFilter(tipo) {
                     </button>
 
                     <div id="dropdown-multi-${tipo}" class="search-dropdown-menu animacion-aparecer" 
-                         style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); width: 280px; z-index: 1050; box-shadow: 0 10px 25px rgba(0,0,0,0.15); background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; flex-direction: column;">
+     style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); min-width: 320px; max-width: 500px; width: max-content; z-index: 1050; box-shadow: 0 10px 25px rgba(0,0,0,0.15); background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; flex-direction: column;">
                         
                         <div style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid #f1f1f1; padding-bottom: 8px;">
                             <span style="font-weight: 600; color: #52247d; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Seleccionar Usuarios</span>
@@ -1176,15 +1177,15 @@ function abrirModalNombres(event) {
         div.onmouseout = () => div.style.backgroundColor = 'transparent';
 
         div.innerHTML = `
-            <div style="display: flex; align-items: center; width: 100%;">
-                <input type="checkbox" id="chk-${tipo}-${nombre}" value="${nombre}" class="chk-multi-${tipo}" ${isChecked} 
-                       style="width: 18px; height: 18px; cursor: pointer; margin: 0 15px 0 0; accent-color: #0d6efd; flex-shrink: 0;">
-                
-                <label for="chk-${tipo}-${nombre}" style="cursor: pointer; margin: 0; font-size: 0.9rem; color: #333; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;">
-                    ${nombre}
-                </label>
-            </div>
-        `;
+                <div style="display: flex; align-items: flex-start; width: 100%;">
+                    <input type="checkbox" id="chk-${tipo}-${opcion}" value="${opcion}" class="chk-multi-${tipo}" ${isChecked} 
+                           style="width: 18px; height: 18px; cursor: pointer; margin: 2px 15px 0 0; accent-color: #0d6efd; flex-shrink: 0;">
+                    
+                    <label for="chk-${tipo}-${opcion}" style="cursor: pointer; margin: 0; font-size: 0.9rem; color: #333; width: 100%; white-space: normal; line-height: 1.4; text-align: left; font-weight: 500;">
+                        ${opcion}
+                    </label>
+                </div>
+            `;
 
         // Hacer que toda la fila sea clicable (no solo el cuadrito)
         div.onclick = function(e) {
@@ -1363,8 +1364,10 @@ function abrirModalOpcionesDinamicas(event, tipo, titulo) {
             const div = document.createElement('div');
             div.className = 'checkbox-item-multi';
             div.style.display = 'flex';
-            div.style.alignItems = 'center';
+            div.style.alignItems = 'flex-start'; // Esto es clave para que el contenido no se descentre si hay 2 líneas
             div.style.justifyContent = 'flex-start'; 
+            div.style.minHeight = '45px'; // Agrega esto para asegurar buen espacio
+            div.style.height = 'auto'; // Permite que crezca
             div.style.padding = '10px 15px'; 
             div.style.borderBottom = '1px solid #f8f9fa'; 
             div.style.cursor = 'pointer';

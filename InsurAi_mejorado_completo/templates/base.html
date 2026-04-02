@@ -41,7 +41,7 @@
                 <button class="acc-header">Cartera</button>
                 <div class="acc-body">
                     <ul class="acc-list">
-                        <li>Maestros</a><i class="bi bi-database-fill"></i></li> 
+                        <li>Maestros</a><i class="bi bi-database-fill"></i></li>    
                         <li>Cotizaciones</a><i class="bi bi-file-earmark-text"></i></li> 
                         <li>Suscripciones</a><i class="bi bi-pencil-square"></i></li> 
                         <li>Siniestros</a><i class="bi bi-exclamation-triangle-fill"></i></li> 
@@ -135,13 +135,14 @@
                     <a href="#" class="avatar-dropdown-item">Editar Perfil</a>
                 </div>
                 
-                <div id="avatarMenuBtn" class="sidebar-user-avatar-circle" style="overflow: hidden;">
-        {% if request.session.imagen_perfil %}
-            <img src="{{ request.session.imagen_perfil }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
-        {% else %}
-            {{ request.session.nombre_completo|make_list|first|upper|default:"?" }}
-        {% endif %}
-    </div>
+                <div id="avatarMenuBtn" class="sidebar-user-avatar-circle" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #0d6efd; color: white;">
+                    {% if request.session.imagen_perfil and request.session.imagen_perfil != 'None' %}
+                        <img src="{{ request.session.imagen_perfil }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display: none; font-size: 1.2rem; font-weight: bold;">{{ request.session.nombre_completo|make_list|first|upper|default:"?" }}</span>
+                    {% else %}
+                        <span style="font-size: 1.2rem; font-weight: bold;">{{ request.session.nombre_completo|make_list|first|upper|default:"?" }}</span>
+                    {% endif %}
+                </div>
 </div>
             
             <div class="avatar-card">

@@ -17,6 +17,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import requests
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 # ---> AQUÍ ESTÁ LA MAGIA: Importamos Decimal y TODOS tus modelos <---
 from decimal import Decimal, InvalidOperation
@@ -116,7 +117,8 @@ def vista_crear_editar_usuario(request, cedula=None):
                 'banco': u.banco,
                 'ingreso_promedio': u.ingreso_promedio,
                 'fecha_nacimiento_constitucion': u.fecha_nacimiento_constitucion,
-                'id_rol': u.id_rol.id_rol if u.id_rol else None 
+                'id_rol': u.id_rol.id_rol if u.id_rol else None,
+                'imagen_perfil': u.imagen_perfil
             }
         except Usuarios.DoesNotExist:
             pass 
@@ -145,7 +147,7 @@ def login_view(request):
                     
                     # Guardar la imagen en la sesión si existe
                     if hasattr(user_obj, 'imagen_perfil') and user_obj.imagen_perfil:
-                        request.session['imagen_perfil'] = user_obj.imagen_perfil.url
+                        request.session['imagen_perfil'] = user_obj.imagen_perfil
                     else:
                         request.session['imagen_perfil'] = None
                     
@@ -290,18 +292,14 @@ def api_listar_usuarios(request):
 def api_guardar_usuario(request):
     try:
         post = request.POST
-        # Sincronizamos con los nombres exactos que envía tu JavaScript
         cedula_f = post.get('cedula', '').strip()
         nombre_completo = post.get('nombre_completo')
         username_f = post.get('username', '').strip()
         email = post.get('email')
         password_plana = post.get('password')
-        
-        # CORRECCIÓN: Tu JS envía 'estatus', no 'estado'
         estado_val = post.get('estatus', 'ACTIVO').upper() 
         rol_id_seleccionado = post.get('id_rol')
         
-        # Captura de todos los campos adicionales
         banco = post.get('banco')
         tipo_cliente = post.get('tipo_cliente')
         sexo = post.get('sexo')
@@ -313,11 +311,9 @@ def api_guardar_usuario(request):
         oficina = post.get('telefono_oficina')
         cuenta = post.get('cuenta_bancaria')
         
-        # Manejo de Fecha (Vital para la edad)
         fecha_nac = post.get('fecha_nacimiento_constitucion')
         if not fecha_nac: fecha_nac = None
         
-        # Manejo de Ingreso Promedio (Decimal)
         ingreso_raw = post.get('ingreso_promedio', '').replace(',', '').strip()
         try:
             ingreso_final = Decimal(ingreso_raw) if ingreso_raw else None
@@ -325,37 +321,23 @@ def api_guardar_usuario(request):
             ingreso_final = None
 
         imagen_perfil = request.FILES.get('imagen_perfil')
+        ruta_imagen = None
         
-        # =========================================================
-        # NUEVO: GUARDAR EN TABLAS DE CATÁLOGOS (Si no existen)
-        # =========================================================
-        if cedula_f:
-            Cedulas.objects.get_or_create(cedula=cedula_f)
-            
-        if movil:
-            TelefonosMoviles.objects.get_or_create(telefono_movil=movil)
-            
-        if nacionalidad:
-            CatPaises.objects.get_or_create(nombre=nacionalidad)
-            
-        if banco:
-            Bancos.objects.get_or_create(nombre=banco)
-            
-        if actividad:
-            ActividadesEconomicas.objects.get_or_create(nombre=actividad)
-            
-        if profesion:
-            Profesiones.objects.get_or_create(nombre=profesion)
-            
-        if sexo:
-            Sexos.objects.get_or_create(descripcion=sexo)
-            
-        if tipo_cliente:
-            TiposPersona.objects.get_or_create(descripcion=tipo_cliente) 
-        # =========================================================
+        if imagen_perfil:
+            fs = FileSystemStorage()
+            filename = fs.save(f"perfiles/{imagen_perfil.name}", imagen_perfil)
+            ruta_imagen = fs.url(filename)
 
-        # LÓGICA DE DETECCIÓN MEJORADA
-        # Si el usuario ya existe en la BD, lo tratamos como edición
+        # Registro en tablas de catálogos
+        if cedula_f: Cedulas.objects.get_or_create(cedula=cedula_f)
+        if movil: TelefonosMoviles.objects.get_or_create(telefono_movil=movil)
+        if nacionalidad: CatPaises.objects.get_or_create(nombre=nacionalidad)
+        if banco: Bancos.objects.get_or_create(nombre=banco)
+        if actividad: ActividadesEconomicas.objects.get_or_create(nombre=actividad)
+        if profesion: Profesiones.objects.get_or_create(nombre=profesion)
+        if sexo: Sexos.objects.get_or_create(descripcion=sexo)
+        if tipo_cliente: TiposPersona.objects.get_or_create(descripcion=tipo_cliente) 
+
         usuario = Usuarios.objects.filter(cedula=cedula_f).first()
 
         if usuario:
@@ -380,10 +362,24 @@ def api_guardar_usuario(request):
                 usuario.id_rol = Roles.objects.get(id_rol=rol_id_seleccionado)
             if password_plana:
                 usuario.password_hash = make_password(password_plana)
-            if imagen_perfil:
-                usuario.imagen_perfil = imagen_perfil
+            if ruta_imagen:
+                usuario.imagen_perfil = ruta_imagen
             
             usuario.save()
+
+            # =========================================================
+            # ACTUALIZACIÓN DE SESIÓN INMEDIATA (MODO EDICIÓN)
+            # =========================================================
+            sesion_id = str(request.session.get('usuario_id', '')).strip()
+            cedula_id = str(usuario.cedula).strip()
+            
+            # Si te estás editando a ti mismo, forzamos el cambio
+            if (sesion_id in cedula_id or cedula_id in sesion_id) and usuario.imagen_perfil:
+                request.session['imagen_perfil'] = usuario.imagen_perfil
+                request.session.modified = True
+                request.session.save() # <--- ESTO ES LO QUE FALTABA
+            # =========================================================
+            
             msg = "Usuario actualizado con éxito"
         else:
             # --- MODO CREACIÓN ---
@@ -410,11 +406,15 @@ def api_guardar_usuario(request):
                 banco=banco,
                 ingreso_promedio=ingreso_final,
                 fecha_nacimiento_constitucion=fecha_nac,
-                password_hash=make_password(password_plana) 
-            )
-            if imagen_perfil:
-                nuevo_usuario.imagen_perfil = imagen_perfil
-                nuevo_usuario.save()
+                password_hash=make_password(password_plana),
+                imagen_perfil=ruta_imagen)
+            
+            # También para creación, por si acaso
+            if str(request.session.get('usuario_id')) == str(nuevo_usuario.cedula) and nuevo_usuario.imagen_perfil:
+                request.session['imagen_perfil'] = nuevo_usuario.imagen_perfil
+                request.session.modified = True
+                request.session.save()
+                
             msg = "Usuario creado con éxito"
             
         return JsonResponse({'status': 'success', 'mensaje': msg})
